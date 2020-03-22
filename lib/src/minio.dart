@@ -1,8 +1,10 @@
 import 'package:http/http.dart';
+import 'package:minio/models.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_helpers.dart';
 import 'package:minio/src/minio_s3.dart';
 import 'package:minio/src/minio_sign.dart';
+import 'package:xml/xml.dart' as xml;
 
 class MinioRequest extends Request {
   MinioRequest(String method, Uri url) : super(method, url);
@@ -144,13 +146,23 @@ class Minio {
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
     if (region != null) return region;
-    
+
     final resp = await _client.request(
       method: 'GET',
       bucket: bucket,
       region: 'us-east-1',
       query: {'location': null},
     );
+
+    validate(resp);
     return resp.body;
+  }
+}
+
+void validate(Response response) {
+  if (response.statusCode >= 400) {
+    final body = xml.parse(response.body);
+    final error = Error.fromXml(body.rootElement);
+    throw MinioS3Error(error.message, error, response);
   }
 }

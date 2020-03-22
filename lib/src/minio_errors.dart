@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import 'package:minio/models.dart';
 import 'package:minio/src/minio_helpers.dart';
 
 class MinioError {
@@ -74,7 +75,8 @@ class MinioInvalidXMLError extends MinioError {
 }
 
 class MinioS3Error extends MinioError {
-  MinioS3Error(String message) : super(message);
+  MinioS3Error(String message, [this.error, this.response]) : super(message);
 
+  Error error;
   Response response;
 }

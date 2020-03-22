@@ -11,6 +11,12 @@ void main() async {
 
   final result = '''
 import 'package:xml/xml.dart';
+
+XmlElement getProp(XmlElement xml, String name) {
+  final result = xml.findElements(name);
+  return result.isNotEmpty ? result.first : null;
+}
+
 ${models.join('\n')}
   ''';
 
@@ -58,23 +64,23 @@ Future<String> getModel(String url) async {
     switch (field.type.name) {
       case 'String':
         buffer.writeln(
-            "      ${field.dartName} = xml.findElements('${field.name}').first.text;");
+            "      ${field.dartName} = getProp(xml, '${field.name}')?.text;");
         break;
       case 'int':
         buffer.writeln(
-            "      ${field.dartName} = int.parse(xml.findElements('${field.name}').first.text);");
+            "      ${field.dartName} = int.tryParse(getProp(xml, '${field.name}')?.text);");
         break;
       case 'bool':
         buffer.writeln(
-            "      ${field.dartName} = xml.findElements('${field.name}').first.text == 'TRUE';");
+            "      ${field.dartName} = getProp(xml, '${field.name}')?.text == 'TRUE';");
         break;
       case 'DateTime':
         buffer.writeln(
-            "      ${field.dartName} = DateTime.parse(xml.findElements('${field.name}').first.text);");
+            "      ${field.dartName} = DateTime.parse(getProp(xml, '${field.name}')?.text);");
         break;
       default:
         buffer.writeln(
-            "      ${field.dartName} = ${field.type.name}.fromXml(xml.findElements('${field.name}').first);");
+            "      ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));");
     }
   }
   buffer.writeln('  }');

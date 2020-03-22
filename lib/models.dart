@@ -1,10 +1,15 @@
 import 'package:xml/xml.dart';
 
+XmlElement getProp(XmlElement xml, String name) {
+  final result = xml.findElements(name);
+  return result.isNotEmpty ? result.first : null;
+}
+
 /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
 class AbortIncompleteMultipartUpload {
   AbortIncompleteMultipartUpload.fromXml(XmlElement xml) {
     daysAfterInitiation =
-        int.parse(xml.findElements('DaysAfterInitiation').first.text);
+        int.tryParse(getProp(xml, 'DaysAfterInitiation')?.text);
   }
 
   /// Specifies the number of days after which Amazon S3 aborts an incomplete multipart upload.
@@ -14,7 +19,7 @@ class AbortIncompleteMultipartUpload {
 /// Configures the transfer acceleration state for an Amazon S3 bucket. For more information, see Amazon S3 Transfer Acceleration in the Amazon Simple Storage Service Developer Guide.
 class AccelerateConfiguration {
   AccelerateConfiguration.fromXml(XmlElement xml) {
-    status = xml.findElements('Status').first.text;
+    status = getProp(xml, 'Status')?.text;
   }
 
   /// Specifies the transfer acceleration status of the bucket.
@@ -24,8 +29,8 @@ class AccelerateConfiguration {
 /// Contains the elements that set the ACL permissions for an object per grantee.
 class AccessControlPolicy {
   AccessControlPolicy.fromXml(XmlElement xml) {
-    grants = Grant.fromXml(xml.findElements('Grants').first);
-    owner = Owner.fromXml(xml.findElements('Owner').first);
+    grants = Grant.fromXml(getProp(xml, 'Grants'));
+    owner = Owner.fromXml(getProp(xml, 'Owner'));
   }
 
   /// A list of grants.
@@ -38,7 +43,7 @@ class AccessControlPolicy {
 /// A container for information about access control for replicas.
 class AccessControlTranslation {
   AccessControlTranslation.fromXml(XmlElement xml) {
-    owner = xml.findElements('Owner').first.text;
+    owner = getProp(xml, 'Owner')?.text;
   }
 
   /// Specifies the replica ownership. For default and valid values, see PUT bucket replication in the Amazon Simple Storage Service API Reference.
@@ -48,8 +53,8 @@ class AccessControlTranslation {
 /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates in any combination, and an object must match all of the predicates for the filter to apply.
 class AnalyticsAndOperator {
   AnalyticsAndOperator.fromXml(XmlElement xml) {
-    prefix = xml.findElements('Prefix').first.text;
-    tags = Tag.fromXml(xml.findElements('Tags').first);
+    prefix = getProp(xml, 'Prefix')?.text;
+    tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   /// The prefix to use when evaluating an AND predicate: The prefix that an object must have to be included in the metrics results.
@@ -62,10 +67,10 @@ class AnalyticsAndOperator {
 ///  Specifies the configuration and any analyses for the analytics filter of an Amazon S3 bucket.
 class AnalyticsConfiguration {
   AnalyticsConfiguration.fromXml(XmlElement xml) {
-    filter = AnalyticsFilter.fromXml(xml.findElements('Filter').first);
-    id = xml.findElements('Id').first.text;
-    storageClassAnalysis = StorageClassAnalysis.fromXml(
-        xml.findElements('StorageClassAnalysis').first);
+    filter = AnalyticsFilter.fromXml(getProp(xml, 'Filter'));
+    id = getProp(xml, 'Id')?.text;
+    storageClassAnalysis =
+        StorageClassAnalysis.fromXml(getProp(xml, 'StorageClassAnalysis'));
   }
 
   /// The filter used to describe a set of objects for analyses. A filter must have exactly one prefix, one tag, or one conjunction (AnalyticsAndOperator). If no filter is provided, all objects will be considered in any analysis.
@@ -82,7 +87,7 @@ class AnalyticsConfiguration {
 class AnalyticsExportDestination {
   AnalyticsExportDestination.fromXml(XmlElement xml) {
     s3BucketDestination = AnalyticsS3BucketDestination.fromXml(
-        xml.findElements('S3BucketDestination').first);
+        getProp(xml, 'S3BucketDestination'));
   }
 
   /// A destination signifying output to an S3 bucket.
@@ -92,9 +97,9 @@ class AnalyticsExportDestination {
 /// The filter used to describe a set of objects for analyses. A filter must have exactly one prefix, one tag, or one conjunction (AnalyticsAndOperator). If no filter is provided, all objects will be considered in any analysis.
 class AnalyticsFilter {
   AnalyticsFilter.fromXml(XmlElement xml) {
-    and = AnalyticsAndOperator.fromXml(xml.findElements('And').first);
-    prefix = xml.findElements('Prefix').first.text;
-    tag = Tag.fromXml(xml.findElements('Tag').first);
+    and = AnalyticsAndOperator.fromXml(getProp(xml, 'And'));
+    prefix = getProp(xml, 'Prefix')?.text;
+    tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   /// A conjunction (logical AND) of predicates, which is used in evaluating an analytics filter. The operator must have at least two predicates.
@@ -110,10 +115,10 @@ class AnalyticsFilter {
 /// Contains information about where to publish the analytics results.
 class AnalyticsS3BucketDestination {
   AnalyticsS3BucketDestination.fromXml(XmlElement xml) {
-    bucket = xml.findElements('Bucket').first.text;
-    bucketAccountId = xml.findElements('BucketAccountId').first.text;
-    format = xml.findElements('Format').first.text;
-    prefix = xml.findElements('Prefix').first.text;
+    bucket = getProp(xml, 'Bucket')?.text;
+    bucketAccountId = getProp(xml, 'BucketAccountId')?.text;
+    format = getProp(xml, 'Format')?.text;
+    prefix = getProp(xml, 'Prefix')?.text;
   }
 
   /// The Amazon Resource Name (ARN) of the bucket to which data is exported.
@@ -132,8 +137,8 @@ class AnalyticsS3BucketDestination {
 ///  In terms of implementation, a Bucket is a resource. An Amazon S3 bucket name is globally unique, and the namespace is shared by all AWS accounts.
 class Bucket {
   Bucket.fromXml(XmlElement xml) {
-    creationDate = DateTime.parse(xml.findElements('CreationDate').first.text);
-    name = xml.findElements('Name').first.text;
+    creationDate = DateTime.parse(getProp(xml, 'CreationDate')?.text);
+    name = getProp(xml, 'Name')?.text;
   }
 
   /// Date the bucket was created.
@@ -146,7 +151,7 @@ class Bucket {
 /// Specifies the lifecycle configuration for objects in an Amazon S3 bucket. For more information, see Object Lifecycle Management in the Amazon Simple Storage Service Developer Guide.
 class BucketLifecycleConfiguration {
   BucketLifecycleConfiguration.fromXml(XmlElement xml) {
-    rules = LifecycleRule.fromXml(xml.findElements('Rules').first);
+    rules = LifecycleRule.fromXml(getProp(xml, 'Rules'));
   }
 
   /// A lifecycle rule for individual objects in an Amazon S3 bucket.
@@ -156,8 +161,7 @@ class BucketLifecycleConfiguration {
 /// Container for logging status information.
 class BucketLoggingStatus {
   BucketLoggingStatus.fromXml(XmlElement xml) {
-    loggingEnabled =
-        LoggingEnabled.fromXml(xml.findElements('LoggingEnabled').first);
+    loggingEnabled = LoggingEnabled.fromXml(getProp(xml, 'LoggingEnabled'));
   }
 
   /// Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket. For more information, see PUT Bucket logging in the Amazon Simple Storage Service API Reference.
@@ -167,11 +171,11 @@ class BucketLoggingStatus {
 /// Container for specifying the AWS Lambda notification configuration.
 class CloudFunctionConfiguration {
   CloudFunctionConfiguration.fromXml(XmlElement xml) {
-    cloudFunction = xml.findElements('CloudFunction').first.text;
-    event = xml.findElements('Event').first.text;
-    events = xml.findElements('Events').first.text;
-    id = xml.findElements('Id').first.text;
-    invocationRole = xml.findElements('InvocationRole').first.text;
+    cloudFunction = getProp(xml, 'CloudFunction')?.text;
+    event = getProp(xml, 'Event')?.text;
+    events = getProp(xml, 'Events')?.text;
+    id = getProp(xml, 'Id')?.text;
+    invocationRole = getProp(xml, 'InvocationRole')?.text;
   }
 
   /// Lambda cloud function ARN that Amazon S3 can invoke when it detects events of the specified type.
@@ -193,7 +197,7 @@ class CloudFunctionConfiguration {
 /// Container for all (if there are any) keys between Prefix and the next occurrence of the string specified by a delimiter. CommonPrefixes lists keys that act like subdirectories in the directory specified by Prefix. For example, if the prefix is notes/ and the delimiter is a slash (/) as in notes/summer/july, the common prefix is notes/summer/.
 class CommonPrefix {
   CommonPrefix.fromXml(XmlElement xml) {
-    prefix = xml.findElements('Prefix').first.text;
+    prefix = getProp(xml, 'Prefix')?.text;
   }
 
   /// Container for the specified common prefix.
@@ -203,7 +207,7 @@ class CommonPrefix {
 /// The container for the completed multipart upload details.
 class CompletedMultipartUpload {
   CompletedMultipartUpload.fromXml(XmlElement xml) {
-    parts = CompletedPart.fromXml(xml.findElements('Parts').first);
+    parts = CompletedPart.fromXml(getProp(xml, 'Parts'));
   }
 
   /// Array of CompletedPart data types.
@@ -213,8 +217,8 @@ class CompletedMultipartUpload {
 /// Details of the parts that were uploaded.
 class CompletedPart {
   CompletedPart.fromXml(XmlElement xml) {
-    eTag = xml.findElements('ETag').first.text;
-    partNumber = int.parse(xml.findElements('PartNumber').first.text);
+    eTag = getProp(xml, 'ETag')?.text;
+    partNumber = int.tryParse(getProp(xml, 'PartNumber')?.text);
   }
 
   /// Entity tag returned when the part was uploaded.
@@ -228,8 +232,8 @@ class CompletedPart {
 class Condition {
   Condition.fromXml(XmlElement xml) {
     httpErrorCodeReturnedEquals =
-        xml.findElements('HttpErrorCodeReturnedEquals').first.text;
-    keyPrefixEquals = xml.findElements('KeyPrefixEquals').first.text;
+        getProp(xml, 'HttpErrorCodeReturnedEquals')?.text;
+    keyPrefixEquals = getProp(xml, 'KeyPrefixEquals')?.text;
   }
 
   /// The HTTP error code when the redirect is applied. In the event of an error, if the error code equals this value, then the specified redirect is applied. Required when parent element Condition is specified and sibling KeyPrefixEquals is not specified. If both are specified, then both must be true for the redirect to be applied.
@@ -247,8 +251,8 @@ class ContinuationEvent {
 /// Container for all response elements.
 class CopyObjectResult {
   CopyObjectResult.fromXml(XmlElement xml) {
-    eTag = xml.findElements('ETag').first.text;
-    lastModified = DateTime.parse(xml.findElements('LastModified').first.text);
+    eTag = getProp(xml, 'ETag')?.text;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')?.text);
   }
 
   /// Returns the ETag of the new object. The ETag reflects only changes to the contents of an object, not its metadata. The source and destination ETag is identical for a successfully copied object.
@@ -261,8 +265,8 @@ class CopyObjectResult {
 /// Container for all response elements.
 class CopyPartResult {
   CopyPartResult.fromXml(XmlElement xml) {
-    eTag = xml.findElements('ETag').first.text;
-    lastModified = DateTime.parse(xml.findElements('LastModified').first.text);
+    eTag = getProp(xml, 'ETag')?.text;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')?.text);
   }
 
   /// Entity tag of the object.
@@ -275,7 +279,7 @@ class CopyPartResult {
 /// Describes the cross-origin access configuration for objects in an Amazon S3 bucket. For more information, see Enabling Cross-Origin Resource Sharing in the Amazon Simple Storage Service Developer Guide.
 class CORSConfiguration {
   CORSConfiguration.fromXml(XmlElement xml) {
-    cORSRules = CORSRule.fromXml(xml.findElements('CORSRules').first);
+    cORSRules = CORSRule.fromXml(getProp(xml, 'CORSRules'));
   }
 
   /// A set of origins and methods (cross-origin access that you want to allow). You can add up to 100 rules to the configuration.
@@ -285,11 +289,11 @@ class CORSConfiguration {
 /// Specifies a cross-origin access rule for an Amazon S3 bucket.
 class CORSRule {
   CORSRule.fromXml(XmlElement xml) {
-    allowedHeaders = xml.findElements('AllowedHeaders').first.text;
-    allowedMethods = xml.findElements('AllowedMethods').first.text;
-    allowedOrigins = xml.findElements('AllowedOrigins').first.text;
-    exposeHeaders = xml.findElements('ExposeHeaders').first.text;
-    maxAgeSeconds = int.parse(xml.findElements('MaxAgeSeconds').first.text);
+    allowedHeaders = getProp(xml, 'AllowedHeaders')?.text;
+    allowedMethods = getProp(xml, 'AllowedMethods')?.text;
+    allowedOrigins = getProp(xml, 'AllowedOrigins')?.text;
+    exposeHeaders = getProp(xml, 'ExposeHeaders')?.text;
+    maxAgeSeconds = int.tryParse(getProp(xml, 'MaxAgeSeconds')?.text);
   }
 
   /// Headers that are specified in the Access-Control-Request-Headers header. These headers are allowed in a preflight OPTIONS request. In response to any preflight OPTIONS request, Amazon S3 returns any requested headers that are allowed.
@@ -311,7 +315,7 @@ class CORSRule {
 /// The configuration information for the bucket.
 class CreateBucketConfiguration {
   CreateBucketConfiguration.fromXml(XmlElement xml) {
-    locationConstraint = xml.findElements('LocationConstraint').first.text;
+    locationConstraint = getProp(xml, 'LocationConstraint')?.text;
   }
 
   /// Specifies the Region where the bucket will be created. If you don't specify a Region, the bucket is created in the US East (N. Virginia) Region (us-east-1).
@@ -322,13 +326,13 @@ class CreateBucketConfiguration {
 class CSVInput {
   CSVInput.fromXml(XmlElement xml) {
     allowQuotedRecordDelimiter =
-        xml.findElements('AllowQuotedRecordDelimiter').first.text == 'TRUE';
-    comments = xml.findElements('Comments').first.text;
-    fieldDelimiter = xml.findElements('FieldDelimiter').first.text;
-    fileHeaderInfo = xml.findElements('FileHeaderInfo').first.text;
-    quoteCharacter = xml.findElements('QuoteCharacter').first.text;
-    quoteEscapeCharacter = xml.findElements('QuoteEscapeCharacter').first.text;
-    recordDelimiter = xml.findElements('RecordDelimiter').first.text;
+        getProp(xml, 'AllowQuotedRecordDelimiter')?.text == 'TRUE';
+    comments = getProp(xml, 'Comments')?.text;
+    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.text;
+    fileHeaderInfo = getProp(xml, 'FileHeaderInfo')?.text;
+    quoteCharacter = getProp(xml, 'QuoteCharacter')?.text;
+    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.text;
+    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
   }
 
   /// Specifies that CSV field values may contain quoted record delimiters and such records should be allowed. Default value is FALSE. Setting this value to TRUE may lower performance.
@@ -356,11 +360,11 @@ class CSVInput {
 /// Describes how uncompressed comma-separated values (CSV)-formatted results are formatted.
 class CSVOutput {
   CSVOutput.fromXml(XmlElement xml) {
-    fieldDelimiter = xml.findElements('FieldDelimiter').first.text;
-    quoteCharacter = xml.findElements('QuoteCharacter').first.text;
-    quoteEscapeCharacter = xml.findElements('QuoteEscapeCharacter').first.text;
-    quoteFields = xml.findElements('QuoteFields').first.text;
-    recordDelimiter = xml.findElements('RecordDelimiter').first.text;
+    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.text;
+    quoteCharacter = getProp(xml, 'QuoteCharacter')?.text;
+    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.text;
+    quoteFields = getProp(xml, 'QuoteFields')?.text;
+    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
   }
 
   /// The value used to separate individual fields in a record. You can specify an arbitrary delimiter.
@@ -382,9 +386,9 @@ class CSVOutput {
 /// The container element for specifying the default Object Lock retention settings for new objects placed in the specified bucket.
 class DefaultRetention {
   DefaultRetention.fromXml(XmlElement xml) {
-    days = int.parse(xml.findElements('Days').first.text);
-    mode = xml.findElements('Mode').first.text;
-    years = int.parse(xml.findElements('Years').first.text);
+    days = int.tryParse(getProp(xml, 'Days')?.text);
+    mode = getProp(xml, 'Mode')?.text;
+    years = int.tryParse(getProp(xml, 'Years')?.text);
   }
 
   /// The number of days that you want to specify for the default retention period.
@@ -400,8 +404,8 @@ class DefaultRetention {
 /// Container for the objects to delete.
 class Delete {
   Delete.fromXml(XmlElement xml) {
-    objects = ObjectIdentifier.fromXml(xml.findElements('Objects').first);
-    quiet = xml.findElements('Quiet').first.text == 'TRUE';
+    objects = ObjectIdentifier.fromXml(getProp(xml, 'Objects'));
+    quiet = getProp(xml, 'Quiet')?.text == 'TRUE';
   }
 
   /// The objects to delete.
@@ -414,11 +418,10 @@ class Delete {
 /// Information about the deleted object.
 class DeletedObject {
   DeletedObject.fromXml(XmlElement xml) {
-    deleteMarker = xml.findElements('DeleteMarker').first.text == 'TRUE';
-    deleteMarkerVersionId =
-        xml.findElements('DeleteMarkerVersionId').first.text;
-    key = xml.findElements('Key').first.text;
-    versionId = xml.findElements('VersionId').first.text;
+    deleteMarker = getProp(xml, 'DeleteMarker')?.text == 'TRUE';
+    deleteMarkerVersionId = getProp(xml, 'DeleteMarkerVersionId')?.text;
+    key = getProp(xml, 'Key')?.text;
+    versionId = getProp(xml, 'VersionId')?.text;
   }
 
   /// Specifies whether the versioned object that was permanently deleted was (true) or was not (false) a delete marker. In a simple DELETE, this header indicates whether (true) or not (false) a delete marker was created.
@@ -437,11 +440,11 @@ class DeletedObject {
 /// Information about the delete marker.
 class DeleteMarkerEntry {
   DeleteMarkerEntry.fromXml(XmlElement xml) {
-    isLatest = xml.findElements('IsLatest').first.text == 'TRUE';
-    key = xml.findElements('Key').first.text;
-    lastModified = DateTime.parse(xml.findElements('LastModified').first.text);
-    owner = Owner.fromXml(xml.findElements('Owner').first);
-    versionId = xml.findElements('VersionId').first.text;
+    isLatest = getProp(xml, 'IsLatest')?.text == 'TRUE';
+    key = getProp(xml, 'Key')?.text;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')?.text);
+    owner = Owner.fromXml(getProp(xml, 'Owner'));
+    versionId = getProp(xml, 'VersionId')?.text;
   }
 
   /// Specifies whether the object is (true) or is not (false) the latest version of an object.
@@ -463,7 +466,7 @@ class DeleteMarkerEntry {
 /// Specifies whether Amazon S3 replicates the delete markers. If you specify a Filter, you must specify this element. However, in the latest version of replication configuration (when Filter is specified), Amazon S3 doesn't replicate delete markers. Therefore, the DeleteMarkerReplication element can contain only <Status>Disabled</Status>. For an example configuration, see Basic Rule Configuration.
 class DeleteMarkerReplication {
   DeleteMarkerReplication.fromXml(XmlElement xml) {
-    status = xml.findElements('Status').first.text;
+    status = getProp(xml, 'Status')?.text;
   }
 
   /// Indicates whether to replicate delete markers.
@@ -474,15 +477,14 @@ class DeleteMarkerReplication {
 class Destination {
   Destination.fromXml(XmlElement xml) {
     accessControlTranslation = AccessControlTranslation.fromXml(
-        xml.findElements('AccessControlTranslation').first);
-    account = xml.findElements('Account').first.text;
-    bucket = xml.findElements('Bucket').first.text;
+        getProp(xml, 'AccessControlTranslation'));
+    account = getProp(xml, 'Account')?.text;
+    bucket = getProp(xml, 'Bucket')?.text;
     encryptionConfiguration = EncryptionConfiguration.fromXml(
-        xml.findElements('EncryptionConfiguration').first);
-    metrics = Metrics.fromXml(xml.findElements('Metrics').first);
-    replicationTime =
-        ReplicationTime.fromXml(xml.findElements('ReplicationTime').first);
-    storageClass = xml.findElements('StorageClass').first.text;
+        getProp(xml, 'EncryptionConfiguration'));
+    metrics = Metrics.fromXml(getProp(xml, 'Metrics'));
+    replicationTime = ReplicationTime.fromXml(getProp(xml, 'ReplicationTime'));
+    storageClass = getProp(xml, 'StorageClass')?.text;
   }
 
   /// Specify this only in a cross-account scenario (where source and destination bucket owners are not the same), and you want to change replica ownership to the AWS account that owns the destination bucket. If this is not specified in the replication configuration, the replicas are owned by same AWS account that owns the source object.
@@ -510,9 +512,9 @@ class Destination {
 /// Contains the type of server-side encryption used.
 class Encryption {
   Encryption.fromXml(XmlElement xml) {
-    encryptionType = xml.findElements('EncryptionType').first.text;
-    kMSContext = xml.findElements('KMSContext').first.text;
-    kMSKeyId = xml.findElements('KMSKeyId').first.text;
+    encryptionType = getProp(xml, 'EncryptionType')?.text;
+    kMSContext = getProp(xml, 'KMSContext')?.text;
+    kMSKeyId = getProp(xml, 'KMSKeyId')?.text;
   }
 
   /// The server-side encryption algorithm used when storing job results in Amazon S3 (for example, AES256, aws:kms).
@@ -528,7 +530,7 @@ class Encryption {
 /// Specifies encryption-related information for an Amazon S3 bucket that is a destination for replicated objects.
 class EncryptionConfiguration {
   EncryptionConfiguration.fromXml(XmlElement xml) {
-    replicaKmsKeyID = xml.findElements('ReplicaKmsKeyID').first.text;
+    replicaKmsKeyID = getProp(xml, 'ReplicaKmsKeyID')?.text;
   }
 
   /// Specifies the ID (Key ARN or Alias ARN) of the customer managed customer master key (CMK) stored in AWS Key Management Service (KMS) for the destination bucket. Amazon S3 uses this key to encrypt replica objects. Amazon S3 only supports symmetric customer managed CMKs. For more information, see Using Symmetric and Asymmetric Keys in the AWS Key Management Service Developer Guide.
@@ -543,10 +545,10 @@ class EndEvent {
 /// Container for all error elements.
 class Error {
   Error.fromXml(XmlElement xml) {
-    code = xml.findElements('Code').first.text;
-    key = xml.findElements('Key').first.text;
-    message = xml.findElements('Message').first.text;
-    versionId = xml.findElements('VersionId').first.text;
+    code = getProp(xml, 'Code')?.text;
+    key = getProp(xml, 'Key')?.text;
+    message = getProp(xml, 'Message')?.text;
+    versionId = getProp(xml, 'VersionId')?.text;
   }
 
   /// The error code is a string that uniquely identifies an error condition. It is meant to be read and understood by programs that detect and handle errors by type.
@@ -565,7 +567,7 @@ class Error {
 /// The error information.
 class ErrorDocument {
   ErrorDocument.fromXml(XmlElement xml) {
-    key = xml.findElements('Key').first.text;
+    key = getProp(xml, 'Key')?.text;
   }
 
   /// The object key name to use when a 4XX class error occurs.
@@ -575,7 +577,7 @@ class ErrorDocument {
 /// Optional configuration to replicate existing source bucket objects. For more information, see Replicating Existing Objects in the Amazon S3 Developer Guide.
 class ExistingObjectReplication {
   ExistingObjectReplication.fromXml(XmlElement xml) {
-    status = xml.findElements('Status').first.text;
+    status = getProp(xml, 'Status')?.text;
   }
 
   /// Type: String
@@ -585,8 +587,8 @@ class ExistingObjectReplication {
 /// Specifies the Amazon S3 object key name to filter on and whether to filter on the suffix or prefix of the key name.
 class FilterRule {
   FilterRule.fromXml(XmlElement xml) {
-    name = xml.findElements('Name').first.text;
-    value = xml.findElements('Value').first.text;
+    name = getProp(xml, 'Name')?.text;
+    value = getProp(xml, 'Value')?.text;
   }
 
   /// The object key name prefix or suffix identifying one or more objects to which the filtering rule applies. The maximum length is 1,024 characters. Overlapping prefixes and suffixes are not supported. For more information, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
@@ -599,7 +601,7 @@ class FilterRule {
 /// Container for S3 Glacier job parameters.
 class GlacierJobParameters {
   GlacierJobParameters.fromXml(XmlElement xml) {
-    tier = xml.findElements('Tier').first.text;
+    tier = getProp(xml, 'Tier')?.text;
   }
 
   /// S3 Glacier retrieval tier at which the restore will be processed.
@@ -609,8 +611,8 @@ class GlacierJobParameters {
 /// Container for grant information.
 class Grant {
   Grant.fromXml(XmlElement xml) {
-    grantee = Grantee.fromXml(xml.findElements('Grantee').first);
-    permission = xml.findElements('Permission').first.text;
+    grantee = Grantee.fromXml(getProp(xml, 'Grantee'));
+    permission = getProp(xml, 'Permission')?.text;
   }
 
   /// The person being granted permissions.
@@ -623,11 +625,11 @@ class Grant {
 /// Container for the person being granted permissions.
 class Grantee {
   Grantee.fromXml(XmlElement xml) {
-    displayName = xml.findElements('DisplayName').first.text;
-    emailAddress = xml.findElements('EmailAddress').first.text;
-    iD = xml.findElements('ID').first.text;
-    type = xml.findElements('Type').first.text;
-    uRI = xml.findElements('URI').first.text;
+    displayName = getProp(xml, 'DisplayName')?.text;
+    emailAddress = getProp(xml, 'EmailAddress')?.text;
+    iD = getProp(xml, 'ID')?.text;
+    type = getProp(xml, 'Type')?.text;
+    uRI = getProp(xml, 'URI')?.text;
   }
 
   /// Screen name of the grantee.
@@ -649,7 +651,7 @@ class Grantee {
 /// Container for the Suffix element.
 class IndexDocument {
   IndexDocument.fromXml(XmlElement xml) {
-    suffix = xml.findElements('Suffix').first.text;
+    suffix = getProp(xml, 'Suffix')?.text;
   }
 
   /// A suffix that is appended to a request that is for a directory on the website endpoint (for example,if the suffix is index.html and you make a request to samplebucket/images/ the data that is returned will be for the object with the key name images/index.html) The suffix must not be empty and must not include a slash character.
@@ -659,8 +661,8 @@ class IndexDocument {
 /// Container element that identifies who initiated the multipart upload.
 class Initiator {
   Initiator.fromXml(XmlElement xml) {
-    displayName = xml.findElements('DisplayName').first.text;
-    iD = xml.findElements('ID').first.text;
+    displayName = getProp(xml, 'DisplayName')?.text;
+    iD = getProp(xml, 'ID')?.text;
   }
 
   /// Name of the Principal.
@@ -673,10 +675,10 @@ class Initiator {
 /// Describes the serialization format of the object.
 class InputSerialization {
   InputSerialization.fromXml(XmlElement xml) {
-    compressionType = xml.findElements('CompressionType').first.text;
-    cSV = CSVInput.fromXml(xml.findElements('CSV').first);
-    jSON = JSONInput.fromXml(xml.findElements('JSON').first);
-    parquet = ParquetInput.fromXml(xml.findElements('Parquet').first);
+    compressionType = getProp(xml, 'CompressionType')?.text;
+    cSV = CSVInput.fromXml(getProp(xml, 'CSV'));
+    jSON = JSONInput.fromXml(getProp(xml, 'JSON'));
+    parquet = ParquetInput.fromXml(getProp(xml, 'Parquet'));
   }
 
   /// Specifies object's compression format. Valid values: NONE, GZIP, BZIP2. Default Value: NONE.
@@ -695,15 +697,13 @@ class InputSerialization {
 /// Specifies the inventory configuration for an Amazon S3 bucket. For more information, see GET Bucket inventory in the Amazon Simple Storage Service API Reference.
 class InventoryConfiguration {
   InventoryConfiguration.fromXml(XmlElement xml) {
-    destination =
-        InventoryDestination.fromXml(xml.findElements('Destination').first);
-    filter = InventoryFilter.fromXml(xml.findElements('Filter').first);
-    id = xml.findElements('Id').first.text;
-    includedObjectVersions =
-        xml.findElements('IncludedObjectVersions').first.text;
-    isEnabled = xml.findElements('IsEnabled').first.text == 'TRUE';
-    optionalFields = xml.findElements('OptionalFields').first.text;
-    schedule = InventorySchedule.fromXml(xml.findElements('Schedule').first);
+    destination = InventoryDestination.fromXml(getProp(xml, 'Destination'));
+    filter = InventoryFilter.fromXml(getProp(xml, 'Filter'));
+    id = getProp(xml, 'Id')?.text;
+    includedObjectVersions = getProp(xml, 'IncludedObjectVersions')?.text;
+    isEnabled = getProp(xml, 'IsEnabled')?.text == 'TRUE';
+    optionalFields = getProp(xml, 'OptionalFields')?.text;
+    schedule = InventorySchedule.fromXml(getProp(xml, 'Schedule'));
   }
 
   /// Contains information about where to publish the inventory results.
@@ -732,7 +732,7 @@ class InventoryConfiguration {
 class InventoryDestination {
   InventoryDestination.fromXml(XmlElement xml) {
     s3BucketDestination = InventoryS3BucketDestination.fromXml(
-        xml.findElements('S3BucketDestination').first);
+        getProp(xml, 'S3BucketDestination'));
   }
 
   /// Contains the bucket name, file format, bucket owner (optional), and prefix (optional) where inventory results are published.
@@ -742,8 +742,8 @@ class InventoryDestination {
 /// Contains the type of server-side encryption used to encrypt the inventory results.
 class InventoryEncryption {
   InventoryEncryption.fromXml(XmlElement xml) {
-    sSEKMS = SSEKMS.fromXml(xml.findElements('SSEKMS').first);
-    sSES3 = SSES3.fromXml(xml.findElements('SSES3').first);
+    sSEKMS = SSEKMS.fromXml(getProp(xml, 'SSEKMS'));
+    sSES3 = SSES3.fromXml(getProp(xml, 'SSES3'));
   }
 
   /// Specifies the use of SSE-KMS to encrypt delivered inventory reports.
@@ -756,7 +756,7 @@ class InventoryEncryption {
 /// Specifies an inventory filter. The inventory only includes objects that meet the filter's criteria.
 class InventoryFilter {
   InventoryFilter.fromXml(XmlElement xml) {
-    prefix = xml.findElements('Prefix').first.text;
+    prefix = getProp(xml, 'Prefix')?.text;
   }
 
   /// The prefix that an object must have to be included in the inventory results.
@@ -766,12 +766,11 @@ class InventoryFilter {
 /// Contains the bucket name, file format, bucket owner (optional), and prefix (optional) where inventory results are published.
 class InventoryS3BucketDestination {
   InventoryS3BucketDestination.fromXml(XmlElement xml) {
-    accountId = xml.findElements('AccountId').first.text;
-    bucket = xml.findElements('Bucket').first.text;
-    encryption =
-        InventoryEncryption.fromXml(xml.findElements('Encryption').first);
-    format = xml.findElements('Format').first.text;
-    prefix = xml.findElements('Prefix').first.text;
+    accountId = getProp(xml, 'AccountId')?.text;
+    bucket = getProp(xml, 'Bucket')?.text;
+    encryption = InventoryEncryption.fromXml(getProp(xml, 'Encryption'));
+    format = getProp(xml, 'Format')?.text;
+    prefix = getProp(xml, 'Prefix')?.text;
   }
 
   /// The ID of the account that owns the destination bucket. Although optional, we recommend that the value be set to prevent problems if the destination bucket ownership changes.
@@ -793,7 +792,7 @@ class InventoryS3BucketDestination {
 /// Specifies the schedule for generating inventory results.
 class InventorySchedule {
   InventorySchedule.fromXml(XmlElement xml) {
-    frequency = xml.findElements('Frequency').first.text;
+    frequency = getProp(xml, 'Frequency')?.text;
   }
 
   /// Specifies how frequently inventory results are produced.
@@ -803,7 +802,7 @@ class InventorySchedule {
 /// Specifies JSON as object's input serialization format.
 class JSONInput {
   JSONInput.fromXml(XmlElement xml) {
-    type = xml.findElements('Type').first.text;
+    type = getProp(xml, 'Type')?.text;
   }
 
   /// The type of JSON. Valid values: Document, Lines.
@@ -813,7 +812,7 @@ class JSONInput {
 /// Specifies JSON as request's output serialization format.
 class JSONOutput {
   JSONOutput.fromXml(XmlElement xml) {
-    recordDelimiter = xml.findElements('RecordDelimiter').first.text;
+    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
   }
 
   /// The value used to separate individual records in the output.
@@ -823,11 +822,10 @@ class JSONOutput {
 /// A container for specifying the configuration for AWS Lambda notifications.
 class LambdaFunctionConfiguration {
   LambdaFunctionConfiguration.fromXml(XmlElement xml) {
-    events = xml.findElements('Events').first.text;
-    filter = NotificationConfigurationFilter.fromXml(
-        xml.findElements('Filter').first);
-    id = xml.findElements('Id').first.text;
-    lambdaFunctionArn = xml.findElements('LambdaFunctionArn').first.text;
+    events = getProp(xml, 'Events')?.text;
+    filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
+    id = getProp(xml, 'Id')?.text;
+    lambdaFunctionArn = getProp(xml, 'LambdaFunctionArn')?.text;
   }
 
   /// The Amazon S3 bucket event for which to invoke the AWS Lambda function. For more information, see Supported Event Types in the Amazon Simple Storage Service Developer Guide.
@@ -846,7 +844,7 @@ class LambdaFunctionConfiguration {
 /// Container for lifecycle rules. You can add as many as 1000 rules.
 class LifecycleConfiguration {
   LifecycleConfiguration.fromXml(XmlElement xml) {
-    rules = Rule.fromXml(xml.findElements('Rules').first);
+    rules = Rule.fromXml(getProp(xml, 'Rules'));
   }
 
   /// Specifies lifecycle configuration rules for an Amazon S3 bucket.
@@ -856,10 +854,10 @@ class LifecycleConfiguration {
 /// Container for the expiration for the lifecycle of the object.
 class LifecycleExpiration {
   LifecycleExpiration.fromXml(XmlElement xml) {
-    date = DateTime.parse(xml.findElements('Date').first.text);
-    days = int.parse(xml.findElements('Days').first.text);
+    date = DateTime.parse(getProp(xml, 'Date')?.text);
+    days = int.tryParse(getProp(xml, 'Days')?.text);
     expiredObjectDeleteMarker =
-        xml.findElements('ExpiredObjectDeleteMarker').first.text == 'TRUE';
+        getProp(xml, 'ExpiredObjectDeleteMarker')?.text == 'TRUE';
   }
 
   /// Indicates at what date the object is to be moved or deleted. Should be in GMT ISO 8601 Format.
@@ -876,18 +874,17 @@ class LifecycleExpiration {
 class LifecycleRule {
   LifecycleRule.fromXml(XmlElement xml) {
     abortIncompleteMultipartUpload = AbortIncompleteMultipartUpload.fromXml(
-        xml.findElements('AbortIncompleteMultipartUpload').first);
-    expiration =
-        LifecycleExpiration.fromXml(xml.findElements('Expiration').first);
-    filter = LifecycleRuleFilter.fromXml(xml.findElements('Filter').first);
-    iD = xml.findElements('ID').first.text;
+        getProp(xml, 'AbortIncompleteMultipartUpload'));
+    expiration = LifecycleExpiration.fromXml(getProp(xml, 'Expiration'));
+    filter = LifecycleRuleFilter.fromXml(getProp(xml, 'Filter'));
+    iD = getProp(xml, 'ID')?.text;
     noncurrentVersionExpiration = NoncurrentVersionExpiration.fromXml(
-        xml.findElements('NoncurrentVersionExpiration').first);
+        getProp(xml, 'NoncurrentVersionExpiration'));
     noncurrentVersionTransitions = NoncurrentVersionTransition.fromXml(
-        xml.findElements('NoncurrentVersionTransitions').first);
-    prefix = xml.findElements('Prefix').first.text;
-    status = xml.findElements('Status').first.text;
-    transitions = Transition.fromXml(xml.findElements('Transitions').first);
+        getProp(xml, 'NoncurrentVersionTransitions'));
+    prefix = getProp(xml, 'Prefix')?.text;
+    status = getProp(xml, 'Status')?.text;
+    transitions = Transition.fromXml(getProp(xml, 'Transitions'));
   }
 
   /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
@@ -921,8 +918,8 @@ class LifecycleRule {
 /// This is used in a Lifecycle Rule Filter to apply a logical AND to two or more predicates. The Lifecycle Rule will apply to any object matching all of the predicates configured inside the And operator.
 class LifecycleRuleAndOperator {
   LifecycleRuleAndOperator.fromXml(XmlElement xml) {
-    prefix = xml.findElements('Prefix').first.text;
-    tags = Tag.fromXml(xml.findElements('Tags').first);
+    prefix = getProp(xml, 'Prefix')?.text;
+    tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   /// Prefix identifying one or more objects to which the rule applies.
@@ -935,9 +932,9 @@ class LifecycleRuleAndOperator {
 /// The Filter is used to identify objects that a Lifecycle Rule applies to. A Filter must have exactly one of Prefix, Tag, or And specified.
 class LifecycleRuleFilter {
   LifecycleRuleFilter.fromXml(XmlElement xml) {
-    and = LifecycleRuleAndOperator.fromXml(xml.findElements('And').first);
-    prefix = xml.findElements('Prefix').first.text;
-    tag = Tag.fromXml(xml.findElements('Tag').first);
+    and = LifecycleRuleAndOperator.fromXml(getProp(xml, 'And'));
+    prefix = getProp(xml, 'Prefix')?.text;
+    tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   /// This is used in a Lifecycle Rule Filter to apply a logical AND to two or more predicates. The Lifecycle Rule will apply to any object matching all of the predicates configured inside the And operator.
@@ -953,9 +950,9 @@ class LifecycleRuleFilter {
 /// Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket. For more information, see PUT Bucket logging in the Amazon Simple Storage Service API Reference.
 class LoggingEnabled {
   LoggingEnabled.fromXml(XmlElement xml) {
-    targetBucket = xml.findElements('TargetBucket').first.text;
-    targetGrants = TargetGrant.fromXml(xml.findElements('TargetGrants').first);
-    targetPrefix = xml.findElements('TargetPrefix').first.text;
+    targetBucket = getProp(xml, 'TargetBucket')?.text;
+    targetGrants = TargetGrant.fromXml(getProp(xml, 'TargetGrants'));
+    targetPrefix = getProp(xml, 'TargetPrefix')?.text;
   }
 
   /// Specifies the bucket where you want Amazon S3 to store server access logs. You can have your logs delivered to any bucket that you own, including the same bucket that is being logged. You can also configure multiple buckets to deliver their logs to the same target bucket. In this case, you should choose a different TargetPrefix for each source bucket so that the delivered log files can be distinguished by key.
@@ -971,8 +968,8 @@ class LoggingEnabled {
 /// A metadata key-value pair to store with an object.
 class MetadataEntry {
   MetadataEntry.fromXml(XmlElement xml) {
-    name = xml.findElements('Name').first.text;
-    value = xml.findElements('Value').first.text;
+    name = getProp(xml, 'Name')?.text;
+    value = getProp(xml, 'Value')?.text;
   }
 
   /// Name of the Object.
@@ -986,8 +983,8 @@ class MetadataEntry {
 class Metrics {
   Metrics.fromXml(XmlElement xml) {
     eventThreshold =
-        ReplicationTimeValue.fromXml(xml.findElements('EventThreshold').first);
-    status = xml.findElements('Status').first.text;
+        ReplicationTimeValue.fromXml(getProp(xml, 'EventThreshold'));
+    status = getProp(xml, 'Status')?.text;
   }
 
   ///  A container specifying the time threshold for emitting the s3:Replication:OperationMissedThreshold event.
@@ -1000,8 +997,8 @@ class Metrics {
 /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.
 class MetricsAndOperator {
   MetricsAndOperator.fromXml(XmlElement xml) {
-    prefix = xml.findElements('Prefix').first.text;
-    tags = Tag.fromXml(xml.findElements('Tags').first);
+    prefix = getProp(xml, 'Prefix')?.text;
+    tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   /// The prefix used when evaluating an AND predicate.
@@ -1014,8 +1011,8 @@ class MetricsAndOperator {
 /// Specifies a metrics configuration for the CloudWatch request metrics (specified by the metrics configuration ID) from an Amazon S3 bucket. If you're updating an existing metrics configuration, note that this is a full replacement of the existing metrics configuration. If you don't include the elements you want to keep, they are erased. For more information, see PUT Bucket metrics in the Amazon Simple Storage Service API Reference.
 class MetricsConfiguration {
   MetricsConfiguration.fromXml(XmlElement xml) {
-    filter = MetricsFilter.fromXml(xml.findElements('Filter').first);
-    id = xml.findElements('Id').first.text;
+    filter = MetricsFilter.fromXml(getProp(xml, 'Filter'));
+    id = getProp(xml, 'Id')?.text;
   }
 
   /// Specifies a metrics configuration filter. The metrics configuration will only include objects that meet the filter's criteria. A filter must be a prefix, a tag, or a conjunction (MetricsAndOperator).
@@ -1028,9 +1025,9 @@ class MetricsConfiguration {
 /// Specifies a metrics configuration filter. The metrics configuration only includes objects that meet the filter's criteria. A filter must be a prefix, a tag, or a conjunction (MetricsAndOperator).
 class MetricsFilter {
   MetricsFilter.fromXml(XmlElement xml) {
-    and = MetricsAndOperator.fromXml(xml.findElements('And').first);
-    prefix = xml.findElements('Prefix').first.text;
-    tag = Tag.fromXml(xml.findElements('Tag').first);
+    and = MetricsAndOperator.fromXml(getProp(xml, 'And'));
+    prefix = getProp(xml, 'Prefix')?.text;
+    tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.
@@ -1046,12 +1043,12 @@ class MetricsFilter {
 /// Container for the MultipartUpload for the Amazon S3 object.
 class MultipartUpload {
   MultipartUpload.fromXml(XmlElement xml) {
-    initiated = DateTime.parse(xml.findElements('Initiated').first.text);
-    initiator = Initiator.fromXml(xml.findElements('Initiator').first);
-    key = xml.findElements('Key').first.text;
-    owner = Owner.fromXml(xml.findElements('Owner').first);
-    storageClass = xml.findElements('StorageClass').first.text;
-    uploadId = xml.findElements('UploadId').first.text;
+    initiated = DateTime.parse(getProp(xml, 'Initiated')?.text);
+    initiator = Initiator.fromXml(getProp(xml, 'Initiator'));
+    key = getProp(xml, 'Key')?.text;
+    owner = Owner.fromXml(getProp(xml, 'Owner'));
+    storageClass = getProp(xml, 'StorageClass')?.text;
+    uploadId = getProp(xml, 'UploadId')?.text;
   }
 
   /// Date and time at which the multipart upload was initiated.
@@ -1076,7 +1073,7 @@ class MultipartUpload {
 /// Specifies when noncurrent object versions expire. Upon expiration, Amazon S3 permanently deletes the noncurrent object versions. You set this lifecycle configuration action on a bucket that has versioning enabled (or suspended) to request that Amazon S3 delete noncurrent object versions at a specific period in the object's lifetime.
 class NoncurrentVersionExpiration {
   NoncurrentVersionExpiration.fromXml(XmlElement xml) {
-    noncurrentDays = int.parse(xml.findElements('NoncurrentDays').first.text);
+    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')?.text);
   }
 
   /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates When an Object Became Noncurrent in the Amazon Simple Storage Service Developer Guide.
@@ -1086,8 +1083,8 @@ class NoncurrentVersionExpiration {
 /// Container for the transition rule that describes when noncurrent objects transition to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE storage class at a specific period in the object's lifetime.
 class NoncurrentVersionTransition {
   NoncurrentVersionTransition.fromXml(XmlElement xml) {
-    noncurrentDays = int.parse(xml.findElements('NoncurrentDays').first.text);
-    storageClass = xml.findElements('StorageClass').first.text;
+    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')?.text);
+    storageClass = getProp(xml, 'StorageClass')?.text;
   }
 
   /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates How Long an Object Has Been Noncurrent in the Amazon Simple Storage Service Developer Guide.
@@ -1101,11 +1098,11 @@ class NoncurrentVersionTransition {
 class NotificationConfiguration {
   NotificationConfiguration.fromXml(XmlElement xml) {
     lambdaFunctionConfigurations = LambdaFunctionConfiguration.fromXml(
-        xml.findElements('LambdaFunctionConfigurations').first);
-    queueConfigurations = QueueConfiguration.fromXml(
-        xml.findElements('QueueConfigurations').first);
-    topicConfigurations = TopicConfiguration.fromXml(
-        xml.findElements('TopicConfigurations').first);
+        getProp(xml, 'LambdaFunctionConfigurations'));
+    queueConfigurations =
+        QueueConfiguration.fromXml(getProp(xml, 'QueueConfigurations'));
+    topicConfigurations =
+        TopicConfiguration.fromXml(getProp(xml, 'TopicConfigurations'));
   }
 
   /// Describes the AWS Lambda functions to invoke and the events for which to invoke them.
@@ -1122,11 +1119,11 @@ class NotificationConfiguration {
 class NotificationConfigurationDeprecated {
   NotificationConfigurationDeprecated.fromXml(XmlElement xml) {
     cloudFunctionConfiguration = CloudFunctionConfiguration.fromXml(
-        xml.findElements('CloudFunctionConfiguration').first);
+        getProp(xml, 'CloudFunctionConfiguration'));
     queueConfiguration = QueueConfigurationDeprecated.fromXml(
-        xml.findElements('QueueConfiguration').first);
+        getProp(xml, 'QueueConfiguration'));
     topicConfiguration = TopicConfigurationDeprecated.fromXml(
-        xml.findElements('TopicConfiguration').first);
+        getProp(xml, 'TopicConfiguration'));
   }
 
   /// Container for specifying the AWS Lambda notification configuration.
@@ -1142,7 +1139,7 @@ class NotificationConfigurationDeprecated {
 /// Specifies object key name filtering rules. For information about key name filtering, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
 class NotificationConfigurationFilter {
   NotificationConfigurationFilter.fromXml(XmlElement xml) {
-    key = S3KeyFilter.fromXml(xml.findElements('Key').first);
+    key = S3KeyFilter.fromXml(getProp(xml, 'Key'));
   }
 
   /// A container for object key name prefix and suffix filtering rules.
@@ -1152,12 +1149,12 @@ class NotificationConfigurationFilter {
 /// An object consists of data and its descriptive metadata.
 class Object {
   Object.fromXml(XmlElement xml) {
-    eTag = xml.findElements('ETag').first.text;
-    key = xml.findElements('Key').first.text;
-    lastModified = DateTime.parse(xml.findElements('LastModified').first.text);
-    owner = Owner.fromXml(xml.findElements('Owner').first);
-    size = int.parse(xml.findElements('Size').first.text);
-    storageClass = xml.findElements('StorageClass').first.text;
+    eTag = getProp(xml, 'ETag')?.text;
+    key = getProp(xml, 'Key')?.text;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')?.text);
+    owner = Owner.fromXml(getProp(xml, 'Owner'));
+    size = int.tryParse(getProp(xml, 'Size')?.text);
+    storageClass = getProp(xml, 'StorageClass')?.text;
   }
 
   /// The entity tag is an MD5 hash of the object. ETag reflects only changes to the contents of an object, not its metadata.
@@ -1182,8 +1179,8 @@ class Object {
 /// Object Identifier is unique value to identify objects.
 class ObjectIdentifier {
   ObjectIdentifier.fromXml(XmlElement xml) {
-    key = xml.findElements('Key').first.text;
-    versionId = xml.findElements('VersionId').first.text;
+    key = getProp(xml, 'Key')?.text;
+    versionId = getProp(xml, 'VersionId')?.text;
   }
 
   /// Key name of the object to delete.
@@ -1196,8 +1193,8 @@ class ObjectIdentifier {
 /// The container element for Object Lock configuration parameters.
 class ObjectLockConfiguration {
   ObjectLockConfiguration.fromXml(XmlElement xml) {
-    objectLockEnabled = xml.findElements('ObjectLockEnabled').first.text;
-    rule = ObjectLockRule.fromXml(xml.findElements('Rule').first);
+    objectLockEnabled = getProp(xml, 'ObjectLockEnabled')?.text;
+    rule = ObjectLockRule.fromXml(getProp(xml, 'Rule'));
   }
 
   /// Indicates whether this bucket has an Object Lock configuration enabled.
@@ -1210,7 +1207,7 @@ class ObjectLockConfiguration {
 /// A Legal Hold configuration for an object.
 class ObjectLockLegalHold {
   ObjectLockLegalHold.fromXml(XmlElement xml) {
-    status = xml.findElements('Status').first.text;
+    status = getProp(xml, 'Status')?.text;
   }
 
   /// Indicates whether the specified object has a Legal Hold in place.
@@ -1220,9 +1217,8 @@ class ObjectLockLegalHold {
 /// A Retention configuration for an object.
 class ObjectLockRetention {
   ObjectLockRetention.fromXml(XmlElement xml) {
-    mode = xml.findElements('Mode').first.text;
-    retainUntilDate =
-        DateTime.parse(xml.findElements('RetainUntilDate').first.text);
+    mode = getProp(xml, 'Mode')?.text;
+    retainUntilDate = DateTime.parse(getProp(xml, 'RetainUntilDate')?.text);
   }
 
   /// Indicates the Retention mode for the specified object.
@@ -1236,7 +1232,7 @@ class ObjectLockRetention {
 class ObjectLockRule {
   ObjectLockRule.fromXml(XmlElement xml) {
     defaultRetention =
-        DefaultRetention.fromXml(xml.findElements('DefaultRetention').first);
+        DefaultRetention.fromXml(getProp(xml, 'DefaultRetention'));
   }
 
   /// The default retention period that you want to apply to new objects placed in the specified bucket.
@@ -1246,14 +1242,14 @@ class ObjectLockRule {
 /// The version of an object.
 class ObjectVersion {
   ObjectVersion.fromXml(XmlElement xml) {
-    eTag = xml.findElements('ETag').first.text;
-    isLatest = xml.findElements('IsLatest').first.text == 'TRUE';
-    key = xml.findElements('Key').first.text;
-    lastModified = DateTime.parse(xml.findElements('LastModified').first.text);
-    owner = Owner.fromXml(xml.findElements('Owner').first);
-    size = int.parse(xml.findElements('Size').first.text);
-    storageClass = xml.findElements('StorageClass').first.text;
-    versionId = xml.findElements('VersionId').first.text;
+    eTag = getProp(xml, 'ETag')?.text;
+    isLatest = getProp(xml, 'IsLatest')?.text == 'TRUE';
+    key = getProp(xml, 'Key')?.text;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')?.text);
+    owner = Owner.fromXml(getProp(xml, 'Owner'));
+    size = int.tryParse(getProp(xml, 'Size')?.text);
+    storageClass = getProp(xml, 'StorageClass')?.text;
+    versionId = getProp(xml, 'VersionId')?.text;
   }
 
   /// The entity tag is an MD5 hash of that version of the object.
@@ -1284,7 +1280,7 @@ class ObjectVersion {
 /// Describes the location where the restore job's output is stored.
 class OutputLocation {
   OutputLocation.fromXml(XmlElement xml) {
-    s3 = S3Location.fromXml(xml.findElements('S3').first);
+    s3 = S3Location.fromXml(getProp(xml, 'S3'));
   }
 
   /// Describes an S3 location that will receive the results of the restore request.
@@ -1294,8 +1290,8 @@ class OutputLocation {
 /// Describes how results of the Select job are serialized.
 class OutputSerialization {
   OutputSerialization.fromXml(XmlElement xml) {
-    cSV = CSVOutput.fromXml(xml.findElements('CSV').first);
-    jSON = JSONOutput.fromXml(xml.findElements('JSON').first);
+    cSV = CSVOutput.fromXml(getProp(xml, 'CSV'));
+    jSON = JSONOutput.fromXml(getProp(xml, 'JSON'));
   }
 
   /// Describes the serialization of CSV-encoded Select results.
@@ -1308,8 +1304,8 @@ class OutputSerialization {
 /// Container for the owner's display name and ID.
 class Owner {
   Owner.fromXml(XmlElement xml) {
-    displayName = xml.findElements('DisplayName').first.text;
-    iD = xml.findElements('ID').first.text;
+    displayName = getProp(xml, 'DisplayName')?.text;
+    iD = getProp(xml, 'ID')?.text;
   }
 
   /// Container for the display name of the owner.
@@ -1327,10 +1323,10 @@ class ParquetInput {
 /// Container for elements related to a part.
 class Part {
   Part.fromXml(XmlElement xml) {
-    eTag = xml.findElements('ETag').first.text;
-    lastModified = DateTime.parse(xml.findElements('LastModified').first.text);
-    partNumber = int.parse(xml.findElements('PartNumber').first.text);
-    size = int.parse(xml.findElements('Size').first.text);
+    eTag = getProp(xml, 'ETag')?.text;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')?.text);
+    partNumber = int.tryParse(getProp(xml, 'PartNumber')?.text);
+    size = int.tryParse(getProp(xml, 'Size')?.text);
   }
 
   /// Entity tag returned when the part was uploaded.
@@ -1349,7 +1345,7 @@ class Part {
 /// The container element for a bucket's policy status.
 class PolicyStatus {
   PolicyStatus.fromXml(XmlElement xml) {
-    isPublic = xml.findElements('IsPublic').first.text == 'TRUE';
+    isPublic = getProp(xml, 'IsPublic')?.text == 'TRUE';
   }
 
   /// The policy status for this bucket. TRUE indicates that this bucket is public. FALSE indicates that the bucket is not public.
@@ -1359,9 +1355,9 @@ class PolicyStatus {
 /// This data type contains information about progress of an operation.
 class Progress {
   Progress.fromXml(XmlElement xml) {
-    bytesProcessed = int.parse(xml.findElements('BytesProcessed').first.text);
-    bytesReturned = int.parse(xml.findElements('BytesReturned').first.text);
-    bytesScanned = int.parse(xml.findElements('BytesScanned').first.text);
+    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')?.text);
+    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')?.text);
+    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')?.text);
   }
 
   /// The current number of uncompressed object bytes processed.
@@ -1377,7 +1373,7 @@ class Progress {
 /// This data type contains information about the progress event of an operation.
 class ProgressEvent {
   ProgressEvent.fromXml(XmlElement xml) {
-    details = Progress.fromXml(xml.findElements('Details').first);
+    details = Progress.fromXml(getProp(xml, 'Details'));
   }
 
   /// The Progress event details.
@@ -1387,13 +1383,11 @@ class ProgressEvent {
 /// The PublicAccessBlock configuration that you want to apply to this Amazon S3 bucket. You can enable the configuration options in any combination. For more information about when Amazon S3 considers a bucket or object public, see The Meaning of "Public" in the Amazon Simple Storage Service Developer Guide.
 class PublicAccessBlockConfiguration {
   PublicAccessBlockConfiguration.fromXml(XmlElement xml) {
-    blockPublicAcls = xml.findElements('BlockPublicAcls').first.text == 'TRUE';
-    blockPublicPolicy =
-        xml.findElements('BlockPublicPolicy').first.text == 'TRUE';
-    ignorePublicAcls =
-        xml.findElements('IgnorePublicAcls').first.text == 'TRUE';
+    blockPublicAcls = getProp(xml, 'BlockPublicAcls')?.text == 'TRUE';
+    blockPublicPolicy = getProp(xml, 'BlockPublicPolicy')?.text == 'TRUE';
+    ignorePublicAcls = getProp(xml, 'IgnorePublicAcls')?.text == 'TRUE';
     restrictPublicBuckets =
-        xml.findElements('RestrictPublicBuckets').first.text == 'TRUE';
+        getProp(xml, 'RestrictPublicBuckets')?.text == 'TRUE';
   }
 
   /// Specifies whether Amazon S3 should block public access control lists (ACLs) for this bucket and objects in this bucket. Setting this element to TRUE causes the following behavior:
@@ -1412,11 +1406,10 @@ class PublicAccessBlockConfiguration {
 /// Specifies the configuration for publishing messages to an Amazon Simple Queue Service (Amazon SQS) queue when Amazon S3 detects specified events.
 class QueueConfiguration {
   QueueConfiguration.fromXml(XmlElement xml) {
-    events = xml.findElements('Events').first.text;
-    filter = NotificationConfigurationFilter.fromXml(
-        xml.findElements('Filter').first);
-    id = xml.findElements('Id').first.text;
-    queueArn = xml.findElements('QueueArn').first.text;
+    events = getProp(xml, 'Events')?.text;
+    filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
+    id = getProp(xml, 'Id')?.text;
+    queueArn = getProp(xml, 'QueueArn')?.text;
   }
 
   /// A collection of bucket events for which to send notifications
@@ -1435,10 +1428,10 @@ class QueueConfiguration {
 /// This data type is deprecated. Use QueueConfiguration for the same purposes. This data type specifies the configuration for publishing messages to an Amazon Simple Queue Service (Amazon SQS) queue when Amazon S3 detects specified events.
 class QueueConfigurationDeprecated {
   QueueConfigurationDeprecated.fromXml(XmlElement xml) {
-    event = xml.findElements('Event').first.text;
-    events = xml.findElements('Events').first.text;
-    id = xml.findElements('Id').first.text;
-    queue = xml.findElements('Queue').first.text;
+    event = getProp(xml, 'Event')?.text;
+    events = getProp(xml, 'Events')?.text;
+    id = getProp(xml, 'Id')?.text;
+    queue = getProp(xml, 'Queue')?.text;
   }
 
   ///  This member has been deprecated.
@@ -1457,7 +1450,7 @@ class QueueConfigurationDeprecated {
 /// The container for the records event.
 class RecordsEvent {
   RecordsEvent.fromXml(XmlElement xml) {
-    payload = xml.findElements('Payload').first.text;
+    payload = getProp(xml, 'Payload')?.text;
   }
 
   /// The byte array of partial, one or more result records.
@@ -1467,11 +1460,11 @@ class RecordsEvent {
 /// Specifies how requests are redirected. In the event of an error, you can specify a different error code to return.
 class Redirect {
   Redirect.fromXml(XmlElement xml) {
-    hostName = xml.findElements('HostName').first.text;
-    httpRedirectCode = xml.findElements('HttpRedirectCode').first.text;
-    protocol = xml.findElements('Protocol').first.text;
-    replaceKeyPrefixWith = xml.findElements('ReplaceKeyPrefixWith').first.text;
-    replaceKeyWith = xml.findElements('ReplaceKeyWith').first.text;
+    hostName = getProp(xml, 'HostName')?.text;
+    httpRedirectCode = getProp(xml, 'HttpRedirectCode')?.text;
+    protocol = getProp(xml, 'Protocol')?.text;
+    replaceKeyPrefixWith = getProp(xml, 'ReplaceKeyPrefixWith')?.text;
+    replaceKeyWith = getProp(xml, 'ReplaceKeyWith')?.text;
   }
 
   /// The host name to use in the redirect request.
@@ -1493,8 +1486,8 @@ class Redirect {
 /// Specifies the redirect behavior of all requests to a website endpoint of an Amazon S3 bucket.
 class RedirectAllRequestsTo {
   RedirectAllRequestsTo.fromXml(XmlElement xml) {
-    hostName = xml.findElements('HostName').first.text;
-    protocol = xml.findElements('Protocol').first.text;
+    hostName = getProp(xml, 'HostName')?.text;
+    protocol = getProp(xml, 'Protocol')?.text;
   }
 
   /// Name of the host where requests are redirected.
@@ -1507,8 +1500,8 @@ class RedirectAllRequestsTo {
 /// A container for replication rules. You can add up to 1,000 rules. The maximum size of a replication configuration is 2 MB.
 class ReplicationConfiguration {
   ReplicationConfiguration.fromXml(XmlElement xml) {
-    role = xml.findElements('Role').first.text;
-    rules = ReplicationRule.fromXml(xml.findElements('Rules').first);
+    role = getProp(xml, 'Role')?.text;
+    rules = ReplicationRule.fromXml(getProp(xml, 'Rules'));
   }
 
   /// The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM) role that Amazon S3 assumes when replicating objects. For more information, see How to Set Up Replication in the Amazon Simple Storage Service Developer Guide.
@@ -1522,17 +1515,17 @@ class ReplicationConfiguration {
 class ReplicationRule {
   ReplicationRule.fromXml(XmlElement xml) {
     deleteMarkerReplication = DeleteMarkerReplication.fromXml(
-        xml.findElements('DeleteMarkerReplication').first);
-    destination = Destination.fromXml(xml.findElements('Destination').first);
+        getProp(xml, 'DeleteMarkerReplication'));
+    destination = Destination.fromXml(getProp(xml, 'Destination'));
     existingObjectReplication = ExistingObjectReplication.fromXml(
-        xml.findElements('ExistingObjectReplication').first);
-    filter = ReplicationRuleFilter.fromXml(xml.findElements('Filter').first);
-    iD = xml.findElements('ID').first.text;
-    prefix = xml.findElements('Prefix').first.text;
-    priority = int.parse(xml.findElements('Priority').first.text);
+        getProp(xml, 'ExistingObjectReplication'));
+    filter = ReplicationRuleFilter.fromXml(getProp(xml, 'Filter'));
+    iD = getProp(xml, 'ID')?.text;
+    prefix = getProp(xml, 'Prefix')?.text;
+    priority = int.tryParse(getProp(xml, 'Priority')?.text);
     sourceSelectionCriteria = SourceSelectionCriteria.fromXml(
-        xml.findElements('SourceSelectionCriteria').first);
-    status = xml.findElements('Status').first.text;
+        getProp(xml, 'SourceSelectionCriteria'));
+    status = getProp(xml, 'Status')?.text;
   }
 
   /// Specifies whether Amazon S3 replicates the delete markers. If you specify a Filter, you must specify this element. However, in the latest version of replication configuration (when Filter is specified), Amazon S3 doesn't replicate delete markers. Therefore, the DeleteMarkerReplication element can contain only <Status>Disabled</Status>. For an example configuration, see Basic Rule Configuration.
@@ -1566,8 +1559,8 @@ class ReplicationRule {
 /// A container for specifying rule filters. The filters determine the subset of objects to which the rule applies. This element is required only if you specify more than one filter.
 class ReplicationRuleAndOperator {
   ReplicationRuleAndOperator.fromXml(XmlElement xml) {
-    prefix = xml.findElements('Prefix').first.text;
-    tags = Tag.fromXml(xml.findElements('Tags').first);
+    prefix = getProp(xml, 'Prefix')?.text;
+    tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   /// An object key name prefix that identifies the subset of objects to which the rule applies.
@@ -1580,9 +1573,9 @@ class ReplicationRuleAndOperator {
 /// A filter that identifies the subset of objects to which the replication rule applies. A Filter must specify exactly one Prefix, Tag, or an And child element.
 class ReplicationRuleFilter {
   ReplicationRuleFilter.fromXml(XmlElement xml) {
-    and = ReplicationRuleAndOperator.fromXml(xml.findElements('And').first);
-    prefix = xml.findElements('Prefix').first.text;
-    tag = Tag.fromXml(xml.findElements('Tag').first);
+    and = ReplicationRuleAndOperator.fromXml(getProp(xml, 'And'));
+    prefix = getProp(xml, 'Prefix')?.text;
+    tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   /// A container for specifying rule filters. The filters determine the subset of objects to which the rule applies. This element is required only if you specify more than one filter. For example:
@@ -1598,8 +1591,8 @@ class ReplicationRuleFilter {
 ///  A container specifying S3 Replication Time Control (S3 RTC) related information, including whether S3 RTC is enabled and the time when all objects and operations on objects must be replicated. Must be specified together with a Metrics block.
 class ReplicationTime {
   ReplicationTime.fromXml(XmlElement xml) {
-    status = xml.findElements('Status').first.text;
-    time = ReplicationTimeValue.fromXml(xml.findElements('Time').first);
+    status = getProp(xml, 'Status')?.text;
+    time = ReplicationTimeValue.fromXml(getProp(xml, 'Time'));
   }
 
   ///  Specifies whether the replication time is enabled.
@@ -1612,7 +1605,7 @@ class ReplicationTime {
 ///  A container specifying the time value for S3 Replication Time Control (S3 RTC) and replication metrics EventThreshold.
 class ReplicationTimeValue {
   ReplicationTimeValue.fromXml(XmlElement xml) {
-    minutes = int.parse(xml.findElements('Minutes').first.text);
+    minutes = int.tryParse(getProp(xml, 'Minutes')?.text);
   }
 
   ///  Contains an integer specifying time in minutes.
@@ -1622,7 +1615,7 @@ class ReplicationTimeValue {
 /// Container for Payer.
 class RequestPaymentConfiguration {
   RequestPaymentConfiguration.fromXml(XmlElement xml) {
-    payer = xml.findElements('Payer').first.text;
+    payer = getProp(xml, 'Payer')?.text;
   }
 
   /// Specifies who pays for the download and request fees.
@@ -1632,7 +1625,7 @@ class RequestPaymentConfiguration {
 /// Container for specifying if periodic QueryProgress messages should be sent.
 class RequestProgress {
   RequestProgress.fromXml(XmlElement xml) {
-    enabled = xml.findElements('Enabled').first.text == 'TRUE';
+    enabled = getProp(xml, 'Enabled')?.text == 'TRUE';
   }
 
   /// Specifies whether periodic QueryProgress frames should be sent. Valid values: TRUE, FALSE. Default value: FALSE.
@@ -1642,16 +1635,15 @@ class RequestProgress {
 /// Container for restore job parameters.
 class RestoreRequest {
   RestoreRequest.fromXml(XmlElement xml) {
-    days = int.parse(xml.findElements('Days').first.text);
-    description = xml.findElements('Description').first.text;
-    glacierJobParameters = GlacierJobParameters.fromXml(
-        xml.findElements('GlacierJobParameters').first);
-    outputLocation =
-        OutputLocation.fromXml(xml.findElements('OutputLocation').first);
+    days = int.tryParse(getProp(xml, 'Days')?.text);
+    description = getProp(xml, 'Description')?.text;
+    glacierJobParameters =
+        GlacierJobParameters.fromXml(getProp(xml, 'GlacierJobParameters'));
+    outputLocation = OutputLocation.fromXml(getProp(xml, 'OutputLocation'));
     selectParameters =
-        SelectParameters.fromXml(xml.findElements('SelectParameters').first);
-    tier = xml.findElements('Tier').first.text;
-    type = xml.findElements('Type').first.text;
+        SelectParameters.fromXml(getProp(xml, 'SelectParameters'));
+    tier = getProp(xml, 'Tier')?.text;
+    type = getProp(xml, 'Type')?.text;
   }
 
   /// Lifetime of the active copy in days. Do not use with restores that specify OutputLocation.
@@ -1679,8 +1671,8 @@ class RestoreRequest {
 /// Specifies the redirect behavior and when a redirect is applied.
 class RoutingRule {
   RoutingRule.fromXml(XmlElement xml) {
-    condition = Condition.fromXml(xml.findElements('Condition').first);
-    redirect = Redirect.fromXml(xml.findElements('Redirect').first);
+    condition = Condition.fromXml(getProp(xml, 'Condition'));
+    redirect = Redirect.fromXml(getProp(xml, 'Redirect'));
   }
 
   /// A container for describing a condition that must be met for the specified redirect to apply. For example, 1. If request is for pages in the /docs folder, redirect to the /documents folder. 2. If request results in HTTP error 4xx, redirect request to another host where you might process the error.
@@ -1694,17 +1686,16 @@ class RoutingRule {
 class Rule {
   Rule.fromXml(XmlElement xml) {
     abortIncompleteMultipartUpload = AbortIncompleteMultipartUpload.fromXml(
-        xml.findElements('AbortIncompleteMultipartUpload').first);
-    expiration =
-        LifecycleExpiration.fromXml(xml.findElements('Expiration').first);
-    iD = xml.findElements('ID').first.text;
+        getProp(xml, 'AbortIncompleteMultipartUpload'));
+    expiration = LifecycleExpiration.fromXml(getProp(xml, 'Expiration'));
+    iD = getProp(xml, 'ID')?.text;
     noncurrentVersionExpiration = NoncurrentVersionExpiration.fromXml(
-        xml.findElements('NoncurrentVersionExpiration').first);
+        getProp(xml, 'NoncurrentVersionExpiration'));
     noncurrentVersionTransition = NoncurrentVersionTransition.fromXml(
-        xml.findElements('NoncurrentVersionTransition').first);
-    prefix = xml.findElements('Prefix').first.text;
-    status = xml.findElements('Status').first.text;
-    transition = Transition.fromXml(xml.findElements('Transition').first);
+        getProp(xml, 'NoncurrentVersionTransition'));
+    prefix = getProp(xml, 'Prefix')?.text;
+    status = getProp(xml, 'Status')?.text;
+    transition = Transition.fromXml(getProp(xml, 'Transition'));
   }
 
   /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
@@ -1735,7 +1726,7 @@ class Rule {
 /// A container for object key name prefix and suffix filtering rules.
 class S3KeyFilter {
   S3KeyFilter.fromXml(XmlElement xml) {
-    filterRules = FilterRule.fromXml(xml.findElements('FilterRules').first);
+    filterRules = FilterRule.fromXml(getProp(xml, 'FilterRules'));
   }
 
   /// A list of containers for the key-value pair that defines the criteria for the filter rule.
@@ -1745,16 +1736,14 @@ class S3KeyFilter {
 /// Describes an Amazon S3 location that will receive the results of the restore request.
 class S3Location {
   S3Location.fromXml(XmlElement xml) {
-    accessControlList =
-        Grant.fromXml(xml.findElements('AccessControlList').first);
-    bucketName = xml.findElements('BucketName').first.text;
-    cannedACL = xml.findElements('CannedACL').first.text;
-    encryption = Encryption.fromXml(xml.findElements('Encryption').first);
-    prefix = xml.findElements('Prefix').first.text;
-    storageClass = xml.findElements('StorageClass').first.text;
-    tagging = Tagging.fromXml(xml.findElements('Tagging').first);
-    userMetadata =
-        MetadataEntry.fromXml(xml.findElements('UserMetadata').first);
+    accessControlList = Grant.fromXml(getProp(xml, 'AccessControlList'));
+    bucketName = getProp(xml, 'BucketName')?.text;
+    cannedACL = getProp(xml, 'CannedACL')?.text;
+    encryption = Encryption.fromXml(getProp(xml, 'Encryption'));
+    prefix = getProp(xml, 'Prefix')?.text;
+    storageClass = getProp(xml, 'StorageClass')?.text;
+    tagging = Tagging.fromXml(getProp(xml, 'Tagging'));
+    userMetadata = MetadataEntry.fromXml(getProp(xml, 'UserMetadata'));
   }
 
   /// A list of grants that control access to the staged results.
@@ -1785,8 +1774,8 @@ class S3Location {
 /// Specifies the byte range of the object to get the records from. A record is processed when its first byte is contained by the range. This parameter is optional, but when specified, it must not be empty. See RFC 2616, Section 14.35.1 about how to specify the start and end of the range.
 class ScanRange {
   ScanRange.fromXml(XmlElement xml) {
-    end = int.parse(xml.findElements('End').first.text);
-    start = int.parse(xml.findElements('Start').first.text);
+    end = int.tryParse(getProp(xml, 'End')?.text);
+    start = int.tryParse(getProp(xml, 'Start')?.text);
   }
 
   /// Specifies the end of the byte range. This parameter is optional. Valid values: non-negative integers. The default value is one less than the size of the object being queried. If only the End parameter is supplied, it is interpreted to mean scan the last N bytes of the file. For example, <scanrange><end>50</end></scanrange> means scan the last 50 bytes.
@@ -1799,11 +1788,11 @@ class ScanRange {
 /// The container for selecting objects from a content event stream.
 class SelectObjectContentEventStream {
   SelectObjectContentEventStream.fromXml(XmlElement xml) {
-    cont = ContinuationEvent.fromXml(xml.findElements('Cont').first);
-    end = EndEvent.fromXml(xml.findElements('End').first);
-    progress = ProgressEvent.fromXml(xml.findElements('Progress').first);
-    records = RecordsEvent.fromXml(xml.findElements('Records').first);
-    stats = StatsEvent.fromXml(xml.findElements('Stats').first);
+    cont = ContinuationEvent.fromXml(getProp(xml, 'Cont'));
+    end = EndEvent.fromXml(getProp(xml, 'End'));
+    progress = ProgressEvent.fromXml(getProp(xml, 'Progress'));
+    records = RecordsEvent.fromXml(getProp(xml, 'Records'));
+    stats = StatsEvent.fromXml(getProp(xml, 'Stats'));
   }
 
   /// The Continuation Event.
@@ -1825,12 +1814,12 @@ class SelectObjectContentEventStream {
 /// Describes the parameters for Select job types.
 class SelectParameters {
   SelectParameters.fromXml(XmlElement xml) {
-    expression = xml.findElements('Expression').first.text;
-    expressionType = xml.findElements('ExpressionType').first.text;
-    inputSerialization = InputSerialization.fromXml(
-        xml.findElements('InputSerialization').first);
-    outputSerialization = OutputSerialization.fromXml(
-        xml.findElements('OutputSerialization').first);
+    expression = getProp(xml, 'Expression')?.text;
+    expressionType = getProp(xml, 'ExpressionType')?.text;
+    inputSerialization =
+        InputSerialization.fromXml(getProp(xml, 'InputSerialization'));
+    outputSerialization =
+        OutputSerialization.fromXml(getProp(xml, 'OutputSerialization'));
   }
 
   /// The expression that is used to query the object.
@@ -1849,8 +1838,8 @@ class SelectParameters {
 /// Describes the default server-side encryption to apply to new objects in the bucket. If a PUT Object request doesn't specify any server-side encryption, this default encryption will be applied. For more information, see PUT Bucket encryption in the Amazon Simple Storage Service API Reference.
 class ServerSideEncryptionByDefault {
   ServerSideEncryptionByDefault.fromXml(XmlElement xml) {
-    kMSMasterKeyID = xml.findElements('KMSMasterKeyID').first.text;
-    sSEAlgorithm = xml.findElements('SSEAlgorithm').first.text;
+    kMSMasterKeyID = getProp(xml, 'KMSMasterKeyID')?.text;
+    sSEAlgorithm = getProp(xml, 'SSEAlgorithm')?.text;
   }
 
   /// AWS Key Management Service (KMS) customer master key ID to use for the default encryption. This parameter is allowed if and only if SSEAlgorithm is set to aws:kms.
@@ -1863,7 +1852,7 @@ class ServerSideEncryptionByDefault {
 /// Specifies the default server-side-encryption configuration.
 class ServerSideEncryptionConfiguration {
   ServerSideEncryptionConfiguration.fromXml(XmlElement xml) {
-    rules = ServerSideEncryptionRule.fromXml(xml.findElements('Rules').first);
+    rules = ServerSideEncryptionRule.fromXml(getProp(xml, 'Rules'));
   }
 
   /// Container for information about a particular server-side encryption configuration rule.
@@ -1874,7 +1863,7 @@ class ServerSideEncryptionConfiguration {
 class ServerSideEncryptionRule {
   ServerSideEncryptionRule.fromXml(XmlElement xml) {
     applyServerSideEncryptionByDefault = ServerSideEncryptionByDefault.fromXml(
-        xml.findElements('ApplyServerSideEncryptionByDefault').first);
+        getProp(xml, 'ApplyServerSideEncryptionByDefault'));
   }
 
   /// Specifies the default server-side encryption to apply to new objects in the bucket. If a PUT Object request doesn't specify any server-side encryption, this default encryption will be applied.
@@ -1884,8 +1873,8 @@ class ServerSideEncryptionRule {
 /// A container that describes additional filters for identifying the source objects that you want to replicate. You can choose to enable or disable the replication of these objects. Currently, Amazon S3 supports only the filter that you can specify for objects created with server-side encryption using a customer master key (CMK) stored in AWS Key Management Service (SSE-KMS).
 class SourceSelectionCriteria {
   SourceSelectionCriteria.fromXml(XmlElement xml) {
-    sseKmsEncryptedObjects = SseKmsEncryptedObjects.fromXml(
-        xml.findElements('SseKmsEncryptedObjects').first);
+    sseKmsEncryptedObjects =
+        SseKmsEncryptedObjects.fromXml(getProp(xml, 'SseKmsEncryptedObjects'));
   }
 
   ///  A container for filter information for the selection of Amazon S3 objects encrypted with AWS KMS. If you include SourceSelectionCriteria in the replication configuration, this element is required.
@@ -1895,7 +1884,7 @@ class SourceSelectionCriteria {
 /// Specifies the use of SSE-KMS to encrypt delivered inventory reports.
 class SSEKMS {
   SSEKMS.fromXml(XmlElement xml) {
-    keyId = xml.findElements('KeyId').first.text;
+    keyId = getProp(xml, 'KeyId')?.text;
   }
 
   /// Specifies the ID of the AWS Key Management Service (AWS KMS) symmetric customer managed customer master key (CMK) to use for encrypting inventory reports.
@@ -1905,7 +1894,7 @@ class SSEKMS {
 /// A container for filter information for the selection of S3 objects encrypted with AWS KMS.
 class SseKmsEncryptedObjects {
   SseKmsEncryptedObjects.fromXml(XmlElement xml) {
-    status = xml.findElements('Status').first.text;
+    status = getProp(xml, 'Status')?.text;
   }
 
   /// Specifies whether Amazon S3 replicates objects created with server-side encryption using a customer master key (CMK) stored in AWS Key Management Service.
@@ -1920,9 +1909,9 @@ class SSES3 {
 /// Container for the stats details.
 class Stats {
   Stats.fromXml(XmlElement xml) {
-    bytesProcessed = int.parse(xml.findElements('BytesProcessed').first.text);
-    bytesReturned = int.parse(xml.findElements('BytesReturned').first.text);
-    bytesScanned = int.parse(xml.findElements('BytesScanned').first.text);
+    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')?.text);
+    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')?.text);
+    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')?.text);
   }
 
   /// The total number of uncompressed object bytes processed.
@@ -1938,7 +1927,7 @@ class Stats {
 /// Container for the Stats Event.
 class StatsEvent {
   StatsEvent.fromXml(XmlElement xml) {
-    details = Stats.fromXml(xml.findElements('Details').first);
+    details = Stats.fromXml(getProp(xml, 'Details'));
   }
 
   /// The Stats event details.
@@ -1948,8 +1937,8 @@ class StatsEvent {
 /// Specifies data related to access patterns to be collected and made available to analyze the tradeoffs between different storage classes for an Amazon S3 bucket.
 class StorageClassAnalysis {
   StorageClassAnalysis.fromXml(XmlElement xml) {
-    dataExport = StorageClassAnalysisDataExport.fromXml(
-        xml.findElements('DataExport').first);
+    dataExport =
+        StorageClassAnalysisDataExport.fromXml(getProp(xml, 'DataExport'));
   }
 
   /// Specifies how data related to the storage class analysis for an Amazon S3 bucket should be exported.
@@ -1959,9 +1948,9 @@ class StorageClassAnalysis {
 /// Container for data related to the storage class analysis for an Amazon S3 bucket for export.
 class StorageClassAnalysisDataExport {
   StorageClassAnalysisDataExport.fromXml(XmlElement xml) {
-    destination = AnalyticsExportDestination.fromXml(
-        xml.findElements('Destination').first);
-    outputSchemaVersion = xml.findElements('OutputSchemaVersion').first.text;
+    destination =
+        AnalyticsExportDestination.fromXml(getProp(xml, 'Destination'));
+    outputSchemaVersion = getProp(xml, 'OutputSchemaVersion')?.text;
   }
 
   /// The place to store the data for an analysis.
@@ -1974,8 +1963,8 @@ class StorageClassAnalysisDataExport {
 /// A container of a key value name pair.
 class Tag {
   Tag.fromXml(XmlElement xml) {
-    key = xml.findElements('Key').first.text;
-    value = xml.findElements('Value').first.text;
+    key = getProp(xml, 'Key')?.text;
+    value = getProp(xml, 'Value')?.text;
   }
 
   /// Name of the tag.
@@ -1988,7 +1977,7 @@ class Tag {
 /// Container for TagSet elements.
 class Tagging {
   Tagging.fromXml(XmlElement xml) {
-    tagSet = Tag.fromXml(xml.findElements('TagSet').first);
+    tagSet = Tag.fromXml(getProp(xml, 'TagSet'));
   }
 
   /// A collection for a set of tags
@@ -1998,8 +1987,8 @@ class Tagging {
 /// Container for granting information.
 class TargetGrant {
   TargetGrant.fromXml(XmlElement xml) {
-    grantee = Grantee.fromXml(xml.findElements('Grantee').first);
-    permission = xml.findElements('Permission').first.text;
+    grantee = Grantee.fromXml(getProp(xml, 'Grantee'));
+    permission = getProp(xml, 'Permission')?.text;
   }
 
   /// Container for the person being granted permissions.
@@ -2012,11 +2001,10 @@ class TargetGrant {
 /// A container for specifying the configuration for publication of messages to an Amazon Simple Notification Service (Amazon SNS) topic when Amazon S3 detects specified events.
 class TopicConfiguration {
   TopicConfiguration.fromXml(XmlElement xml) {
-    events = xml.findElements('Events').first.text;
-    filter = NotificationConfigurationFilter.fromXml(
-        xml.findElements('Filter').first);
-    id = xml.findElements('Id').first.text;
-    topicArn = xml.findElements('TopicArn').first.text;
+    events = getProp(xml, 'Events')?.text;
+    filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
+    id = getProp(xml, 'Id')?.text;
+    topicArn = getProp(xml, 'TopicArn')?.text;
   }
 
   /// The Amazon S3 bucket event about which to send notifications. For more information, see Supported Event Types in the Amazon Simple Storage Service Developer Guide.
@@ -2035,10 +2023,10 @@ class TopicConfiguration {
 /// A container for specifying the configuration for publication of messages to an Amazon Simple Notification Service (Amazon SNS) topic when Amazon S3 detects specified events. This data type is deprecated. Use TopicConfiguration instead.
 class TopicConfigurationDeprecated {
   TopicConfigurationDeprecated.fromXml(XmlElement xml) {
-    event = xml.findElements('Event').first.text;
-    events = xml.findElements('Events').first.text;
-    id = xml.findElements('Id').first.text;
-    topic = xml.findElements('Topic').first.text;
+    event = getProp(xml, 'Event')?.text;
+    events = getProp(xml, 'Events')?.text;
+    id = getProp(xml, 'Id')?.text;
+    topic = getProp(xml, 'Topic')?.text;
   }
 
   ///  This member has been deprecated.
@@ -2057,9 +2045,9 @@ class TopicConfigurationDeprecated {
 /// Specifies when an object transitions to a specified storage class. For more information about Amazon S3 lifecycle configuration rules, see Transitioning Objects Using Amazon S3 Lifecycle in the Amazon Simple Storage Service Developer Guide.
 class Transition {
   Transition.fromXml(XmlElement xml) {
-    date = DateTime.parse(xml.findElements('Date').first.text);
-    days = int.parse(xml.findElements('Days').first.text);
-    storageClass = xml.findElements('StorageClass').first.text;
+    date = DateTime.parse(getProp(xml, 'Date')?.text);
+    days = int.tryParse(getProp(xml, 'Days')?.text);
+    storageClass = getProp(xml, 'StorageClass')?.text;
   }
 
   /// Indicates when objects are transitioned to the specified storage class. The date value must be in ISO 8601 format. The time is always midnight UTC.
@@ -2075,8 +2063,8 @@ class Transition {
 /// Describes the versioning state of an Amazon S3 bucket. For more information, see PUT Bucket versioning in the Amazon Simple Storage Service API Reference.
 class VersioningConfiguration {
   VersioningConfiguration.fromXml(XmlElement xml) {
-    mFADelete = xml.findElements('MFADelete').first.text;
-    status = xml.findElements('Status').first.text;
+    mFADelete = getProp(xml, 'MFADelete')?.text;
+    status = getProp(xml, 'Status')?.text;
   }
 
   /// Specifies whether MFA delete is enabled in the bucket versioning configuration. This element is only returned if the bucket has been configured with MFA delete. If the bucket has never been so configured, this element is not returned.
@@ -2089,13 +2077,11 @@ class VersioningConfiguration {
 /// Specifies website configuration parameters for an Amazon S3 bucket.
 class WebsiteConfiguration {
   WebsiteConfiguration.fromXml(XmlElement xml) {
-    errorDocument =
-        ErrorDocument.fromXml(xml.findElements('ErrorDocument').first);
-    indexDocument =
-        IndexDocument.fromXml(xml.findElements('IndexDocument').first);
-    redirectAllRequestsTo = RedirectAllRequestsTo.fromXml(
-        xml.findElements('RedirectAllRequestsTo').first);
-    routingRules = RoutingRule.fromXml(xml.findElements('RoutingRules').first);
+    errorDocument = ErrorDocument.fromXml(getProp(xml, 'ErrorDocument'));
+    indexDocument = IndexDocument.fromXml(getProp(xml, 'IndexDocument'));
+    redirectAllRequestsTo =
+        RedirectAllRequestsTo.fromXml(getProp(xml, 'RedirectAllRequestsTo'));
+    routingRules = RoutingRule.fromXml(getProp(xml, 'RoutingRules'));
   }
 
   /// The name of the error document for the website.
