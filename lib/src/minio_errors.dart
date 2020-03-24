@@ -40,6 +40,11 @@ class MinioInvalidBucketNameError extends MinioError {
 
 class MinioInvalidObjectNameError extends MinioError {
   MinioInvalidObjectNameError(String message) : super(message);
+
+  static void check(String object) {
+    if (isValidObjectName(object)) return;
+    throw MinioInvalidObjectNameError('Invalid object name: $object');
+  }
 }
 
 class MinioAccessKeyRequiredError extends MinioError {

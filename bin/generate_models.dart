@@ -20,7 +20,7 @@ XmlElement getProp(XmlElement xml, String name) {
 ${models.join('\n')}
   ''';
 
-  await File('lib/models.dart').writeAsString(result);
+  await File('lib/src/minio_models_generated.dart').writeAsString(result);
 }
 
 const baseUrl = 'https://docs.aws.amazon.com/AmazonS3/latest/API';
@@ -59,6 +59,13 @@ Future<String> getModel(String url) async {
   buffer.writeln('/// $description');
   buffer.writeln('class $name {');
 
+  buffer.writeln('  $name(');
+  for (var field in fields) {
+    buffer.writeln('      this.${field.dartName},');
+  }
+  buffer.writeln('  );');
+  buffer.writeln('');
+
   buffer.writeln('  $name.fromXml(XmlElement xml) {');
   for (var field in fields) {
     switch (field.type.name) {
@@ -72,7 +79,7 @@ Future<String> getModel(String url) async {
         break;
       case 'bool':
         buffer.writeln(
-            "      ${field.dartName} = getProp(xml, '${field.name}')?.text == 'TRUE';");
+            "      ${field.dartName} = getProp(xml, '${field.name}')?.text?.toUpperCase() == 'TRUE';");
         break;
       case 'DateTime':
         buffer.writeln(
@@ -83,6 +90,38 @@ Future<String> getModel(String url) async {
             "      ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));");
     }
   }
+  buffer.writeln('  }');
+  buffer.writeln('');
+
+  buffer.writeln('  XmlNode toXml() {');
+  buffer.writeln('    final builder = XmlBuilder();');
+  buffer.writeln("    builder.element('$name', nest: () {");
+  for (var field in fields) {
+    switch (field.type.name) {
+      case 'String':
+        buffer.writeln(
+            "      builder.element('${field.name}', nest: ${field.dartName});");
+        break;
+      case 'int':
+        buffer.writeln(
+            "      builder.element('${field.name}', nest: ${field.dartName}.toString());");
+        break;
+      case 'bool':
+        buffer.writeln(
+            "      builder.element('${field.name}', nest: ${field.dartName} ? 'TRUE' : 'FALSE');");
+
+        break;
+      case 'DateTime':
+        buffer.writeln(
+            "      builder.element('${field.name}', nest: ${field.dartName}.toIso8601String());");
+        break;
+      default:
+        buffer.writeln(
+            "      builder.element('${field.name}', nest: ${field.dartName}.toXml());");
+    }
+  }
+  buffer.writeln('    });');
+  buffer.writeln('    return builder.build();');
   buffer.writeln('  }');
   buffer.writeln('');
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
+import 'package:xml/xml.dart';
 
 bool isValidBucketName(String bucket) {
   if (bucket == null) return false;
@@ -22,6 +23,18 @@ bool isValidBucketName(String bucket) {
   }
 
   return false;
+}
+
+bool isValidObjectName(objectName) {
+  if (!isValidPrefix(objectName)) return false;
+  if (objectName.isEmpty) return false;
+  return true;
+}
+
+bool isValidPrefix(String prefix) {
+  if (prefix == null) return false;
+  if (prefix.length > 1024) return false;
+  return true;
 }
 
 bool isAmazonEndpoint(String endpoint) {
@@ -113,4 +126,46 @@ String makeDateShort(DateTime date) {
 
 String sha256Hex(String data) {
   return hex.encode(sha256.convert(utf8.encode(data)).bytes);
+}
+
+XmlElement getNodeProp(XmlElement xml, String name) {
+  final result = xml.findElements(name);
+  return result.isNotEmpty ? result.first : null;
+}
+
+Map<String, String> prependXAMZMeta(Map<String, String> metaData) {
+  final newMetadata = Map<String, String>.from(metaData);
+  for (var key in metaData.keys) {
+    if (!isAmzHeader(key) &&
+        !isSupportedHeader(key) &&
+        !isStorageclassHeader(key)) {
+      newMetadata['X-Amz-Meta-' + key] = newMetadata[key];
+      newMetadata.remove(key);
+    }
+  }
+  return newMetadata;
+}
+
+bool isAmzHeader(key) {
+  key = key.toLowerCase();
+  return key.startsWith('x-amz-meta-') ||
+      key == 'x-amz-acl' ||
+      key.startsWith('x-amz-server-side-encryption-') ||
+      key == 'x-amz-server-side-encryption';
+}
+
+bool isSupportedHeader(key) {
+  var supported_headers = {
+    'content-type',
+    'cache-control',
+    'content-encoding',
+    'content-disposition',
+    'content-language',
+    'x-amz-website-redirect-location',
+  };
+  return (supported_headers.contains(key.toLowerCase()));
+}
+
+bool isStorageclassHeader(key) {
+  return key.toLowerCase() == 'x-amz-storage-class';
 }
