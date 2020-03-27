@@ -2,6 +2,7 @@ import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:minio/minio.dart';
 import 'package:minio/src/minio_helpers.dart';
+import 'package:minio/src/utils.dart';
 
 const signV4Algorithm = 'AWS4-HMAC-SHA256';
 

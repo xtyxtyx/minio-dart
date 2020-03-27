@@ -1,9 +1,3 @@
-import 'dart:convert';
-
-import 'package:convert/convert.dart';
-import 'package:crypto/crypto.dart';
-import 'package:xml/xml.dart';
-
 bool isValidBucketName(String bucket) {
   if (bucket == null) return false;
 
@@ -124,18 +118,9 @@ String makeDateShort(DateTime date) {
       isoDate.substring(8, 10);
 }
 
-String sha256Hex(String data) {
-  return hex.encode(sha256.convert(utf8.encode(data)).bytes);
-}
-
-XmlElement getNodeProp(XmlElement xml, String name) {
-  final result = xml.findElements(name);
-  return result.isNotEmpty ? result.first : null;
-}
-
-Map<String, String> prependXAMZMeta(Map<String, String> metaData) {
-  final newMetadata = Map<String, String>.from(metaData);
-  for (var key in metaData.keys) {
+Map<String, String> prependXAMZMeta(Map<String, String> metadata) {
+  final newMetadata = Map<String, String>.from(metadata);
+  for (var key in metadata.keys) {
     if (!isAmzHeader(key) &&
         !isSupportedHeader(key) &&
         !isStorageclassHeader(key)) {

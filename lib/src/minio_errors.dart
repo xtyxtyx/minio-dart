@@ -65,6 +65,11 @@ class MinioInvalidDateError extends MinioError {
 
 class MinioInvalidPrefixError extends MinioError {
   MinioInvalidPrefixError(String message) : super(message);
+
+  static void check(String prefix) {
+    if (isValidPrefix(prefix)) return;
+    throw MinioInvalidPrefixError('Invalid prefix: $prefix');
+  }
 }
 
 class MinioInvalidBucketPolicyError extends MinioError {
