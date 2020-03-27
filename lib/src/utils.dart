@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:buffer/buffer.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:xml/xml.dart';
@@ -28,4 +31,29 @@ String encodeQueries(Map<String, String> queries) {
     pairs.add(encodeQuery(key, value));
   }
   return pairs.join('=');
+}
+
+class BlockStream extends StreamTransformerBase<List<int>, List<int>> {
+  BlockStream(this.size);
+
+  final int size;
+
+  @override
+  Stream<List<int>> bind(Stream<List<int>> stream) async* {
+    var buffer = BytesBuffer();
+
+    await for (var chunk in stream) {
+      buffer.add(chunk);
+      if (buffer.length >= size) {
+        final block = buffer.toBytes();
+        yield block.sublist(0, size);
+        buffer = BytesBuffer();
+        buffer.add(block.sublist(size));
+      }
+    }
+
+    if (buffer.length != 0) {
+      yield buffer.toBytes();
+    }
+  }
 }

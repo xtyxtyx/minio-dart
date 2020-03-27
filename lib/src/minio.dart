@@ -1,14 +1,34 @@
+import 'dart:convert';
+
 import 'package:http/http.dart';
 import 'package:minio/models.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_helpers.dart';
 import 'package:minio/src/minio_s3.dart';
 import 'package:minio/src/minio_sign.dart';
+import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
 
-class MinioRequest extends Request {
+class MinioRequest extends BaseRequest {
   MinioRequest(String method, Uri url) : super(method, url);
+
+  dynamic body;
+
+  @override
+  ByteStream finalize() {
+    super.finalize();
+    if (body is String) {
+      return ByteStream.fromBytes(utf8.encode(body));
+    }
+    if (body is List<int>) {
+      return ByteStream.fromBytes(body);
+    }
+    if (body is Stream<List<int>>) {
+      return ByteStream(body);
+    }
+    throw UnsupportedError('unsupported body type: ${body.runtimeType}');
+  }
 }
 
 class MinioClient {
@@ -30,8 +50,8 @@ class MinioClient {
     String bucket,
     String object,
     String region,
-    String payload = '',
     String resource,
+    dynamic payload = '',
     Map<String, String> queries,
     Map<String, String> headers,
   }) async {
@@ -68,8 +88,8 @@ class MinioClient {
     String bucket,
     String object,
     String region,
-    String payload = '',
     String resource,
+    dynamic payload = '',
     Map<String, String> queries,
     Map<String, String> headers,
   }) async {
@@ -95,8 +115,8 @@ class MinioClient {
     String bucket,
     String object,
     String region,
-    String payload = '',
     String resource,
+    dynamic payload = '',
     Map<String, String> queries,
     Map<String, String> headers,
   }) async {
@@ -200,6 +220,10 @@ class Minio {
     _client = MinioClient(this);
   }
 
+  final partSize = 64 * 1024 * 1024;
+  final maximumPartSize = 5 * 1024 * 1024 * 1024;
+  final maxObjectSize = 5 * 1024 * 1024 * 1024 * 1024;
+
   final String endPoint;
   final int port;
   final bool useSSL;
@@ -220,10 +244,30 @@ class Minio {
     return resp.statusCode == 200;
   }
 
+  int calculatePartSize(int size) {
+    assert(size != null && size >= 0);
+
+    if (size > maxObjectSize) {
+      throw ArgumentError('size should not be more than $maxObjectSize');
+    }
+
+    if (this.partSize != null) {
+      return this.partSize;
+    }
+
+    var partSize = this.partSize;
+    while (true) {
+      if ((partSize * 10000) > size) {
+        return partSize;
+      }
+      partSize += 16 * 1024 * 1024;
+    }
+  }
+
   Future<String> completeMultipartUpload(
     String bucket,
     String object,
-    int uploadId,
+    String uploadId,
     List<CompletedPart> parts,
   ) async {
     MinioInvalidBucketNameError.check(bucket);
@@ -232,7 +276,7 @@ class Minio {
     assert(uploadId != null);
     assert(parts != null);
 
-    var queries = {'uploadId': 'uploadId'};
+    var queries = {'uploadId': uploadId};
     var payload = CompleteMultipartUpload(parts).toXml().toString();
 
     final resp = await _client.request(
@@ -595,21 +639,29 @@ class Minio {
     return resp.body;
   }
 
-  Future putObject(
+  Future<String> putObject(
     String bucket,
     String object,
     Stream<List<int>> data,
     int size, {
     Map<String, String> metadata,
-  }) async {
+  }) {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
     assert(data != null);
-    assert(size != null && size >= 0);
+    assert(size >= 0 || size == null);
 
     metadata = prependXAMZMeta(metadata ?? {});
     // Stream.
+
+    size ??= maxObjectSize;
+    size = calculatePartSize(size);
+
+    final chunker = BlockStream(size);
+    final uploader =
+        MinioUploader(this, _client, bucket, object, size, metadata);
+    return data.transform(chunker).pipe(uploader);
   }
 
   Future<void> removeBucket(String bucket) async {

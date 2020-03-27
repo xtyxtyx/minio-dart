@@ -13,6 +13,7 @@ dependencies:
   crypto: ^2.1.4
   convert: ^2.1.1
   xml: ^3.7.0
+  buffer: ^1.0.6
 #  path: ^1.6.0
 
 dev_dependencies:
