@@ -65,3 +65,7 @@ class BlockStream extends StreamTransformerBase<List<int>, List<int>> {
     }
   }
 }
+
+String trimDoubleQuote(String str) {
+  return str.replaceAll(RegExp('^"'), '').replaceAll(RegExp(r'"$'), '');
+}

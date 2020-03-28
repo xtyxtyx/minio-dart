@@ -39,8 +39,15 @@ void main() async {
   // await File('sys8_captcha.png').openWrite().addStream(object);
 
   final file = File('example/teaweb.png');
+  final object = 'teaweb.png';
   final size = await file.length();
-  final etag =
-      await minio.putObject(bucket, 'teaweb.png', file.openRead(), size);
+  final etag = await minio.putObject(bucket, object, file.openRead(), size);
   print(etag);
+
+  final copyResult = await minio.copyObject(
+    bucket,
+    '$object.copy',
+    '$bucket/$object',
+  );
+  print(copyResult.eTag);
 }

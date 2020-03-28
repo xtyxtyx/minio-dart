@@ -5,6 +5,7 @@ import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
+import 'package:minio/src/utils.dart';
 
 class MinioUploader implements StreamConsumer<List<int>> {
   MinioUploader(
@@ -110,7 +111,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
 
     var etag = resp.headers['etag'];
     if (etag != null) {
-      etag = etag.replaceAll(RegExp('^"'), '').replaceAll(RegExp(r'"$'), '');
+      etag = trimDoubleQuote(etag);
     }
 
     return etag;

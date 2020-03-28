@@ -307,6 +307,50 @@ class Minio {
     return etag;
   }
 
+  Future<CopyObjectResult> copyObject(
+    String bucket,
+    String object,
+    String srcObject, [
+    CopyConditions conditions,
+  ]) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+    MinioInvalidObjectNameError.check(srcObject);
+
+    final headers = <String, String>{};
+    headers['x-amz-copy-source'] = srcObject;
+
+    if (conditions != null) {
+      if (conditions.modified != null) {
+        headers['x-amz-copy-source-if-modified-since'] = conditions.modified;
+      }
+      if (conditions.unmodified != null) {
+        headers['x-amz-copy-source-if-unmodified-since'] =
+            conditions.unmodified;
+      }
+      if (conditions.matchETag != null) {
+        headers['x-amz-copy-source-if-match'] = conditions.matchETag;
+      }
+      if (conditions.matchETagExcept != null) {
+        headers['x-amz-copy-source-if-none-match'] = conditions.matchETagExcept;
+      }
+    }
+
+    final resp = await _client.request(
+      method: 'PUT',
+      bucket: bucket,
+      object: object,
+      headers: headers,
+    );
+
+    validate(resp);
+
+    final node = xml.parse(resp.body);
+    final result =  CopyObjectResult.fromXml(node.rootElement);
+    result.eTag = trimDoubleQuote(result.eTag);
+    return result;
+  }
+
   Future<String> findUploadID(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);

@@ -65,7 +65,30 @@ class IncompleteUpload {
     this.upload,
     this.size,
   });
-  
+
   final MultipartUpload upload;
   final int size;
+}
+
+class CopyConditions {
+  String modified;
+  String unmodified;
+  String matchETag;
+  String matchETagExcept;
+
+  void setModified(DateTime date) {
+    modified = date.toUtc().toIso8601String();
+  }
+
+  void setUnmodified(DateTime date) {
+    unmodified = date.toUtc().toIso8601String();
+  }
+
+  void setMatchETag(String etag) {
+    matchETag = etag;
+  }
+
+  void setMatchETagExcept(String etag) {
+    matchETagExcept = etag;
+  }
 }
