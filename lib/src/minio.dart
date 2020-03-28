@@ -156,8 +156,8 @@ class MinioClient {
       if (object != null) path = '/${bucket}/${object}';
     }
 
-    final resourcePart = resource != null ? '$resource&' : '';
-    final queryPart = encodeQueries(queries);
+    final resourcePart = resource == null ? '' : '$resource&';
+    final queryPart = queries == null ? '' : encodeQueries(queries);
     final query = resourcePart + queryPart;
 
     return Uri(
@@ -179,7 +179,12 @@ class MinioClient {
     for (var header in request.headers.entries) {
       buffer.writeln('${header.key}: ${header.value}');
     }
-    buffer.writeln(request.body);
+
+    if (request.body is List<int>) {
+      buffer.writeln('List<int> of size ${request.body.length}');
+    } else {
+      buffer.writeln(request.body);
+    }
 
     print(buffer.toString());
   }
@@ -237,11 +242,14 @@ class Minio {
 
   Future<bool> bucketExists(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
-    final resp = await _client.request(method: 'HEAD', bucket: bucket);
-    if (resp.statusCode != 200 && resp.statusCode != 404) {
-      throw MinioS3Error('bucketExists failed.');
+    try {
+      await _client.request(method: 'HEAD', bucket: bucket);
+    } on MinioS3Error catch (e) {
+      final code = e.error.code;
+      if (code == 'NoSuchBucket' || code == 'NotFound') return false;
+      rethrow;
     }
-    return resp.statusCode == 200;
+    return true;
   }
 
   int calculatePartSize(int size) {
@@ -349,7 +357,7 @@ class Minio {
     final node = xml.parse(resp.body);
     final location = node.findAllElements('LocationConstraint').first.text;
 
-    _regionMap[bucket] = location;
+    _regionMap[bucket] = location ?? 'us-east-1';
     return location;
   }
 
@@ -645,7 +653,7 @@ class Minio {
     Stream<List<int>> data,
     int size, {
     Map<String, String> metadata,
-  }) {
+  }) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
@@ -653,15 +661,21 @@ class Minio {
     assert(size >= 0 || size == null);
 
     metadata = prependXAMZMeta(metadata ?? {});
-    // Stream.
 
     size ??= maxObjectSize;
     size = calculatePartSize(size);
 
     final chunker = BlockStream(size);
-    final uploader =
-        MinioUploader(this, _client, bucket, object, size, metadata);
-    return data.transform(chunker).pipe(uploader);
+    final uploader = MinioUploader(
+      this,
+      _client,
+      bucket,
+      object,
+      size,
+      metadata,
+    );
+    final etag = await data.transform(chunker).pipe(uploader);
+    return etag.toString();
   }
 
   Future<void> removeBucket(String bucket) async {

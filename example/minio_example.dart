@@ -11,8 +11,17 @@ void main() async {
     secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
   );
 
+  final bucket = '00test';
+
+  if (!await minio.bucketExists(bucket)) {
+    await minio.makeBucket(bucket);
+    print('bucket $bucket created');
+  } else {
+    print('bucket $bucket already exists');
+  }
+
   // print(await minio.bucketExists('02test'));
-  // await minio.makeBucket('05test');
+  // await minio.makeBucket('00test');
   // await minio.removeBucket('05test');
   // print(await minio.getBucketRegion('00test'));
   // print(await minio.getBucketRegion('00test'));
@@ -28,4 +37,10 @@ void main() async {
 
   // final object = await minio.getObject('00test', 'sys8_captcha.png');
   // await File('sys8_captcha.png').openWrite().addStream(object);
+
+  final file = File('example/teaweb.png');
+  final size = await file.length();
+  final etag =
+      await minio.putObject(bucket, 'teaweb.png', file.openRead(), size);
+  print(etag);
 }

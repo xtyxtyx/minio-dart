@@ -7,8 +7,16 @@ import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:xml/xml.dart';
 
-String sha256Hex(String data) {
-  return hex.encode(sha256.convert(utf8.encode(data)).bytes);
+String sha256Hex(Object data) {
+  if (data is String) {
+    data = utf8.encode(data);
+  } else if (data is List<int>) {
+    data = data;
+  } else {
+    throw ArgumentError('unsupported data type: ${data.runtimeType}');
+  }
+
+  return hex.encode(sha256.convert(data).bytes);
 }
 
 XmlElement getNodeProp(XmlElement xml, String name) {

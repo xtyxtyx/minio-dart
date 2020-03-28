@@ -42,7 +42,8 @@ class MinioUploader implements StreamConsumer<List<int>> {
       }
 
       if (this.partNumber == 1 && chunk.length < partSize) {
-        return uploadInOneGo(chunk, headers);
+        this.etag = await upload(chunk, headers, null);
+        return;
       }
 
       if (uploadId == null) {
@@ -68,20 +69,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
         'uploadId': uploadId,
       };
 
-      final resp = await client.request(
-        method: 'PUT',
-        queries: queries,
-        headers: headers,
-        bucket: bucket,
-        object: object,
-      );
-
-      validate(resp);
-
-      var etag = resp.headers['etag'];
-      if (etag != null) {
-        etag = etag.replaceAll(RegExp('^"'), '').replaceAll(RegExp(r'"$'), '');
-      }
+      final etag = await upload(chunk, headers, queries);
       final part = CompletedPart(etag, partNumber);
       parts.add(part);
     }
@@ -89,10 +77,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
 
   @override
   Future<String> close() async {
-    if (uploadId == null) {
-      return etag;
-    }
-
+    if (uploadId == null) return etag;
     return minio.completeMultipartUpload(bucket, object, uploadId, parts);
   }
 
@@ -107,11 +92,15 @@ class MinioUploader implements StreamConsumer<List<int>> {
     return headers;
   }
 
-  Future<void> uploadInOneGo(
-      List<int> chunk, Map<String, String> headers) async {
+  Future<String> upload(
+    List<int> chunk,
+    Map<String, String> headers,
+    Map<String, String> queries,
+  ) async {
     final resp = await client.request(
       method: 'PUT',
       headers: headers,
+      queries: queries,
       bucket: bucket,
       object: object,
       payload: chunk,
@@ -119,10 +108,12 @@ class MinioUploader implements StreamConsumer<List<int>> {
 
     validate(resp);
 
-    etag = resp.headers['etag'];
+    var etag = resp.headers['etag'];
     if (etag != null) {
       etag = etag.replaceAll(RegExp('^"'), '').replaceAll(RegExp(r'"$'), '');
     }
+
+    return etag;
   }
 
   Future<void> initMultipartUpload() async {
