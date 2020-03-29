@@ -14,8 +14,8 @@ Created from templates made available by Stagehand under a BSD-style
 | `listObjects`          	| fPutObject             	|                      	| setBucketPolicy                         	|
 | listObjectsV2         	| `copyObject`           	|                      	| listenBucketNotification                	|
 | `listIncompleteUploads`	| `statObject`           	|                      	|                                         	|
-|                       	| removeObject           	|                      	|                                         	|
-|                       	| removeObjects          	|                      	|                                         	|
+|                       	| `removeObject`         	|                      	|                                         	|
+|                       	| `removeObjects`        	|                      	|                                         	|
 |                       	| removeIncompleteUpload 	|                      	|                                         	|
 
 ## Usage
