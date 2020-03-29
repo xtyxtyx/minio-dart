@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:buffer/buffer.dart';
 import 'package:convert/convert.dart';
@@ -17,6 +18,11 @@ String sha256Hex(Object data) {
   }
 
   return hex.encode(sha256.convert(data).bytes);
+}
+
+String md5Base64(String source) {
+  final md5digest = md5.convert(utf8.encode(source)).bytes;
+  return base64.encode(md5digest);
 }
 
 XmlElement getNodeProp(XmlElement xml, String name) {
@@ -73,4 +79,15 @@ String trimDoubleQuote(String str) {
 DateTime parseRfc7231Time(String time) {
   final format = DateFormat('EEE, dd MMM yyyy hh:mm:ss zzz');
   return format.parse(time);
+}
+
+List<List<T>> groupList<T>(List<T> list, int maxMembers) {
+  final groups = (list.length / maxMembers).ceil();
+  final result = <List<T>>[];
+  for (var i = 0; i < groups; i++) {
+    final start = i * maxMembers;
+    final end = math.min(start + maxMembers, list.length);
+    result.add(list.sublist(start, end));
+  }
+  return result;
 }

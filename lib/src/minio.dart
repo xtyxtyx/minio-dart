@@ -169,10 +169,8 @@ class MinioClient {
     );
   }
 
-  static var enableTrace = true;
-
-  static void logRequest(MinioRequest request) {
-    if (!enableTrace) return;
+  void logRequest(MinioRequest request) {
+    if (!minio.enableTrace) return;
 
     final buffer = StringBuffer();
     buffer.writeln('REQUEST: ${request.method} ${request.url}');
@@ -189,8 +187,8 @@ class MinioClient {
     print(buffer.toString());
   }
 
-  static void logResponse(BaseResponse response) {
-    if (!enableTrace) return;
+  void logResponse(BaseResponse response) {
+    if (!minio.enableTrace) return;
 
     final buffer = StringBuffer();
     buffer.writeln('RESPONSE: ${response.statusCode} ${response.reasonPhrase}');
@@ -217,6 +215,7 @@ class Minio {
     this.secretKey = '',
     this.sessionToken,
     this.region,
+    this.enableTrace = false,
   })  : assert(isValidEndpoint(endPoint)),
         assert(port == null || isValidPort(port)),
         assert(useSSL != null),
@@ -236,6 +235,7 @@ class Minio {
   final String secretKey;
   final String sessionToken;
   final String region;
+  final bool enableTrace;
 
   MinioClient _client;
   final _regionMap = <String, String>{};
@@ -732,6 +732,44 @@ class Minio {
 
     validate(resp, expect: 204);
     _regionMap.remove(bucket);
+  }
+
+  Future<void> removeObject(String bucket, String object) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    final resp = await _client.request(
+      method: 'DELETE',
+      bucket: bucket,
+      object: object,
+    );
+
+    validate(resp, expect: 204);
+  }
+
+  Future<void> removeObjects(String bucket, List<String> objects) async {
+    MinioInvalidBucketNameError.check(bucket);
+
+    final bunches = groupList(objects, 1000);
+
+    for (var bunch in bunches) {
+      final payload = Delete(
+        bunch.map((key) => ObjectIdentifier(key, null)).toList(),
+        true,
+      ).toXml().toString();
+
+      final headers = {
+        'Content-MD5': md5Base64(payload)
+      };
+
+      await _client.request(
+        method: 'POST',
+        bucket: bucket,
+        resource: 'delete',
+        headers: headers,
+        payload: payload
+      );
+    }
   }
 
   Future<StatObjectResult> statObject(String bucket, String object) async {

@@ -442,7 +442,7 @@ class CompletedPart {
       builder.element('ETag', nest: eTag);
       builder.element('PartNumber', nest: partNumber.toString());
     });
-    return builder.build();
+    return (builder.build() as XmlDocument).rootElement;
   }
 
   /// Entity tag returned when the part was uploaded.
@@ -789,22 +789,24 @@ class Delete {
     this.quiet,
   );
 
-  Delete.fromXml(XmlElement xml) {
-    objects = ObjectIdentifier.fromXml(getProp(xml, 'Objects'));
-    quiet = getProp(xml, 'Quiet')?.text?.toUpperCase() == 'TRUE';
-  }
+  // Delete.fromXml(XmlElement xml) {
+  //   objects = ObjectIdentifier.fromXml(getProp(xml, 'Objects'));
+  //   quiet = getProp(xml, 'Quiet')?.text?.toUpperCase() == 'TRUE';
+  // }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Delete', nest: () {
-      builder.element('Objects', nest: objects.toXml());
+      for (var object in objects) {
+        builder.element('Object', nest: object.toXml().children);
+      }
       builder.element('Quiet', nest: quiet ? 'TRUE' : 'FALSE');
     });
     return builder.build();
   }
 
   /// The objects to delete.
-  ObjectIdentifier objects;
+  List<ObjectIdentifier> objects;
 
   /// Element to enable quiet mode for the request. When you add this element, you must set its value to true.
   bool quiet;
@@ -1664,7 +1666,8 @@ class LifecycleExpiration {
     date = DateTime.parse(getProp(xml, 'Date')?.text);
     days = int.tryParse(getProp(xml, 'Days')?.text);
     expiredObjectDeleteMarker =
-        getProp(xml, 'ExpiredObjectDeleteMarker')?.text?.toUpperCase() == 'TRUE';
+        getProp(xml, 'ExpiredObjectDeleteMarker')?.text?.toUpperCase() ==
+            'TRUE';
   }
 
   XmlNode toXml() {
@@ -2271,13 +2274,15 @@ class ObjectIdentifier {
     versionId = getProp(xml, 'VersionId')?.text;
   }
 
-  XmlNode toXml() {
+  XmlElement toXml() {
     final builder = XmlBuilder();
-    builder.element('ObjectIdentifier', nest: () {
+    builder.element('Object', nest: () {
       builder.element('Key', nest: key);
-      builder.element('VersionId', nest: versionId);
+      if (versionId != null) {
+        builder.element('VersionId', nest: versionId);
+      }
     });
-    return builder.build();
+    return (builder.build() as XmlDocument).rootElement;
   }
 
   /// Key name of the object to delete.
