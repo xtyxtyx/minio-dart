@@ -12,6 +12,7 @@ void main() async {
   );
 
   final bucket = '00test';
+  final object = 'teaweb.png';
 
   if (!await minio.bucketExists(bucket)) {
     await minio.makeBucket(bucket);
@@ -38,8 +39,7 @@ void main() async {
   // final object = await minio.getObject('00test', 'sys8_captcha.png');
   // await File('sys8_captcha.png').openWrite().addStream(object);
 
-  final file = File('example/teaweb.png');
-  final object = 'teaweb.png';
+  final file = File('example/$object');
   final size = await file.length();
   final etag = await minio.putObject(bucket, object, file.openRead(), size);
   print(etag);
@@ -50,4 +50,11 @@ void main() async {
     '$bucket/$object',
   );
   print(copyResult.eTag);
+
+  final stat = await minio.statObject(bucket, object);
+  print('Stat:');
+  print(stat.etag);
+  print(stat.size);
+  print(stat.lastModified);
+  print(stat.metaData);
 }

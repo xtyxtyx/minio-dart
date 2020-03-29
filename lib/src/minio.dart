@@ -346,7 +346,7 @@ class Minio {
     validate(resp);
 
     final node = xml.parse(resp.body);
-    final result =  CopyObjectResult.fromXml(node.rootElement);
+    final result = CopyObjectResult.fromXml(node.rootElement);
     result.eTag = trimDoubleQuote(result.eTag);
     return result;
   }
@@ -732,6 +732,31 @@ class Minio {
 
     validate(resp, expect: 204);
     _regionMap.remove(bucket);
+  }
+
+  Future<StatObjectResult> statObject(String bucket, String object) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    final resp = await _client.request(
+      method: 'HEAD',
+      bucket: bucket,
+      object: object,
+    );
+
+    validate(resp, expect: 200);
+
+    var etag = resp.headers['etag'];
+    if (etag != null) {
+      etag = trimDoubleQuote(etag);
+    }
+
+    return StatObjectResult(
+      etag: etag,
+      size: int.parse(resp.headers['content-length']),
+      metaData: extractMetadata(resp.headers),
+      lastModified: parseRfc7231Time(resp.headers['last-modified']),
+    );
   }
 }
 

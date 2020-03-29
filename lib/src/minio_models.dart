@@ -92,3 +92,17 @@ class CopyConditions {
     matchETagExcept = etag;
   }
 }
+
+class StatObjectResult {
+  StatObjectResult({
+    this.size,
+    this.etag,
+    this.lastModified,
+    this.metaData,
+  });
+  
+  final int size;
+  final String etag;
+  final DateTime lastModified;
+  final Map<String, String> metaData;
+}

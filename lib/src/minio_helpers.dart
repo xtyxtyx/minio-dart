@@ -154,3 +154,19 @@ bool isSupportedHeader(key) {
 bool isStorageclassHeader(key) {
   return key.toLowerCase() == 'x-amz-storage-class';
 }
+
+Map<String, String> extractMetadata(Map<String, String> metaData) {
+  var newMetadata = <String, String>{};
+  for (var key in metaData.keys) {
+    if (isSupportedHeader(key) ||
+        isStorageclassHeader(key) ||
+        isAmzHeader(key)) {
+      if (key.toLowerCase().startsWith('x-amz-meta-')) {
+        newMetadata[key.substring(11, key.length)] = metaData[key];
+      } else {
+        newMetadata[key] = metaData[key];
+      }
+    }
+  }
+  return newMetadata;
+}

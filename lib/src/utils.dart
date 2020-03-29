@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:buffer/buffer.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
+import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
 
 String sha256Hex(Object data) {
@@ -68,4 +68,9 @@ class BlockStream extends StreamTransformerBase<List<int>, List<int>> {
 
 String trimDoubleQuote(String str) {
   return str.replaceAll(RegExp('^"'), '').replaceAll(RegExp(r'"$'), '');
+}
+
+DateTime parseRfc7231Time(String time) {
+  final format = DateFormat('EEE, dd MMM yyyy hh:mm:ss zzz');
+  return format.parse(time);
 }
