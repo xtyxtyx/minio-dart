@@ -64,7 +64,7 @@ Please file feature requests and bugs at the [issue tracker][tracker].
 
 Contributions to this repository are welcomed.
 
-## Lisence
+## License
 
 MIT
 
