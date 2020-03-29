@@ -351,7 +351,7 @@ class Minio {
     return result;
   }
 
-  Future<String> findUploadID(String bucket, String object) async {
+  Future<String> findUploadId(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
@@ -815,6 +815,23 @@ class Minio {
 
     validate(resp, expect: 204);
     _regionMap.remove(bucket);
+  }
+
+  Future<void> removeIncompleteUpload(String bucket, String object) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    final uploadId = await findUploadId(bucket, object);
+    if (uploadId == null) return;
+
+    final resp = await _client.request(
+      method: 'DELETE',
+      bucket: bucket,
+      object: object,
+      queries: {'uploadId': uploadId},
+    );
+
+    validate(resp, expect: 204);
   }
 
   Future<void> removeObject(String bucket, String object) async {

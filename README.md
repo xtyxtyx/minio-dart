@@ -16,7 +16,8 @@ Created from templates made available by Stagehand under a BSD-style
 | `listIncompleteUploads`	| `statObject`           	|                      	|                                         	|
 |                       	| `removeObject`         	|                      	|                                         	|
 |                       	| `removeObjects`        	|                      	|                                         	|
-|                       	| removeIncompleteUpload 	|                      	|                                         	|
+|                       	| `removeIncompleteUpload`|                      	|                                         	|
+
 
 ## Usage
 
@@ -35,3 +36,5 @@ main() {
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: http://example.com/issues/replaceme
+
+[link text itself]: http://www.reddit.com

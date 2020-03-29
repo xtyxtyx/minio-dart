@@ -118,7 +118,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
   }
 
   Future<void> initMultipartUpload() async {
-    uploadId = await minio.findUploadID(bucket, object);
+    uploadId = await minio.findUploadId(bucket, object);
 
     if (uploadId == null) {
       await minio.initiateNewMultipartUpload(bucket, object, metadata);
