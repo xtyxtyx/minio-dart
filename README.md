@@ -3,17 +3,17 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 ## API
 
 | Bucket operations     	| Object operations      	| Presigned operations 	| Bucket Policy & Notification operations 	|
-|-----------------------	|------------------------	|----------------------	|-----------------------------------------	|
+|-------------------------|-------------------------|-----------------------|-------------------------------------------|
 | [makeBucket]           	| [getObject]            	| presignedUrl         	| getBucketNotification                   	|
 | [listBuckets]          	| [getPartialObject]     	| presignedGetObject   	| setBucketNotification                   	|
 | [bucketExists]         	| [fGetObject]           	| presignedPutObject   	| removeAllBucketNotification             	|
 | [removeBucket]         	| [putObject]            	| presignedPostPolicy  	| getBucketPolicy                         	|
-| [listObjects]          	| [fPutObject]           	| .                    	| setBucketPolicy                         	|
-| [listObjectsV2]        	| [copyObject]           	| .                    	| listenBucketNotification                	|
-| [listIncompleteUploads]	| [statObject]           	| .                    	| .                                       	|
-| .                     	| [removeObject]         	| .                    	| .                                       	|
-| .                     	| [removeObjects]        	| .                    	| .                                       	|
-| .                     	| [removeIncompleteUpload]| .                    	| .                                       	|
+| [listObjects]          	| [fPutObject]           	|                      	| setBucketPolicy                         	|
+| [listObjectsV2]        	| [copyObject]           	|                      	| listenBucketNotification                	|
+| [listIncompleteUploads]	| [statObject]           	|                      	|                                         	|
+|                       	| [removeObject]         	|                      	|                                         	|
+|                       	| [removeObjects]        	|                      	|                                         	|
+|                       	| [removeIncompleteUpload]|                      	|                                         	|
 
 
 ## Usage
