@@ -1,3 +1,5 @@
+import 'package:mime/mime.dart' show lookupMimeType;
+
 bool isValidBucketName(String bucket) {
   if (bucket == null) return false;
 
@@ -168,5 +170,25 @@ Map<String, String> extractMetadata(Map<String, String> metaData) {
       }
     }
   }
+  return newMetadata;
+}
+
+String probeContentType(String path) {
+  final contentType = lookupMimeType(path);
+  return contentType ?? 'application/octet-stream';
+}
+
+Map<String, String> insertContentType(
+  Map<String, String> metaData,
+  String filePath,
+) {
+  for (var key in metaData.keys) {
+    if (key.toLowerCase() == 'content-type') {
+      return metaData;
+    }
+  }
+
+  final newMetadata = Map<String, String>.from(metaData);
+  newMetadata['content-type'] = probeContentType(filePath);
   return newMetadata;
 }

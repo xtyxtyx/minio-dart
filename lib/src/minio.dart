@@ -382,7 +382,7 @@ class Minio {
 
     return latestUpload?.uploadId;
   }
-
+  
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 

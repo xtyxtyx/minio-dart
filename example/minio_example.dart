@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
 
 void main() async {
@@ -12,9 +11,9 @@ void main() async {
   );
 
   final bucket = '00test';
-  final object = 'teaweb.png';
-  final copy1 = '$object.copy1';
-  final copy2 = '$object.copy2';
+  final object = 'custed.png';
+  final copy1 = 'custed.copy1.png';
+  final copy2 = 'custed.copy2.png';
 
   if (!await minio.bucketExists(bucket)) {
     await minio.makeBucket(bucket);
@@ -27,9 +26,7 @@ void main() async {
   print('--- object region:');
   print(region);
 
-  final file = File('example/$object');
-  final size = await file.length();
-  final etag = await minio.putObject(bucket, object, file.openRead(), size);
+  final etag = await minio.fPutObject(bucket, object, 'example/$object');
   print('--- etag:');
   print(etag);
 
@@ -39,6 +36,9 @@ void main() async {
   print(copyResult1.eTag);
   print('--- copy2 etag:');
   print(copyResult2.eTag);
+
+  await minio.fGetObject(bucket, object, 'example/$copy1');
+  print('--- copy1 downloaded');
 
   await minio.listObjects(bucket).forEach((chunk) {
     print('--- objects:');
