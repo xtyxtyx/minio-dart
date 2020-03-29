@@ -23,8 +23,6 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 **MinIO**
 
 ```dart
-import 'package:minio/minio.dart';
-
 final minio = Minio(
   endPoint: 'play.min.io',
   accessKey: 'Q3AM3UQ867SPQQA43P2F',
@@ -35,13 +33,27 @@ final minio = Minio(
 **AWS S3**
 
 ```dart
-import 'package:minio/minio.dart';
-
 final minio = Minio(
   endPoint: 's3.amazonaws.com',
   accessKey: 'YOUR-ACCESSKEYID',
   secretKey: 'YOUR-SECRETACCESSKEY',
 );
+```
+
+**File upload**
+```dart
+import 'package:minio/io.dart';
+import 'package:minio/minio.dart';
+
+void main() async {
+  final minio = Minio(
+    endPoint: 'play.min.io',
+    accessKey: 'Q3AM3UQ867SPQQA43P2F',
+    secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
+  );
+
+  await minio.fPutObject(bucket, object, 'path/to/file');
+}
 ```
 
 For complete example, see: [example]
