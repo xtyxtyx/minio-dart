@@ -486,7 +486,7 @@ class Condition {
 class ContinuationEvent {
   ContinuationEvent();
 
-  ContinuationEvent.fromXml(XmlElement xml) {}
+  ContinuationEvent.fromXml(XmlElement xml);
 
   XmlNode toXml() {
     final builder = XmlBuilder();
@@ -1042,7 +1042,7 @@ class EncryptionConfiguration {
 class EndEvent {
   EndEvent();
 
-  EndEvent.fromXml(XmlElement xml) {}
+  EndEvent.fromXml(XmlElement xml);
 
   XmlNode toXml() {
     final builder = XmlBuilder();
@@ -2540,7 +2540,7 @@ class Owner {
 class ParquetInput {
   ParquetInput();
 
-  ParquetInput.fromXml(XmlElement xml) {}
+  ParquetInput.fromXml(XmlElement xml);
 
   XmlNode toXml() {
     final builder = XmlBuilder();
@@ -3658,7 +3658,7 @@ class SseKmsEncryptedObjects {
 class SSES3 {
   SSES3();
 
-  SSES3.fromXml(XmlElement xml) {}
+  SSES3.fromXml(XmlElement xml);
 
   XmlNode toXml() {
     final builder = XmlBuilder();

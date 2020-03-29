@@ -1,212 +1,14 @@
-import 'dart:convert';
-
 import 'package:http/http.dart';
 import 'package:minio/models.dart';
+import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_helpers.dart';
-import 'package:minio/src/minio_s3.dart';
-import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
 
-class MinioRequest extends BaseRequest {
-  MinioRequest(String method, Uri url) : super(method, url);
-
-  dynamic body;
-
-  @override
-  ByteStream finalize() {
-    super.finalize();
-    if (body is String) {
-      return ByteStream.fromBytes(utf8.encode(body));
-    }
-    if (body is List<int>) {
-      return ByteStream.fromBytes(body);
-    }
-    if (body is Stream<List<int>>) {
-      return ByteStream(body);
-    }
-    throw UnsupportedError('unsupported body type: ${body.runtimeType}');
-  }
-}
-
-class MinioClient {
-  MinioClient(this.minio) {
-    anonymous = minio.accessKey.isEmpty && minio.secretKey.isEmpty;
-    enableSHA256 = !anonymous && !minio.useSSL;
-    port = minio.port ?? implyPort(minio.useSSL);
-  }
-
-  final Minio minio;
-  final String userAgent = 'MinIO (Unknown; Unknown) minio-js/0.0.1';
-
-  bool enableSHA256;
-  bool anonymous;
-  int port;
-
-  Future<StreamedResponse> _request({
-    String method,
-    String bucket,
-    String object,
-    String region,
-    String resource,
-    dynamic payload = '',
-    Map<String, String> queries,
-    Map<String, String> headers,
-  }) async {
-    final url = getRequestUrl(bucket, object, resource, queries);
-    final request = MinioRequest(method, url);
-    final date = DateTime.now().toUtc();
-    final sha256sum = enableSHA256 ? sha256Hex(payload) : 'UNSIGNED-PAYLOAD';
-
-    region ??= await minio.getBucketRegion(bucket);
-
-    request.body = payload;
-
-    request.headers.addAll({
-      'host': url.host,
-      'user-agent': userAgent,
-      'x-amz-date': makeDateLong(date),
-      'x-amz-content-sha256': sha256sum,
-    });
-
-    if (headers != null) {
-      request.headers.addAll(headers);
-    }
-
-    final authorization = signV4(minio, request, date, 'us-east-1');
-    request.headers['authorization'] = authorization;
-
-    logRequest(request);
-    final response = await request.send();
-    return response;
-  }
-
-  Future<Response> request({
-    String method,
-    String bucket,
-    String object,
-    String region,
-    String resource,
-    dynamic payload = '',
-    Map<String, String> queries,
-    Map<String, String> headers,
-  }) async {
-    final stream = _request(
-      method: method,
-      bucket: bucket,
-      object: object,
-      region: region,
-      payload: payload,
-      resource: resource,
-      queries: queries,
-      headers: headers,
-    );
-
-    final response = await Response.fromStream(await stream);
-    logResponse(response);
-
-    return response;
-  }
-
-  Future<StreamedResponse> requestStream({
-    String method,
-    String bucket,
-    String object,
-    String region,
-    String resource,
-    dynamic payload = '',
-    Map<String, String> queries,
-    Map<String, String> headers,
-  }) async {
-    final response = await _request(
-      method: method,
-      bucket: bucket,
-      object: object,
-      region: region,
-      payload: payload,
-      resource: resource,
-      queries: queries,
-      headers: headers,
-    );
-
-    logResponse(response);
-    return response;
-  }
-
-  Uri getRequestUrl(
-    String bucket,
-    String object,
-    String resource,
-    Map<String, String> queries,
-  ) {
-    var host = minio.endPoint.toLowerCase();
-    var path = '/';
-
-    if (isAmazonEndpoint(host)) {
-      host = getS3Endpoint(minio.region);
-    }
-
-    if (isVirtualHostStyle(host, minio.useSSL, bucket)) {
-      if (bucket != null) host = '${bucket}.${host}';
-      if (object != null) path = '/${object}';
-    } else {
-      if (bucket != null) path = '/${bucket}';
-      if (object != null) path = '/${bucket}/${object}';
-    }
-
-    final resourcePart = resource == null ? '' : '$resource';
-    final queryPart = queries == null ? '' : '&${encodeQueries(queries)}';
-    final query = resourcePart + queryPart;
-
-    return Uri(
-      scheme: minio.useSSL ? 'https' : 'http',
-      host: host,
-      port: minio.port,
-      pathSegments: path.split('/'),
-      query: query,
-    );
-  }
-
-  void logRequest(MinioRequest request) {
-    if (!minio.enableTrace) return;
-
-    final buffer = StringBuffer();
-    buffer.writeln('REQUEST: ${request.method} ${request.url}');
-    for (var header in request.headers.entries) {
-      buffer.writeln('${header.key}: ${header.value}');
-    }
-
-    if (request.body is List<int>) {
-      buffer.writeln('List<int> of size ${request.body.length}');
-    } else {
-      buffer.writeln(request.body);
-    }
-
-    print(buffer.toString());
-  }
-
-  void logResponse(BaseResponse response) {
-    if (!minio.enableTrace) return;
-
-    final buffer = StringBuffer();
-    buffer.writeln('RESPONSE: ${response.statusCode} ${response.reasonPhrase}');
-    for (var header in response.headers.entries) {
-      buffer.writeln('${header.key}: ${header.value}');
-    }
-
-    if (response is Response) {
-      buffer.writeln(response.body);
-    } else if (response is StreamedResponse) {
-      buffer.writeln('STREAMED BODY');
-    }
-
-    print(buffer.toString());
-  }
-}
-
 class Minio {
+  /// Initializes a new client object.
   Minio({
     this.endPoint,
     this.port,
@@ -224,22 +26,43 @@ class Minio {
     _client = MinioClient(this);
   }
 
+  /// default part size for multipart uploads.
   final partSize = 64 * 1024 * 1024;
+
+  /// maximum part size for multipart uploads.
   final maximumPartSize = 5 * 1024 * 1024 * 1024;
+
+  /// maximum object size (5TB)
   final maxObjectSize = 5 * 1024 * 1024 * 1024 * 1024;
 
+  /// endPoint is a host name or an IP address.
   final String endPoint;
+
+  /// TCP/IP port number. This input is optional. Default value set to 80 for HTTP and 443 for HTTPs.
   final int port;
+
+  /// If set to true, https is used instead of http. Default is true.
   final bool useSSL;
+
+  /// accessKey is like user-id that uniquely identifies your account.
   final String accessKey;
+
+  /// secretKey is the password to your account.
   final String secretKey;
+
+  /// Set this value to provide x-amz-security-token (AWS S3 specific). (Optional)
   final String sessionToken;
+
+  /// Set this value to override region cache. (Optional)
   final String region;
+
+  /// Set this value to enable tracing. (Optional)
   final bool enableTrace;
 
   MinioClient _client;
   final _regionMap = <String, String>{};
 
+  /// Checks if a bucket exists.
   Future<bool> bucketExists(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
     try {
@@ -252,7 +75,7 @@ class Minio {
     return true;
   }
 
-  int calculatePartSize(int size) {
+  int _calculatePartSize(int size) {
     assert(size != null && size >= 0);
 
     if (size > maxObjectSize) {
@@ -272,6 +95,8 @@ class Minio {
     }
   }
 
+  /// Complete the multipart upload. After all the parts are uploaded issuing
+  /// this call will aggregate the parts on the server into a single object.
   Future<String> completeMultipartUpload(
     String bucket,
     String object,
@@ -307,6 +132,7 @@ class Minio {
     return etag;
   }
 
+  /// Copy the object.
   Future<CopyObjectResult> copyObject(
     String bucket,
     String object,
@@ -351,6 +177,7 @@ class Minio {
     return result;
   }
 
+  /// Find uploadId of an incomplete upload.
   Future<String> findUploadId(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -382,7 +209,8 @@ class Minio {
 
     return latestUpload?.uploadId;
   }
-  
+
+  /// gets the region of the bucket
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
@@ -409,12 +237,14 @@ class Minio {
     return location;
   }
 
+  /// get a readable stream of the object content.
   Future<ByteStream> getObject(String bucket, String object) {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
     return getPartialObject(bucket, object, null, null);
   }
 
+  /// get a readable stream of the partial object content.
   Future<ByteStream> getPartialObject(
     String bucket,
     String object, [
@@ -454,6 +284,7 @@ class Minio {
     return resp.stream;
   }
 
+  /// Initiate a new multipart upload.
   Future<String> initiateNewMultipartUpload(
     String bucket,
     String object,
@@ -475,6 +306,7 @@ class Minio {
     return node.findAllElements('UploadId').first.text;
   }
 
+  /// Returns a stream that emits objects that are partially uploaded.
   Stream<IncompleteUpload> listIncompleteUploads(
     String bucket,
     String prefix, [
@@ -508,6 +340,7 @@ class Minio {
     } while (isTruncated);
   }
 
+  /// Called by listIncompleteUploads to fetch a batch of incomplete uploads.
   Future<ListMultipartUploadsOutput> listIncompleteUploadsQuery(
     String bucket,
     String prefix,
@@ -544,6 +377,7 @@ class Minio {
     return ListMultipartUploadsOutput.fromXml(node.root);
   }
 
+  /// List of buckets created.
   Future<List<Bucket>> listBuckets() async {
     final resp = await _client.request(
       method: 'GET',
@@ -583,6 +417,7 @@ class Minio {
     } while (isTruncated);
   }
 
+  /// list a batch of objects
   Future<ListObjectsOutput> listObjectsQuery(
     String bucket,
     String prefix,
@@ -655,6 +490,7 @@ class Minio {
     } while (isTruncated);
   }
 
+  /// listObjectsV2Query - (List Objects V2) - List some or all (up to 1000) of the objects in a bucket.
   Future<ListObjectsV2Output> listObjectsV2Query(
     String bucket,
     String prefix,
@@ -708,6 +544,7 @@ class Minio {
       ..nextContinuationToken = nextContinuationToken;
   }
 
+  /// Get part-info of all parts of an incomplete upload specified by uploadId.
   Stream<Part> listParts(
     String bucket,
     String object,
@@ -726,6 +563,7 @@ class Minio {
     } while (isTruncated);
   }
 
+  /// Called by listParts to fetch a batch of part-info
   Future<ListPartsOutput> listPartsQuery(
     String bucket,
     String object,
@@ -751,6 +589,7 @@ class Minio {
     return ListPartsOutput.fromXml(node.root);
   }
 
+  /// Creates the bucket [bucket].
   Future<void> makeBucket(String bucket, [String region]) async {
     MinioInvalidBucketNameError.check(bucket);
     if (this.region != null && region != null && this.region != region) {
@@ -774,6 +613,7 @@ class Minio {
     return resp.body;
   }
 
+  /// Uploads the object.
   Future<String> putObject(
     String bucket,
     String object,
@@ -790,7 +630,7 @@ class Minio {
     metadata = prependXAMZMeta(metadata ?? {});
 
     size ??= maxObjectSize;
-    size = calculatePartSize(size);
+    size = _calculatePartSize(size);
 
     final chunker = BlockStream(size);
     final uploader = MinioUploader(
@@ -805,6 +645,7 @@ class Minio {
     return etag.toString();
   }
 
+  /// Remove a bucket.
   Future<void> removeBucket(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
@@ -817,6 +658,7 @@ class Minio {
     _regionMap.remove(bucket);
   }
 
+  /// Remove the partially uploaded object.
   Future<void> removeIncompleteUpload(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -834,6 +676,7 @@ class Minio {
     validate(resp, expect: 204);
   }
 
+  /// Remove the specified object.
   Future<void> removeObject(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -847,6 +690,7 @@ class Minio {
     validate(resp, expect: 204);
   }
 
+  /// Remove all the objects residing in the objectsList.
   Future<void> removeObjects(String bucket, List<String> objects) async {
     MinioInvalidBucketNameError.check(bucket);
 
@@ -869,6 +713,7 @@ class Minio {
     }
   }
 
+  /// Stat information of the object.
   Future<StatObjectResult> statObject(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -892,36 +737,5 @@ class Minio {
       metaData: extractMetadata(resp.headers),
       lastModified: parseRfc7231Time(resp.headers['last-modified']),
     );
-  }
-}
-
-Future<void> validateStreamed(
-  StreamedResponse streamedResponse, {
-  int expect,
-}) async {
-  if (streamedResponse.statusCode >= 400) {
-    final response = await Response.fromStream(streamedResponse);
-    final body = xml.parse(response.body);
-    final error = Error.fromXml(body.rootElement);
-    throw MinioS3Error(error.message, error, response);
-  }
-
-  if (expect != null && streamedResponse.statusCode != expect) {
-    final response = await Response.fromStream(streamedResponse);
-    throw MinioS3Error(
-        '$expect expected, got ${streamedResponse.statusCode}', null, response);
-  }
-}
-
-void validate(Response response, {int expect}) {
-  if (response.statusCode >= 400) {
-    final body = xml.parse(response.body);
-    final error = Error.fromXml(body.rootElement);
-    throw MinioS3Error(error.message, error, response);
-  }
-
-  if (expect != null && response.statusCode != expect) {
-    throw MinioS3Error(
-        '$expect expected, got ${response.statusCode}', null, response);
   }
 }

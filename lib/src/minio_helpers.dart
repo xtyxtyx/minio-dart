@@ -1,4 +1,8 @@
+import 'package:http/http.dart';
 import 'package:mime/mime.dart' show lookupMimeType;
+import 'package:minio/src/minio_errors.dart';
+import 'package:minio/src/minio_models_generated.dart';
+import 'package:xml/xml.dart' as xml;
 
 bool isValidBucketName(String bucket) {
   if (bucket == null) return false;
@@ -191,4 +195,35 @@ Map<String, String> insertContentType(
   final newMetadata = Map<String, String>.from(metaData);
   newMetadata['content-type'] = probeContentType(filePath);
   return newMetadata;
+}
+
+Future<void> validateStreamed(
+  StreamedResponse streamedResponse, {
+  int expect,
+}) async {
+  if (streamedResponse.statusCode >= 400) {
+    final response = await Response.fromStream(streamedResponse);
+    final body = xml.parse(response.body);
+    final error = Error.fromXml(body.rootElement);
+    throw MinioS3Error(error.message, error, response);
+  }
+
+  if (expect != null && streamedResponse.statusCode != expect) {
+    final response = await Response.fromStream(streamedResponse);
+    throw MinioS3Error(
+        '$expect expected, got ${streamedResponse.statusCode}', null, response);
+  }
+}
+
+void validate(Response response, {int expect}) {
+  if (response.statusCode >= 400) {
+    final body = xml.parse(response.body);
+    final error = Error.fromXml(body.rootElement);
+    throw MinioS3Error(error.message, error, response);
+  }
+
+  if (expect != null && response.statusCode != expect) {
+    throw MinioS3Error(
+        '$expect expected, got ${response.statusCode}', null, response);
+  }
 }

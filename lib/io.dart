@@ -6,6 +6,7 @@ import 'package:minio/src/minio_helpers.dart';
 import 'package:path/path.dart' show dirname;
 
 extension MinioX on Minio {
+  // Uploads the object using contents from a file
   Future<String> fPutObject(
     String bucket,
     String object,
@@ -30,6 +31,7 @@ extension MinioX on Minio {
     return putObject(bucket, object, file.openRead(), stat.size);
   }
 
+  /// Downloads and saves the object as a file in the local filesystem.
   Future<void> fGetObject(
     String bucket,
     String object,

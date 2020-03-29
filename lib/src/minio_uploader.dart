@@ -5,6 +5,8 @@ import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
+import 'package:minio/src/minio_client.dart';
+import 'package:minio/src/minio_helpers.dart';
 import 'package:minio/src/utils.dart';
 
 class MinioUploader implements StreamConsumer<List<int>> {
