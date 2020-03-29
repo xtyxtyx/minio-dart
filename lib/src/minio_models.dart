@@ -13,6 +13,13 @@ class ListObjectsOutput {
   List<CommonPrefix> commonPrefixes;
 }
 
+class ListObjectsV2Output {
+  bool isTruncated;
+  String nextContinuationToken;
+  List<Object> contents;
+  List<CommonPrefix> commonPrefixes;
+}
+
 class CompleteMultipartUpload {
   CompleteMultipartUpload(
     this.parts,

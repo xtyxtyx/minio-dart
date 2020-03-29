@@ -156,8 +156,8 @@ class MinioClient {
       if (object != null) path = '/${bucket}/${object}';
     }
 
-    final resourcePart = resource == null ? '' : '$resource&';
-    final queryPart = queries == null ? '' : encodeQueries(queries);
+    final resourcePart = resource == null ? '' : '$resource';
+    final queryPart = queries == null ? '' : '&${encodeQueries(queries)}';
     final query = resourcePart + queryPart;
 
     return Uri(
@@ -399,9 +399,13 @@ class Minio {
     validate(resp);
 
     final node = xml.parse(resp.body);
-    final location = node.findAllElements('LocationConstraint').first.text;
 
-    _regionMap[bucket] = location ?? 'us-east-1';
+    var location = node.findAllElements('LocationConstraint').first.text;
+    if (location == null || location.isEmpty) {
+      location = 'us-east-1';
+    }
+
+    _regionMap[bucket] = location;
     return location;
   }
 
@@ -560,7 +564,7 @@ class Minio {
     MinioInvalidPrefixError.check(prefix);
     final delimiter = recursive ? '' : '/';
 
-    var marker = '';
+    String marker;
     var isTruncated = false;
 
     do {
@@ -623,6 +627,85 @@ class Minio {
       ..commonPrefixes = prefixes.toList()
       ..isTruncated = isTruncated.toLowerCase() == 'true'
       ..nextMarker = nextMarker;
+  }
+
+  /// Returns all [Object]s in a bucket.
+  /// If recursive is true, the returned stream may also contains [CommonPrefix]
+  Stream<ListObjectsChunk> listObjectsV2(
+    String bucket, {
+    String prefix = '',
+    bool recursive = false,
+    String startAfter,
+  }) async* {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidPrefixError.check(prefix);
+    final delimiter = recursive ? '' : '/';
+
+    var isTruncated = false;
+    String continuationToken;
+
+    do {
+      final resp = await listObjectsV2Query(
+          bucket, prefix, continuationToken, delimiter, 1000, startAfter);
+      isTruncated = resp.isTruncated;
+      continuationToken = resp.nextContinuationToken;
+      yield ListObjectsChunk()
+        ..objects = resp.contents
+        ..prefixes = resp.commonPrefixes.map((e) => e.prefix).toList();
+    } while (isTruncated);
+  }
+
+  Future<ListObjectsV2Output> listObjectsV2Query(
+    String bucket,
+    String prefix,
+    String continuationToken,
+    String delimiter,
+    int maxKeys,
+    String startAfter,
+  ) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidPrefixError.check(prefix);
+
+    final queries = <String, String>{};
+    queries['prefix'] = prefix;
+    queries['delimiter'] = delimiter;
+    queries['list-type'] = '2';
+
+    if (continuationToken != null) {
+      queries['continuation-token'] = continuationToken;
+    }
+
+    if (startAfter != null) {
+      queries['start-after'] = startAfter;
+    }
+
+    if (maxKeys != null) {
+      maxKeys = maxKeys >= 1000 ? 1000 : maxKeys;
+      queries['maxKeys'] = maxKeys.toString();
+    }
+
+    final resp = await _client.request(
+      method: 'GET',
+      bucket: bucket,
+      queries: queries,
+    );
+
+    validate(resp);
+
+    final node = xml.parse(resp.body);
+    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')?.text;
+    final nextContinuationToken =
+        getNodeProp(node.rootElement, 'NextContinuationToken')?.text;
+    final objs = node.findAllElements('Contents').map((c) => Object.fromXml(c));
+    final prefixes = node
+        .findAllElements('CommonPrefixes')
+        .map((c) => CommonPrefix.fromXml(c));
+
+    return ListObjectsV2Output()
+      ..contents = objs.toList()
+      ..commonPrefixes = prefixes.toList()
+      ..isTruncated = isTruncated.toLowerCase() == 'true'
+      ..nextContinuationToken = nextContinuationToken;
   }
 
   Stream<Part> listParts(
@@ -758,17 +841,14 @@ class Minio {
         true,
       ).toXml().toString();
 
-      final headers = {
-        'Content-MD5': md5Base64(payload)
-      };
+      final headers = {'Content-MD5': md5Base64(payload)};
 
       await _client.request(
-        method: 'POST',
-        bucket: bucket,
-        resource: 'delete',
-        headers: headers,
-        payload: payload
-      );
+          method: 'POST',
+          bucket: bucket,
+          resource: 'delete',
+          headers: headers,
+          payload: payload);
     }
   }
 

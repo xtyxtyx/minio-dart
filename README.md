@@ -12,7 +12,7 @@ Created from templates made available by Stagehand under a BSD-style
 | `bucketExists`         	| fGetObject             	| presignedPutObject   	| removeAllBucketNotification             	|
 | `removeBucket`         	| `putObject`            	| presignedPostPolicy  	| getBucketPolicy                         	|
 | `listObjects`          	| fPutObject             	|                      	| setBucketPolicy                         	|
-| listObjectsV2         	| `copyObject`           	|                      	| listenBucketNotification                	|
+| `listObjectsV2`        	| `copyObject`           	|                      	| listenBucketNotification                	|
 | `listIncompleteUploads`	| `statObject`           	|                      	|                                         	|
 |                       	| `removeObject`         	|                      	|                                         	|
 |                       	| `removeObjects`        	|                      	|                                         	|

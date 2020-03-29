@@ -44,7 +44,7 @@ String encodeQueries(Map<String, String> queries) {
     final value = queries[key];
     pairs.add(encodeQuery(key, value));
   }
-  return pairs.join('=');
+  return pairs.join('&');
 }
 
 class BlockStream extends StreamTransformerBase<List<int>, List<int>> {
