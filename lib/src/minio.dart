@@ -641,6 +641,22 @@ class Minio {
     );
   }
 
+  /// Generate a presigned URL for PUT.
+  /// Using this URL, the browser can upload to S3 only with the specified object name.
+  ///
+  /// - [bucketName]: name of the bucket
+  /// - [objectName]: name of the object
+  /// - [expires]: expiry in seconds (optional, default 7 days)
+  Future<String> presignedPutObject(
+    String bucket,
+    String object, {
+    int expires,
+  }) {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+    return presignedUrl('PUT', bucket, object, expires: expires);
+  }
+
   /// Generate a generic presigned URL which can be
   /// used for HTTP methods GET, PUT, HEAD and DELETE
   ///
