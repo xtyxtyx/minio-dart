@@ -107,7 +107,7 @@ class StatObjectResult {
     this.lastModified,
     this.metaData,
   });
-  
+
   final int size;
   final String etag;
   final DateTime lastModified;
