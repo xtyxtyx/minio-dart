@@ -642,7 +642,8 @@ class Minio {
     requestDate ??= DateTime.now().toUtc();
 
     final region = await getBucketRegion(bucket);
-    final request = _client.getBaseRequest(method, bucket, object, region, resource, reqParams, {});
+    final request = _client.getBaseRequest(
+        method, bucket, object, region, resource, reqParams, {});
     return presignSignatureV4(this, request, region, requestDate, expires);
   }
 
