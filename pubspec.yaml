@@ -12,7 +12,7 @@ dependencies:
   http: ^0.12.0+4
   crypto: ^2.1.4
   convert: ^2.1.1
-  xml: ^3.7.0
+  xml: ^4.0.0
   buffer: ^1.0.6
   intl: ^0.16.1
   mime: ^0.9.6+3

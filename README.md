@@ -52,7 +52,7 @@ void main() async {
     secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
   );
 
-  await minio.fPutObject(bucket, object, 'path/to/file');
+  await minio.fPutObject('mybucket', 'myobject', 'path/to/file');
 }
 ```
 
