@@ -1,3 +1,7 @@
+## 0.1.2
+
+- support presignedUrl
+
 ## 0.1.1
 
 - update dependency

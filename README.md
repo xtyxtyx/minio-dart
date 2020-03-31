@@ -4,7 +4,7 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 
 | Bucket operations     	| Object operations      	| Presigned operations 	| Bucket Policy & Notification operations 	|
 |-------------------------|-------------------------|-----------------------|-------------------------------------------|
-| [makeBucket]           	| [getObject]            	| presignedUrl         	| getBucketNotification                   	|
+| [makeBucket]           	| [getObject]            	| [presignedUrl]       	| getBucketNotification                   	|
 | [listBuckets]          	| [getPartialObject]     	| presignedGetObject   	| setBucketNotification                   	|
 | [bucketExists]         	| [fGetObject]           	| presignedPutObject   	| removeAllBucketNotification             	|
 | [removeBucket]         	| [putObject]            	| presignedPostPolicy  	| getBucketPolicy                         	|
@@ -91,3 +91,6 @@ MIT
 
 [fGetObject]: https://pub.dev/documentation/minio/latest/io/MinioX/fGetObject.html
 [fPutObject]: https://pub.dev/documentation/minio/latest/io/MinioX/fPutObject.html
+
+[presignedUrl]: https://pub.dev/documentation/minio/latest/minio/Minio/presignedUrl.html
+

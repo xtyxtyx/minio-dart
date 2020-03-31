@@ -30,6 +30,10 @@ void main() async {
   print('--- etag:');
   print(etag);
 
+  final url = await minio.presignedUrl('GET', bucket, object, expires: 1000);
+  print('--- presigned url:');
+  print(url);
+
   final copyResult1 = await minio.copyObject(bucket, copy1, '$bucket/$object');
   final copyResult2 = await minio.copyObject(bucket, copy2, '$bucket/$object');
   print('--- copy1 etag:');

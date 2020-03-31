@@ -20,6 +20,12 @@ String sha256Hex(Object data) {
   return hex.encode(sha256.convert(data).bytes);
 }
 
+String sha256HmacHex(String data, List<int> signingKey) {
+  return hex
+      .encode(Hmac(sha256, signingKey).convert(utf8.encode(data)).bytes)
+      .toLowerCase();
+}
+
 String md5Base64(String source) {
   final md5digest = md5.convert(utf8.encode(source)).bytes;
   return base64.encode(md5digest);

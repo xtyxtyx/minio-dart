@@ -3,6 +3,7 @@ import 'package:minio/models.dart';
 import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_helpers.dart';
+import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
@@ -611,6 +612,38 @@ class Minio {
 
     validate(resp);
     return resp.body;
+  }
+
+  /// Generate a generic presigned URL which can be
+  /// used for HTTP methods GET, PUT, HEAD and DELETE
+  ///
+  /// - [method]: name of the HTTP method
+  /// - [bucketName]: name of the bucket
+  /// - [objectName]: name of the object
+  /// - [expiry]: expiry in seconds (optional, default 7 days)
+  /// - [reqParams]: request parameters (optional)
+  /// - [requestDate]: A date object, the url will be issued at (optional)
+  Future<String> presignedUrl(
+    String method,
+    String bucket,
+    String object, {
+    int expires,
+    String resource,
+    Map<String, String> reqParams,
+    DateTime requestDate,
+  }) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    assert(expires == null || expires >= 0);
+
+    expires ??= expires = 24 * 60 * 60 * 7; // 7 days in seconds
+    reqParams ??= {};
+    requestDate ??= DateTime.now().toUtc();
+
+    final region = await getBucketRegion(bucket);
+    final request = _client.getBaseRequest(method, bucket, object, region, resource, reqParams, {});
+    return presignSignatureV4(this, request, region, requestDate, expires);
   }
 
   /// Uploads the object.

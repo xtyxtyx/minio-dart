@@ -26,6 +26,18 @@ class MinioRequest extends BaseRequest {
     }
     throw UnsupportedError('unsupported body type: ${body.runtimeType}');
   }
+
+  MinioRequest replace({
+    String method,
+    Uri url,
+    Map<String, String> headers,
+    body,
+  }) {
+    final result = MinioRequest(method ?? this.method, url ?? this.url);
+    result.body = body ?? this.body;
+    result.headers.addAll(headers ?? this.headers);
+    return result;
+  }
 }
 
 class MinioClient {
@@ -52,25 +64,19 @@ class MinioClient {
     Map<String, String> queries,
     Map<String, String> headers,
   }) async {
-    final url = getRequestUrl(bucket, object, resource, queries);
-    final request = MinioRequest(method, url);
-    final date = DateTime.now().toUtc();
-    final sha256sum = enableSHA256 ? sha256Hex(payload) : 'UNSIGNED-PAYLOAD';
-
     region ??= await minio.getBucketRegion(bucket);
 
+    final request = getBaseRequest(
+        method, bucket, object, region, resource, queries, headers);
     request.body = payload;
 
+    final date = DateTime.now().toUtc();
+    final sha256sum = enableSHA256 ? sha256Hex(payload) : 'UNSIGNED-PAYLOAD';
     request.headers.addAll({
-      'host': url.host,
       'user-agent': userAgent,
       'x-amz-date': makeDateLong(date),
       'x-amz-content-sha256': sha256sum,
     });
-
-    if (headers != null) {
-      request.headers.addAll(headers);
-    }
 
     final authorization = signV4(minio, request, date, 'us-east-1');
     request.headers['authorization'] = authorization;
@@ -130,6 +136,26 @@ class MinioClient {
 
     logResponse(response);
     return response;
+  }
+
+  MinioRequest getBaseRequest(
+    String method,
+    String bucket,
+    String object,
+    String region,
+    String resource,
+    Map<String, String> queries,
+    Map<String, String> headers,
+  ) {
+    final url = getRequestUrl(bucket, object, resource, queries);
+    final request = MinioRequest(method, url);
+    request.headers['host'] = url.host;
+
+    if (headers != null) {
+      request.headers.addAll(headers);
+    }
+
+    return request;
   }
 
   Uri getRequestUrl(
