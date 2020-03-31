@@ -146,3 +146,14 @@ String presignSignatureV4(
 
   return presignedUrl;
 }
+
+// calculate the signature of the POST policy
+String postPresignSignatureV4(
+  String region,
+  DateTime date,
+  String secretKey,
+  String policyBase64,
+) {
+  final signingKey = getSigningKey(date, region, secretKey);
+  return sha256HmacHex(policyBase64, signingKey);
+}

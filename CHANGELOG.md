@@ -1,3 +1,7 @@
+## 0.1.4
+
+- support presignedPostPolicy
+
 ## 0.1.3
 
 - support presignedGetObject and presignedPutObject

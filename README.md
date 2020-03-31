@@ -2,18 +2,18 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 
 ## API
 
-| Bucket operations     	| Object operations      	| Presigned operations 	| Bucket Policy & Notification operations 	|
-|-------------------------|-------------------------|-----------------------|-------------------------------------------|
-| [makeBucket]           	| [getObject]            	| [presignedUrl]       	| getBucketNotification                   	|
-| [listBuckets]          	| [getPartialObject]     	| [presignedGetObject]  | setBucketNotification                   	|
-| [bucketExists]         	| [fGetObject]           	| [presignedPutObject] 	| removeAllBucketNotification             	|
-| [removeBucket]         	| [putObject]            	| presignedPostPolicy  	| getBucketPolicy                         	|
-| [listObjects]          	| [fPutObject]           	|                      	| setBucketPolicy                         	|
-| [listObjectsV2]        	| [copyObject]           	|                      	| listenBucketNotification                	|
-| [listIncompleteUploads]	| [statObject]           	|                      	|                                         	|
-|                       	| [removeObject]         	|                      	|                                         	|
-|                       	| [removeObjects]        	|                      	|                                         	|
-|                       	| [removeIncompleteUpload]|                      	|                                         	|
+| Bucket operations       | Object operations        | Presigned operations | Bucket Policy & Notification operations |
+|-------------------------|--------------------------|----------------------|-----------------------------------------|
+| [makeBucket]            | [getObject]              | [presignedUrl]       | getBucketNotification                   |
+| [listBuckets]           | [getPartialObject]       | [presignedGetObject] | setBucketNotification                   |
+| [bucketExists]          | [fGetObject]             | [presignedPutObject] | removeAllBucketNotification             |
+| [removeBucket]          | [putObject]              | [presignedPostPolicy]| listenBucketNotification                |
+| [listObjects]           | [fPutObject]             |                      | getBucketPolicy                         |
+| [listObjectsV2]         | [copyObject]             |                      | setBucketPolicy                         |
+| [listIncompleteUploads] | [statObject]             |                      |                                         |
+|                         | [removeObject]           |                      |                                         |
+|                         | [removeObjects]          |                      |                                         |
+|                         | [removeIncompleteUpload] |                      |                                         |
 
 
 ## Usage
@@ -95,4 +95,5 @@ MIT
 [presignedUrl]: https://pub.dev/documentation/minio/latest/minio/Minio/presignedUrl.html
 [presignedGetObject]: https://pub.dev/documentation/minio/latest/minio/Minio/presignedGetObject.html
 [presignedPutObject]: https://pub.dev/documentation/minio/latest/minio/Minio/presignedPutObject.html
+[presignedPostPolicy]: https://pub.dev/documentation/minio/latest/minio/Minio/presignedPostPolicy.html
 

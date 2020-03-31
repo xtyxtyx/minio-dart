@@ -1,4 +1,5 @@
 import 'package:minio/models.dart';
+import 'package:minio/src/minio_errors.dart';
 import 'package:xml/xml.dart';
 
 class ListObjectsChunk {
@@ -112,4 +113,72 @@ class StatObjectResult {
   final String etag;
   final DateTime lastModified;
   final Map<String, String> metaData;
+}
+
+/// Build PostPolicy object that can be signed by presignedPostPolicy
+class PostPolicy {
+  final policy = <String, dynamic>{
+    'conditions': [],
+  };
+
+  final formData = <String, String>{};
+
+  /// set expiration date
+  void setExpires(DateTime date) {
+    if (date == null) {
+      throw MinioInvalidDateError('Invalid date : cannot be null');
+    }
+    policy['expiration'] = date.toIso8601String();
+  }
+
+  /// set object name
+  void setKey(String object) {
+    MinioInvalidObjectNameError.check(object);
+    policy['conditions'].add(['eq', r'$key', object]);
+    formData['key'] = object;
+  }
+
+  /// set object name prefix, i.e policy allows any keys with this prefix
+  void setKeyStartsWith(String prefix) {
+    MinioInvalidPrefixError.check(prefix);
+    policy['conditions'].push(['starts-with', r'$key', prefix]);
+    formData['key'] = prefix;
+  }
+
+  /// set bucket name
+  void setBucket(bucket) {
+    MinioInvalidBucketNameError.check(bucket);
+    policy['conditions'].push(['eq', r'$bucket', bucket]);
+    formData['bucket'] = bucket;
+  }
+
+  /// set Content-Type
+  void setContentType(String type) {
+    if (type == null) {
+      throw MinioError('content-type cannot be null');
+    }
+    policy['conditions'].push(['eq', r'$Content-Type', type]);
+    formData['Content-Type'] = type;
+  }
+
+  /// set minimum/maximum length of what Content-Length can be.
+  void setContentLengthRange(int min, int max) {
+    if (min > max) {
+      throw MinioError('min cannot be more than max');
+    }
+    if (min < 0) {
+      throw MinioError('min should be > 0');
+    }
+    if (max < 0) {
+      throw MinioError('max should be > 0');
+    }
+    policy['conditions'].push(['content-length-range', min, max]);
+  }
+}
+
+class PostPolicyResult {
+  PostPolicyResult({this.postURL, this.formData});
+
+  final String postURL;
+  final Map<String, String> formData;
 }

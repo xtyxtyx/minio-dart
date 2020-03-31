@@ -641,6 +641,60 @@ class Minio {
     );
   }
 
+  /// presignedPostPolicy can be used in situations where we want more control on the upload than what
+  /// presignedPutObject() provides. i.e Using presignedPostPolicy we will be able to put policy restrictions
+  /// on the object's `name` `bucket` `expiry` `Content-Type`
+  Future presignedPostPolicy(PostPolicy postPolicy) async {
+    if (_client.anonymous) {
+      throw MinioAnonymousRequestError(
+          'Presigned POST policy cannot be generated for anonymous requests');
+    }
+
+    final region = await getBucketRegion(postPolicy.formData['bucket']);
+    var date = DateTime.now().toUtc();
+    var dateStr = makeDateLong(date);
+
+    if (postPolicy.policy['expiration'] == null) {
+      // 'expiration' is mandatory field for S3.
+      // Set default expiration date of 7 days.
+      var expires = DateTime.now().toUtc();
+      expires.add(Duration(days: 7));
+      postPolicy.setExpires(expires);
+    }
+
+    postPolicy.policy['conditions'].push(['eq', r'$x-amz-date', dateStr]);
+    postPolicy.formData['x-amz-date'] = dateStr;
+
+    postPolicy.policy['conditions']
+        .push(['eq', r'$x-amz-algorithm', 'AWS4-HMAC-SHA256']);
+    postPolicy.formData['x-amz-algorithm'] = 'AWS4-HMAC-SHA256';
+
+    postPolicy.policy['conditions'].push(
+        ['eq', r'$x-amz-credential', accessKey + '/' + getScope(region, date)]);
+    postPolicy.formData['x-amz-credential'] =
+        accessKey + '/' + getScope(region, date);
+
+    if (sessionToken != null) {
+      postPolicy.policy['conditions']
+          .push(['eq', r'$x-amz-security-token', sessionToken]);
+    }
+
+    final policyBase64 = jsonBase64(postPolicy.policy);
+    postPolicy.formData['policy'] = policyBase64;
+
+    final signature =
+        postPresignSignatureV4(region, date, secretKey, policyBase64);
+
+    postPolicy.formData['x-amz-signature'] = signature;
+    final url = _client
+        .getBaseRequest('POST', postPolicy.formData['bucket'], null, region,
+            null, null, null)
+        .url;
+    var portStr = (port == 80 || port == 443 || port == null) ? '' : ':$port';
+    var urlStr = '${url.scheme}://${url.host}${portStr}${url.path}';
+    return PostPolicyResult(postURL: urlStr, formData: postPolicy.formData);
+  }
+
   /// Generate a presigned URL for PUT.
   /// Using this URL, the browser can upload to S3 only with the specified object name.
   ///
