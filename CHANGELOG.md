@@ -1,3 +1,7 @@
+## 0.1.1
+
+- update dependency
+
 ## 0.1.0+2
 
 - try to fix table display
