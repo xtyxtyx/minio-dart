@@ -1,3 +1,7 @@
+## 0.1.3
+
+- support presignedGetObject and presignedPutObject
+
 ## 0.1.2
 
 - support presignedUrl
