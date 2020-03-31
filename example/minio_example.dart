@@ -30,7 +30,7 @@ void main() async {
   print('--- etag:');
   print(etag);
 
-  final url = await minio.presignedUrl('GET', bucket, object, expires: 1000);
+  final url = await minio.presignedGetObject(bucket, object, expires: 1000);
   print('--- presigned url:');
   print(url);
 

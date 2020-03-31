@@ -614,13 +614,40 @@ class Minio {
     return resp.body;
   }
 
+  /// Generate a presigned URL for GET
+  ///
+  /// - [bucketName]: name of the bucket
+  /// - [objectName]: name of the object
+  /// - [expires]: expiry in seconds (optional, default 7 days)
+  /// - [respHeaders]: response headers to override (optional)
+  /// - [requestDate]: A date object, the url will be issued at (optional)
+  Future<String> presignedGetObject(
+    String bucket,
+    String object, {
+    int expires,
+    Map<String, String> respHeaders,
+    DateTime requestDate,
+  }) {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    return presignedUrl(
+      'GET',
+      bucket,
+      object,
+      expires: expires,
+      reqParams: respHeaders,
+      requestDate: requestDate,
+    );
+  }
+
   /// Generate a generic presigned URL which can be
   /// used for HTTP methods GET, PUT, HEAD and DELETE
   ///
   /// - [method]: name of the HTTP method
   /// - [bucketName]: name of the bucket
   /// - [objectName]: name of the object
-  /// - [expiry]: expiry in seconds (optional, default 7 days)
+  /// - [expires]: expiry in seconds (optional, default 7 days)
   /// - [reqParams]: request parameters (optional)
   /// - [requestDate]: A date object, the url will be issued at (optional)
   Future<String> presignedUrl(
