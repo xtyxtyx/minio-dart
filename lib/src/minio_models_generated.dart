@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart';
 
 XmlElement getProp(XmlElement xml, String name) {
+  if (xml == null) return null;
   final result = xml.findElements(name);
   return result.isNotEmpty ? result.first : null;
 }
@@ -2132,10 +2133,18 @@ class NotificationConfiguration {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('NotificationConfiguration', nest: () {
-      builder.element('LambdaFunctionConfigurations',
-          nest: lambdaFunctionConfigurations.toXml());
-      builder.element('QueueConfigurations', nest: queueConfigurations.toXml());
-      builder.element('TopicConfigurations', nest: topicConfigurations.toXml());
+      if (lambdaFunctionConfigurations != null) {
+        builder.element('LambdaFunctionConfigurations',
+            nest: lambdaFunctionConfigurations.toXml());
+      }
+      if (queueConfigurations != null) {
+        builder.element('QueueConfigurations',
+            nest: queueConfigurations.toXml());
+      }
+      if (topicConfigurations != null) {
+        builder.element('TopicConfigurations',
+            nest: topicConfigurations.toXml());
+      }
     });
     return builder.build();
   }

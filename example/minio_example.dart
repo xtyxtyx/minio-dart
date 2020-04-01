@@ -22,6 +22,13 @@ void main() async {
     print('bucket $bucket already exists');
   }
 
+  final poller = minio.listenBucketNotification(bucket, events: [
+    's3:ObjectCreated:*',
+  ]);
+  poller.stream.listen((event) {
+    print('--- event: ${event['eventName']}');
+  });
+
   final region = await minio.getBucketRegion('00test');
   print('--- object region:');
   print(region);
@@ -69,4 +76,6 @@ void main() async {
 
   await minio.removeBucket(bucket);
   print('--- bucket removed');
+
+  poller.stop();
 }

@@ -4,10 +4,10 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 
 | Bucket operations       | Object operations        | Presigned operations | Bucket Policy & Notification operations |
 |-------------------------|--------------------------|----------------------|-----------------------------------------|
-| [makeBucket]            | [getObject]              | [presignedUrl]       | getBucketNotification                   |
-| [listBuckets]           | [getPartialObject]       | [presignedGetObject] | setBucketNotification                   |
-| [bucketExists]          | [fGetObject]             | [presignedPutObject] | removeAllBucketNotification             |
-| [removeBucket]          | [putObject]              | [presignedPostPolicy]| listenBucketNotification                |
+| [makeBucket]            | [getObject]              | [presignedUrl]       | [getBucketNotification]                 |
+| [listBuckets]           | [getPartialObject]       | [presignedGetObject] | [setBucketNotification]                 |
+| [bucketExists]          | [fGetObject]             | [presignedPutObject] | [removeAllBucketNotification]           |
+| [removeBucket]          | [putObject]              | [presignedPostPolicy]| [listenBucketNotification]              |
 | [listObjects]           | [fPutObject]             |                      | getBucketPolicy                         |
 | [listObjectsV2]         | [copyObject]             |                      | setBucketPolicy                         |
 | [listIncompleteUploads] | [statObject]             |                      |                                         |
@@ -97,3 +97,7 @@ MIT
 [presignedPutObject]: https://pub.dev/documentation/minio/latest/minio/Minio/presignedPutObject.html
 [presignedPostPolicy]: https://pub.dev/documentation/minio/latest/minio/Minio/presignedPostPolicy.html
 
+[getBucketNotification]: https://pub.dev/documentation/minio/latest/minio/Minio/getBucketNotification.html
+[setBucketNotification]: https://pub.dev/documentation/minio/latest/minio/Minio/setBucketNotification.html
+[removeAllBucketNotification]: https://pub.dev/documentation/minio/latest/minio/Minio/removeAllBucketNotification.html
+[listenBucketNotification]: https://pub.dev/documentation/minio/latest/minio/Minio/listenBucketNotification.html

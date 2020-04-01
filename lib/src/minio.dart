@@ -3,6 +3,7 @@ import 'package:minio/models.dart';
 import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_helpers.dart';
+import 'package:minio/src/minio_poller.dart';
 import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
@@ -211,6 +212,23 @@ class Minio {
     return latestUpload?.uploadId;
   }
 
+  /// Return the list of notification configurations stored
+  /// in the S3 provider
+  Future<NotificationConfiguration> getBucketNotification(String bucket) async {
+    MinioInvalidBucketNameError.check(bucket);
+
+    final resp = await _client.request(
+      method: 'GET',
+      bucket: bucket,
+      resource: 'notification',
+    );
+
+    validate(resp, expect: 200);
+
+    final node = xml.parse(resp.body);
+    return NotificationConfiguration.fromXml(node.rootElement);
+  }
+
   /// gets the region of the bucket
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
@@ -376,6 +394,25 @@ class Minio {
 
     final node = xml.parse(resp.body);
     return ListMultipartUploadsOutput.fromXml(node.root);
+  }
+
+  /// Listen for notifications on a bucket. Additionally one can provider
+  /// filters for prefix, suffix and events. There is no prior set bucket notification
+  /// needed to use this API. **This is an MinIO extension API** where unique identifiers
+  /// are regitered and unregistered by the server automatically based on incoming requests.
+  NotificationPoller listenBucketNotification(
+    String bucket, {
+    String prefix,
+    String suffix,
+    List<String> events,
+  }) {
+    MinioInvalidBucketNameError.check(bucket);
+
+    final listener =
+        NotificationPoller(_client, bucket, prefix, suffix, events);
+    listener.start();
+
+    return listener;
   }
 
   /// List of buckets created.
@@ -776,6 +813,12 @@ class Minio {
     return etag.toString();
   }
 
+  /// Remove all bucket notification
+  Future<void> removeAllBucketNotification(bucket) {
+    return setBucketNotification(
+        bucket, NotificationConfiguration(null, null, null));
+  }
+
   /// Remove a bucket.
   Future<void> removeBucket(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
@@ -836,12 +879,29 @@ class Minio {
       final headers = {'Content-MD5': md5Base64(payload)};
 
       await _client.request(
-          method: 'POST',
-          bucket: bucket,
-          resource: 'delete',
-          headers: headers,
-          payload: payload);
+        method: 'POST',
+        bucket: bucket,
+        resource: 'delete',
+        headers: headers,
+        payload: payload,
+      );
     }
+  }
+
+  // Remove all the notification configurations in the S3 provider
+  Future<void> setBucketNotification(
+      String bucket, NotificationConfiguration config) async {
+    MinioInvalidBucketNameError.check(bucket);
+    assert(config != null);
+
+    final resp = await _client.request(
+      method: 'PUT',
+      bucket: bucket,
+      resource: 'notification',
+      payload: config.toXml().toString(),
+    );
+
+    validate(resp, expect: 200);
   }
 
   /// Stat information of the object.

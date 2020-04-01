@@ -16,9 +16,12 @@ class MinioRequest extends BaseRequest {
   ByteStream finalize() {
     super.finalize();
     if (body is String) {
+      final data = utf8.encode(body);
+      headers['content-length'] = data.length.toString();
       return ByteStream.fromBytes(utf8.encode(body));
     }
     if (body is List<int>) {
+      headers['content-length'] = body.length.toString();
       return ByteStream.fromBytes(body);
     }
     if (body is Stream<List<int>>) {
@@ -48,7 +51,7 @@ class MinioClient {
   }
 
   final Minio minio;
-  final String userAgent = 'MinIO (Unknown; Unknown) minio-js/0.0.1';
+  final String userAgent = 'MinIO (Unknown; Unknown) minio-dart/0.1.5';
 
   bool enableSHA256;
   bool anonymous;
@@ -61,7 +64,7 @@ class MinioClient {
     String region,
     String resource,
     dynamic payload = '',
-    Map<String, String> queries,
+    Map<String, dynamic> queries,
     Map<String, String> headers,
   }) async {
     region ??= await minio.getBucketRegion(bucket);
@@ -93,10 +96,10 @@ class MinioClient {
     String region,
     String resource,
     dynamic payload = '',
-    Map<String, String> queries,
+    Map<String, dynamic> queries,
     Map<String, String> headers,
   }) async {
-    final stream = _request(
+    final stream = await _request(
       method: method,
       bucket: bucket,
       object: object,
@@ -107,7 +110,7 @@ class MinioClient {
       headers: headers,
     );
 
-    final response = await Response.fromStream(await stream);
+    final response = await Response.fromStream(stream);
     logResponse(response);
 
     return response;
@@ -120,7 +123,7 @@ class MinioClient {
     String region,
     String resource,
     dynamic payload = '',
-    Map<String, String> queries,
+    Map<String, dynamic> queries,
     Map<String, String> headers,
   }) async {
     final response = await _request(
@@ -144,12 +147,12 @@ class MinioClient {
     String object,
     String region,
     String resource,
-    Map<String, String> queries,
+    Map<String, dynamic> queries,
     Map<String, String> headers,
   ) {
     final url = getRequestUrl(bucket, object, resource, queries);
     final request = MinioRequest(method, url);
-    request.headers['host'] = url.host;
+    request.headers['host'] = url.authority;
 
     if (headers != null) {
       request.headers.addAll(headers);
@@ -162,7 +165,7 @@ class MinioClient {
     String bucket,
     String object,
     String resource,
-    Map<String, String> queries,
+    Map<String, dynamic> queries,
   ) {
     var host = minio.endPoint.toLowerCase();
     var path = '/';

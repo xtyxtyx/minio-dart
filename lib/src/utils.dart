@@ -48,11 +48,19 @@ String encodeQuery(String rawKey, String rawValue) {
   return pair.join('=');
 }
 
-String encodeQueries(Map<String, String> queries) {
+String encodeQueries(Map<String, dynamic> queries) {
   final pairs = <String>[];
   for (var key in queries.keys) {
     final value = queries[key];
-    pairs.add(encodeQuery(key, value));
+    if (value is String || value == null) {
+      pairs.add(encodeQuery(key, value));
+    } else if (value is Iterable<String>) {
+      for (var val in value) {
+        pairs.add(encodeQuery(key, val));
+      }
+    } else {
+      throw ArgumentError('unsupported value: $value');
+    }
   }
   return pairs.join('&');
 }
