@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart';
 import 'package:minio/models.dart';
 import 'package:minio/src/minio_client.dart';
@@ -227,6 +229,23 @@ class Minio {
 
     final node = xml.parse(resp.body);
     return NotificationConfiguration.fromXml(node.rootElement);
+  }
+
+  /// Get the bucket policy associated with the specified bucket. If `objectPrefix`
+  /// is not empty, the bucket policy will be filtered based on object permissions
+  /// as well.
+  Future<Map<String, dynamic>> getBucketPolicy(bucket) async {
+    MinioInvalidBucketNameError.check(bucket);
+
+    final resp = await _client.request(
+      method: 'GET',
+      bucket: bucket,
+      resource: 'policy',
+    );
+
+    validate(resp, expect: 200);
+
+    return json.decode(resp.body);
   }
 
   /// gets the region of the bucket
@@ -890,7 +909,9 @@ class Minio {
 
   // Remove all the notification configurations in the S3 provider
   Future<void> setBucketNotification(
-      String bucket, NotificationConfiguration config) async {
+    String bucket,
+    NotificationConfiguration config,
+  ) async {
     MinioInvalidBucketNameError.check(bucket);
     assert(config != null);
 
@@ -902,6 +923,28 @@ class Minio {
     );
 
     validate(resp, expect: 200);
+  }
+
+  /// Set the bucket policy on the specified bucket.
+  ///
+  /// [policy] is detailed [here](https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html).
+  Future<void> setBucketPolicy(
+    String bucket, [
+    Map<String, dynamic> policy,
+  ]) async {
+    MinioInvalidBucketNameError.check(bucket);
+
+    final method = policy != null ? 'PUT' : 'DELETE';
+    final payload = policy != null ? json.encode(policy) : '';
+
+    final resp = await _client.request(
+      method: method,
+      bucket: bucket,
+      resource: 'policy',
+      payload: payload,
+    );
+
+    validate(resp, expect: 204);
   }
 
   /// Stat information of the object.

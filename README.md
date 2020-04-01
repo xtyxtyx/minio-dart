@@ -8,8 +8,8 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 | [listBuckets]           | [getPartialObject]       | [presignedGetObject] | [setBucketNotification]                 |
 | [bucketExists]          | [fGetObject]             | [presignedPutObject] | [removeAllBucketNotification]           |
 | [removeBucket]          | [putObject]              | [presignedPostPolicy]| [listenBucketNotification]              |
-| [listObjects]           | [fPutObject]             |                      | getBucketPolicy                         |
-| [listObjectsV2]         | [copyObject]             |                      | setBucketPolicy                         |
+| [listObjects]           | [fPutObject]             |                      | [getBucketPolicy]                       |
+| [listObjectsV2]         | [copyObject]             |                      | [setBucketPolicy]                       |
 | [listIncompleteUploads] | [statObject]             |                      |                                         |
 |                         | [removeObject]           |                      |                                         |
 |                         | [removeObjects]          |                      |                                         |
@@ -101,3 +101,6 @@ MIT
 [setBucketNotification]: https://pub.dev/documentation/minio/latest/minio/Minio/setBucketNotification.html
 [removeAllBucketNotification]: https://pub.dev/documentation/minio/latest/minio/Minio/removeAllBucketNotification.html
 [listenBucketNotification]: https://pub.dev/documentation/minio/latest/minio/Minio/listenBucketNotification.html
+
+[getBucketPolicy]: https://pub.dev/documentation/minio/latest/minio/Minio/getBucketPolicy.html
+[setBucketPolicy]: https://pub.dev/documentation/minio/latest/minio/Minio/setBucketPolicy.html

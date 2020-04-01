@@ -1,3 +1,7 @@
+## 0.1.6
+
+- support policy apis
+
 ## 0.1.5
 
 - support notification apis
