@@ -81,7 +81,7 @@ class MinioClient {
       'x-amz-content-sha256': sha256sum,
     });
 
-    final authorization = signV4(minio, request, date, 'us-east-1');
+    final authorization = signV4(minio, request, date, region);
     request.headers['authorization'] = authorization;
 
     logRequest(request);
