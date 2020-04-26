@@ -1,3 +1,7 @@
+## 0.1.7
+
+- Fix region issue, thanks @ivoryxiong
+
 ## 0.1.6
 
 - support policy apis
