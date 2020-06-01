@@ -125,7 +125,7 @@ class Minio {
     );
     validate(resp, expect: 200);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     final errorNode = node.findAllElements('Error');
     if (errorNode.isNotEmpty) {
       final error = Error.fromXml(errorNode.first);
@@ -175,7 +175,7 @@ class Minio {
 
     validate(resp);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     final result = CopyObjectResult.fromXml(node.rootElement);
     result.eTag = trimDoubleQuote(result.eTag);
     return result;
@@ -227,7 +227,7 @@ class Minio {
 
     validate(resp, expect: 200);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     return NotificationConfiguration.fromXml(node.rootElement);
   }
 
@@ -264,7 +264,7 @@ class Minio {
 
     validate(resp);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
 
     var location = node.findAllElements('LocationConstraint').first.text;
     if (location == null || location.isEmpty) {
@@ -340,7 +340,7 @@ class Minio {
 
     validate(resp, expect: 200);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     return node.findAllElements('UploadId').first.text;
   }
 
@@ -411,7 +411,7 @@ class Minio {
 
     validate(resp);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     return ListMultipartUploadsOutput.fromXml(node.root);
   }
 
@@ -440,7 +440,8 @@ class Minio {
       method: 'GET',
       region: 'us-east-1',
     );
-    final bucketsNode = xml.parse(resp.body).findAllElements('Buckets').first;
+    final bucketsNode =
+        xml.XmlDocument.parse(resp.body).findAllElements('Buckets').first;
     return bucketsNode.children.map((n) => Bucket.fromXml(n)).toList();
   }
 
@@ -506,7 +507,7 @@ class Minio {
 
     validate(resp);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')?.text;
     final nextMarker = getNodeProp(node.rootElement, 'NextMarker')?.text;
     final objs = node.findAllElements('Contents').map((c) => Object.fromXml(c));
@@ -585,7 +586,7 @@ class Minio {
 
     validate(resp);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')?.text;
     final nextContinuationToken =
         getNodeProp(node.rootElement, 'NextContinuationToken')?.text;
@@ -642,7 +643,7 @@ class Minio {
 
     validate(resp);
 
-    final node = xml.parse(resp.body);
+    final node = xml.XmlDocument.parse(resp.body);
     return ListPartsOutput.fromXml(node.root);
   }
 
