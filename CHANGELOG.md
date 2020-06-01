@@ -1,3 +1,7 @@
+## 0.1.8
+
+- Update dependency
+
 ## 0.1.7
 
 - Fix region issue, thanks @ivoryxiong
