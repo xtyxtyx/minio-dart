@@ -8,7 +8,7 @@ import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
 
-String sha256Hex(Object data) {
+String sha256Hex(dynamic data) {
   if (data is String) {
     data = utf8.encode(data);
   } else if (data is List<int>) {
@@ -20,11 +20,9 @@ String sha256Hex(Object data) {
   return hex.encode(sha256.convert(data).bytes);
 }
 
-String sha256HmacHex(String data, List<int> signingKey) {
-  return hex
-      .encode(Hmac(sha256, signingKey).convert(utf8.encode(data)).bytes)
-      .toLowerCase();
-}
+String sha256HmacHex(String data, List<int> signingKey) => hex
+    .encode(Hmac(sha256, signingKey).convert(utf8.encode(data)).bytes)
+    .toLowerCase();
 
 String md5Base64(String source) {
   final md5digest = md5.convert(utf8.encode(source)).bytes;
