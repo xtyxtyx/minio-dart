@@ -1,3 +1,10 @@
+## 0.1.9
+
+- Updated dependencies
+- Fixed Malformed XML error
+- Fixed Types incompatibility in minio_uploader stream subscription queries
+- Temporarily closed call for search of unfinished uploads (Causes Signature Error)
+
 ## 0.1.8
 
 - Update dependency

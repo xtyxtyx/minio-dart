@@ -67,8 +67,8 @@ class MinioUploader implements StreamConsumer<List<int>> {
         }
       }
 
-      final queries = {
-        'partNumber': partNumber,
+      final queries = <String, String>{
+        'partNumber': '$partNumber',
         'uploadId': uploadId,
       };
 
@@ -120,10 +120,14 @@ class MinioUploader implements StreamConsumer<List<int>> {
   }
 
   Future<void> initMultipartUpload() async {
-    uploadId = await minio.findUploadId(bucket, object);
+    //FIXME: this code still causes Signature Error
+    //FIXME: https://github.com/xtyxtyx/minio-dart/issues/7
+    //TODO: uncomment when fixed
+    // uploadId = await minio.findUploadId(bucket, object);
 
     if (uploadId == null) {
-      await minio.initiateNewMultipartUpload(bucket, object, metadata);
+      uploadId =
+          await minio.initiateNewMultipartUpload(bucket, object, metadata);
       return;
     }
 
