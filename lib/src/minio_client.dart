@@ -51,7 +51,7 @@ class MinioClient {
   }
 
   final Minio minio;
-  final String userAgent = 'MinIO (Unknown; Unknown) minio-dart/0.1.5';
+  final String userAgent = 'MinIO (Unknown; Unknown) minio-dart/0.1.9';
 
   bool enableSHA256;
   bool anonymous;

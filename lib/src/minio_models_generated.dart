@@ -439,7 +439,7 @@ class CompletedPart {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CompletedPart', nest: () {
+    builder.element('Part', nest: () {
       builder.element('ETag', nest: eTag);
       builder.element('PartNumber', nest: partNumber.toString());
     });

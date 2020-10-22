@@ -259,7 +259,7 @@ class Minio {
       method: 'GET',
       bucket: bucket,
       region: 'us-east-1',
-      queries: {'location': null},
+      queries: <String, dynamic>{'location': null},
     );
 
     validate(resp);
@@ -332,11 +332,12 @@ class Minio {
     MinioInvalidObjectNameError.check(object);
 
     final resp = await _client.request(
-        method: 'POST',
-        bucket: bucket,
-        object: object,
-        headers: metaData,
-        resource: 'uploads');
+      method: 'POST',
+      bucket: bucket,
+      object: object,
+      headers: metaData,
+      resource: 'uploads',
+    );
 
     validate(resp, expect: 200);
 
@@ -389,7 +390,7 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidPrefixError.check(prefix);
 
-    var queries = {
+    var queries = <String, dynamic>{
       'uploads': null,
       'prefix': prefix,
       'delimiter': delimiter,
@@ -486,7 +487,7 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidPrefixError.check(prefix);
 
-    final queries = <String, String>{};
+    final queries = <String, dynamic>{};
     queries['prefix'] = prefix;
     queries['delimiter'] = delimiter;
 
@@ -539,7 +540,13 @@ class Minio {
 
     do {
       final resp = await listObjectsV2Query(
-          bucket, prefix, continuationToken, delimiter, 1000, startAfter);
+        bucket,
+        prefix,
+        continuationToken,
+        delimiter,
+        1000,
+        startAfter,
+      );
       isTruncated = resp.isTruncated;
       continuationToken = resp.nextContinuationToken;
       yield ListObjectsChunk()
@@ -560,7 +567,7 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidPrefixError.check(prefix);
 
-    final queries = <String, String>{};
+    final queries = <String, dynamic>{};
     queries['prefix'] = prefix;
     queries['delimiter'] = delimiter;
     queries['list-type'] = '2';
@@ -628,7 +635,7 @@ class Minio {
     String uploadId,
     int marker,
   ) async {
-    var queries = <String, String>{'uploadId': uploadId};
+    var queries = <String, dynamic>{'uploadId': uploadId};
 
     if (marker != null && marker != 0) {
       queries['part-number-marker'] = marker.toString();
@@ -652,7 +659,8 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     if (this.region != null && region != null && this.region != region) {
       throw MinioInvalidArgumentError(
-          'Configured region ${this.region}, requested $region');
+        'Configured region ${this.region}, requested $region',
+      );
     }
 
     region ??= this.region ?? 'us-east-1';
@@ -704,7 +712,8 @@ class Minio {
   Future presignedPostPolicy(PostPolicy postPolicy) async {
     if (_client.anonymous) {
       throw MinioAnonymousRequestError(
-          'Presigned POST policy cannot be generated for anonymous requests');
+        'Presigned POST policy cannot be generated for anonymous requests',
+      );
     }
 
     final region = await getBucketRegion(postPolicy.formData['bucket']);
@@ -797,7 +806,14 @@ class Minio {
 
     final region = await getBucketRegion(bucket);
     final request = _client.getBaseRequest(
-        method, bucket, object, region, resource, reqParams, {});
+      method,
+      bucket,
+      object,
+      region,
+      resource,
+      reqParams,
+      {},
+    );
     return presignSignatureV4(this, request, region, requestDate, expires);
   }
 
@@ -815,7 +831,7 @@ class Minio {
     assert(data != null);
     assert(size >= 0 || size == null);
 
-    metadata = prependXAMZMeta(metadata ?? {});
+    metadata = prependXAMZMeta(metadata ?? <String, String>{});
 
     size ??= maxObjectSize;
     size = _calculatePartSize(size);
@@ -834,10 +850,8 @@ class Minio {
   }
 
   /// Remove all bucket notification
-  Future<void> removeAllBucketNotification(bucket) {
-    return setBucketNotification(
-        bucket, NotificationConfiguration(null, null, null));
-  }
+  Future<void> removeAllBucketNotification(bucket) => setBucketNotification(
+      bucket, NotificationConfiguration(null, null, null));
 
   /// Remove a bucket.
   Future<void> removeBucket(String bucket) async {
