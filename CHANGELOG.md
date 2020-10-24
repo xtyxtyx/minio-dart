@@ -1,4 +1,4 @@
-## 1.0.0-pre
+## 1.0.1-pre
 
 - Updated dependencies
 - Fixed Malformed XML error
