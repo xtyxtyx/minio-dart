@@ -439,7 +439,7 @@ class Minio {
   Future<List<Bucket>> listBuckets() async {
     final resp = await _client.request(
       method: 'GET',
-      region: 'us-east-1',
+      region: region ?? 'us-east-1',
     );
     final bucketsNode =
         xml.XmlDocument.parse(resp.body).findAllElements('Buckets').first;
