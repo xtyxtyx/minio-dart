@@ -67,13 +67,28 @@ class Minio {
   final _regionMap = <String, String>{};
 
   /// Checks if a bucket exists.
+  ///
+  /// Returns `true` if the [bucket] exists or you don't have permission to access
+  /// it (which implies that it exists). Returns `false` only if the [bucket] does
+  /// not exist.
   Future<bool> bucketExists(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
     try {
-      await _client.request(method: 'HEAD', bucket: bucket);
+      final response = await _client.request(method: 'HEAD', bucket: bucket);
+      return (response.statusCode == 200 || response.statusCode == 403);
     } on MinioS3Error catch (e) {
       final code = e.error.code;
       if (code == 'NoSuchBucket' || code == 'NotFound') return false;
+      rethrow;
+    } on StateError catch (e) {
+      // Insight from testing: in most cases, AWS S3 returns the HTTP status code
+      // 404 when a bucket does not exist. Whereas in other cases, when the bucket
+      // does not exist, S3 returns the HTTP status code 301 Redirect instead of
+      // status code 404 as officially documented. Then, this redirect response
+      // lacks the HTTP header `location` which causes this exception in Dart's
+      // HTTP library (`http_impl.dart`).
+      if (e.message == 'Response has no Location header for redirect')
+        return false;
       rethrow;
     }
     return true;
