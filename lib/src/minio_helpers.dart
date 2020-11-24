@@ -217,9 +217,17 @@ Future<void> validateStreamed(
 
 void validate(Response response, {int expect}) {
   if (response.statusCode >= 400) {
-    final body = xml.XmlDocument.parse(response.body);
-    final error = Error.fromXml(body.rootElement);
-    throw MinioS3Error(error.message, error, response);
+    var error;
+
+    // Parse HTTP response body as XML only when not empty
+    if (response.body == null || response.body.isEmpty) {
+      error = Error(response.reasonPhrase, null, response.reasonPhrase, null);
+    } else {
+      final body = xml.XmlDocument.parse(response.body);
+      error = Error.fromXml(body.rootElement);
+    }
+
+    throw MinioS3Error(error?.message, error, response);
   }
 
   if (expect != null && response.statusCode != expect) {

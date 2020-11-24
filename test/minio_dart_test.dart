@@ -39,6 +39,58 @@ void main() {
       );
     });
   });
+
+  group('bucketExists', () {
+    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+
+    setUpAll(() async {
+      final minio = _getClient();
+      await minio.makeBucket(bucketName);
+    });
+
+    tearDownAll(() async {
+      final minio = _getClient();
+      await minio.removeBucket(bucketName);
+    });
+
+    test('bucketExists() returns true for an existing bucket', () async {
+      final minio = _getClient();
+      expect(await minio.bucketExists(bucketName), equals(true));
+    });
+
+    test('bucketExists() returns false for a non-existent bucket', () async {
+      final minio = _getClient();
+      expect(await minio.bucketExists('non-existing-bucket-name'), equals(false));
+    });
+
+    test('bucketExists() fails due to wrong access key', () async {
+      final minio = _getClient(accessKey: 'incorrect-access-key');
+      expect(
+        () async => await minio.bucketExists(bucketName),
+        throwsA(
+          isA<MinioError>().having(
+            (e) => e.message,
+            'message',
+            'Forbidden',
+          ),
+        ),
+      );
+    });
+
+    test('bucketExists() fails due to wrong secret key', () async {
+      final minio = _getClient(secretKey: 'incorrect-secret-key');
+      expect(
+        () async => await minio.bucketExists(bucketName),
+        throwsA(
+          isA<MinioError>().having(
+            (e) => e.message,
+            'message',
+            'Forbidden',
+          ),
+        ),
+      );
+    });
+  });
 }
 
 /// Initializes an instance of [Minio] with per default valid configuration.
