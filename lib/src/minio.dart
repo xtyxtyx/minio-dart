@@ -68,15 +68,15 @@ class Minio {
 
   /// Checks if a bucket exists.
   ///
-  /// Returns `true` if the [bucket] exists or you don't have permission to access
-  /// it (which implies that it exists). Returns `false` only if the [bucket] does
-  /// not exist.
+  /// Returns `true` only if the [bucket] exists and you have the permission
+  /// to access it. Returns `false` if the [bucket] does not exist or you
+  /// don't have the permission to access it.
   Future<bool> bucketExists(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
     try {
       final response = await _client.request(method: 'HEAD', bucket: bucket);
       validate(response);
-      return (response.statusCode == 200 || response.statusCode == 403);
+      return response.statusCode == 200;
     } on MinioS3Error catch (e) {
       final code = e.error.code;
       if (code == 'NoSuchBucket' || code == 'NotFound' || code == 'Not Found') {
