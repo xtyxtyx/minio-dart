@@ -1,3 +1,12 @@
+## 1.1.0-pre
+
+- fix bucketExists is true when bucket doesn't exist #13
+
+
+## 1.0.2-pre
+
+- Replace static region 'us-east-1' in method listBuckets() with variable's value
+
 ## 1.0.1-pre
 
 - Updated dependencies
