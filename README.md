@@ -1,5 +1,9 @@
 This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to access any Amazon S3 compatible object storage server.
 
+
+[![Build Status](https://travis-ci.org/xtyxtyx/minio-dart.svg?branch=master)](https://travis-ci.org/xtyxtyx/minio-dart)
+
+
 ## API
 
 | Bucket operations       | Object operations        | Presigned operations | Bucket Policy & Notification operations |
