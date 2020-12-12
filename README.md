@@ -66,7 +66,7 @@ For complete example, see: [example]
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-Contributions to this repository are welcomed.
+Contributions to this repository are welcome.
 
 ## License
 
