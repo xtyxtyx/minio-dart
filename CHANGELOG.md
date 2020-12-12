@@ -1,3 +1,7 @@
+## 1.2.0
+
+- fix [#15](https://github.com/xtyxtyx/minio-dart/issues/15) fPutObject content-type: 'image/jpeg' is ignored
+
 ## 1.1.0
 
 ## 1.1.0-pre
