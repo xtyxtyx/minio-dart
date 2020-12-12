@@ -28,7 +28,7 @@ extension MinioX on Minio {
       );
     }
 
-    return putObject(bucket, object, file.openRead(), stat.size);
+    return putObject(bucket, object, file.openRead(), stat.size, metaData);
   }
 
   /// Downloads and saves the object as a file in the local filesystem.

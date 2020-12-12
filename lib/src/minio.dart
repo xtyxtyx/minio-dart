@@ -841,9 +841,9 @@ class Minio {
     String bucket,
     String object,
     Stream<List<int>> data,
-    int size, {
+    int size,
     Map<String, String> metadata,
-  }) async {
+  ) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
