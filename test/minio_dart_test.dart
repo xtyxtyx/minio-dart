@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
 import 'package:test/test.dart';
 
@@ -89,6 +92,35 @@ void main() {
           ),
         ),
       );
+    });
+  });
+
+  group('fPutObject', () {
+    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    Directory tempDir;
+
+    setUpAll(() async {
+      tempDir = await Directory.systemTemp.createTemp();
+
+      final minio = _getClient();
+      await minio.makeBucket(bucketName);
+    });
+
+    tearDown(() async {
+      await tempDir.delete(recursive: true);
+    });
+
+    test('fPutObject() inserts content-type to metadata', () async {
+      final objectName = 'a.jpg';
+
+      final testFile = await File('${tempDir.path}/$objectName').create();
+      await testFile.writeAsString('random bytes');
+
+      final minio = _getClient();
+      await minio.fPutObject(bucketName, 'a.jpg', testFile.path);
+      
+      final stat = await minio.statObject(bucketName, objectName);
+      expect(stat.metaData['content-type'], equals('image/jpeg'));
     });
   });
 }
