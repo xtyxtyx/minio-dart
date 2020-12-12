@@ -1,3 +1,5 @@
+## 1.1.0
+
 ## 1.1.0-pre
 
 - fix bucketExists is true when bucket doesn't exist #13
