@@ -11,14 +11,14 @@ extension MinioX on Minio {
     String bucket,
     String object,
     String filePath, [
-    Map<String, String> metaData,
+    Map<String, String> metadata,
   ]) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    metaData ??= {};
-    metaData = insertContentType(metaData, filePath);
-    metaData = prependXAMZMeta(metaData);
+    metadata ??= {};
+    metadata = insertContentType(metadata, filePath);
+    metadata = prependXAMZMeta(metadata);
 
     final file = File(filePath);
     final stat = await file.stat();
@@ -28,7 +28,13 @@ extension MinioX on Minio {
       );
     }
 
-    return putObject(bucket, object, file.openRead(), stat.size, metaData);
+    return putObject(
+      bucket,
+      object,
+      file.openRead(),
+      stat.size,
+      metadata: metadata,
+    );
   }
 
   /// Downloads and saves the object as a file in the local filesystem.
