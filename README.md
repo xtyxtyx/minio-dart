@@ -3,6 +3,8 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 
 [![Build Status](https://travis-ci.org/xtyxtyx/minio-dart.svg?branch=master)](https://travis-ci.org/xtyxtyx/minio-dart)
 
+![Pub Version](https://img.shields.io/pub/v/minio)
+
 
 ## API
 
