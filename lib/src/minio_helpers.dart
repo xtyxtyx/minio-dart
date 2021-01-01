@@ -130,7 +130,7 @@ Map<String, String> prependXAMZMeta(Map<String, String> metadata) {
     if (!isAmzHeader(key) &&
         !isSupportedHeader(key) &&
         !isStorageclassHeader(key)) {
-      newMetadata['X-Amz-Meta-' + key] = newMetadata[key];
+      newMetadata['x-amz-meta-' + key] = newMetadata[key];
       newMetadata.remove(key);
     }
   }

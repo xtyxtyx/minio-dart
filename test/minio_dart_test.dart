@@ -63,7 +63,8 @@ void main() {
 
     test('bucketExists() returns false for a non-existent bucket', () async {
       final minio = _getClient();
-      expect(await minio.bucketExists('non-existing-bucket-name'), equals(false));
+      expect(
+          await minio.bucketExists('non-existing-bucket-name'), equals(false));
     });
 
     test('bucketExists() fails due to wrong access key', () async {
@@ -98,29 +99,61 @@ void main() {
   group('fPutObject', () {
     final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
     Directory tempDir;
+    File testFile;
+    final objectName = 'a.jpg';
 
     setUpAll(() async {
       tempDir = await Directory.systemTemp.createTemp();
+      testFile = await File('${tempDir.path}/$objectName').create();
+      await testFile.writeAsString('random bytes');
 
       final minio = _getClient();
       await minio.makeBucket(bucketName);
     });
 
-    tearDown(() async {
+    tearDownAll(() async {
       await tempDir.delete(recursive: true);
     });
 
     test('fPutObject() inserts content-type to metadata', () async {
-      final objectName = 'a.jpg';
-
-      final testFile = await File('${tempDir.path}/$objectName').create();
-      await testFile.writeAsString('random bytes');
-
       final minio = _getClient();
-      await minio.fPutObject(bucketName, 'a.jpg', testFile.path);
-      
+      await minio.fPutObject(bucketName, objectName, testFile.path);
+
       final stat = await minio.statObject(bucketName, objectName);
       expect(stat.metaData['content-type'], equals('image/jpeg'));
+    });
+
+    test('fPutObject() adds user-defined object metadata w/ prefix', () async {
+      final prefix = 'x-amz-meta-';
+      final userDefinedMetadataKey = '${prefix}user-defined-metadata-key-1';
+      final userDefinedMetadataValue = 'custom value 1';
+      final metadata = {
+        userDefinedMetadataKey: userDefinedMetadataValue,
+      };
+
+      final minio = _getClient();
+      await minio.fPutObject(bucketName, objectName, testFile.path, metadata);
+
+      final stat = await minio.statObject(bucketName, objectName);
+      expect(
+        stat.metaData[userDefinedMetadataKey.substring(prefix.length)],
+        equals(userDefinedMetadataValue),
+      );
+    });
+
+    test('fPutObject() adds user-defined object metadata w/o prefix', () async {
+      final userDefinedMetadataKey = 'user-defined-metadata-key-2';
+      final userDefinedMetadataValue = 'custom value 2';
+      final metadata = {
+        userDefinedMetadataKey: userDefinedMetadataValue,
+      };
+
+      final minio = _getClient();
+      await minio.fPutObject(bucketName, objectName, testFile.path, metadata);
+
+      final stat = await minio.statObject(bucketName, objectName);
+      expect(stat.metaData[userDefinedMetadataKey],
+          equals(userDefinedMetadataValue));
     });
   });
 }
