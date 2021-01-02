@@ -155,6 +155,18 @@ void main() {
       expect(stat.metaData[userDefinedMetadataKey],
           equals(userDefinedMetadataValue));
     });
+
+    test('fPutObject() with empty file', () async {
+      final objectName = 'empty.txt';
+      final emptyFile = await File('${tempDir.path}/$objectName').create();
+      await emptyFile.writeAsString('');
+
+      final minio = _getClient();
+      await minio.fPutObject(bucketName, objectName, emptyFile.path);
+
+      final stat = await minio.statObject(bucketName, objectName);
+      expect(stat.size, equals(0));
+    });
   });
 }
 
