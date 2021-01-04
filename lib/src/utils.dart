@@ -82,9 +82,7 @@ class BlockStream extends StreamTransformerBase<List<int>, List<int>> {
       }
     }
 
-    if (buffer.length != 0) {
-      yield buffer.toBytes();
-    }
+    yield buffer.toBytes();
   }
 }
 
