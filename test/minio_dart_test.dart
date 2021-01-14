@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
 import 'package:test/test.dart';
 
