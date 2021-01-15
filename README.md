@@ -63,6 +63,8 @@ void main() async {
 
 For complete example, see: [example]
 
+> To use `fPutObject()` and `fGetObject`, you have to `import 'package:minio/io.dart';`
+
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
