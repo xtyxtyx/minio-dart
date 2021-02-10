@@ -2,6 +2,8 @@ import 'package:minio/models.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:xml/xml.dart';
 
+import '../models.dart';
+
 class ListObjectsChunk {
   List<Object> objects;
   List<String> prefixes;
@@ -106,12 +108,14 @@ class StatObjectResult {
     this.etag,
     this.lastModified,
     this.metaData,
+    this.acl,
   });
 
   final int size;
   final String etag;
   final DateTime lastModified;
   final Map<String, String> metaData;
+  final AccessControlPolicy acl;
 }
 
 /// Build PostPolicy object that can be signed by presignedPostPolicy

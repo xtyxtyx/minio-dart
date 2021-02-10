@@ -96,6 +96,36 @@ void main() {
     });
   });
 
+  group(
+    'getObjectACL',
+    () {
+      final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+      Directory tempDir;
+      File testFile;
+      final objectName = 'a.jpg';
+
+      setUpAll(() async {
+        tempDir = await Directory.systemTemp.createTemp();
+        testFile = await File('${tempDir.path}/$objectName').create();
+        await testFile.writeAsString('random bytes');
+
+        final minio = _getClient();
+        await minio.makeBucket(bucketName);
+
+        await minio.fPutObject(bucketName, objectName, testFile.path);
+      });
+
+      tearDownAll(() async {
+        await tempDir.delete(recursive: true);
+      });
+
+      test('getObjectACL() fetch objects acl', () async {
+        final minio = _getClient();
+        var acl = await minio.getObjectACL(bucketName, objectName);
+      });
+    },
+  );
+
   group('fPutObject', () {
     final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
     Directory tempDir;
