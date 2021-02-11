@@ -53,7 +53,6 @@ void main() {
 
     tearDownAll(() async {
       final minio = _getClient();
-      await minio.removeBucket(bucketName);
     });
 
     test('bucketExists() returns true for an existing bucket', () async {
@@ -96,36 +95,6 @@ void main() {
     });
   });
 
-  group(
-    'getObjectACL',
-    () {
-      final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
-      Directory tempDir;
-      File testFile;
-      final objectName = 'a.jpg';
-
-      setUpAll(() async {
-        tempDir = await Directory.systemTemp.createTemp();
-        testFile = await File('${tempDir.path}/$objectName').create();
-        await testFile.writeAsString('random bytes');
-
-        final minio = _getClient();
-        await minio.makeBucket(bucketName);
-
-        await minio.fPutObject(bucketName, objectName, testFile.path);
-      });
-
-      tearDownAll(() async {
-        await tempDir.delete(recursive: true);
-      });
-
-      test('getObjectACL() fetch objects acl', () async {
-        final minio = _getClient();
-        var acl = await minio.getObjectACL(bucketName, objectName);
-      });
-    },
-  );
-
   group('fPutObject', () {
     final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
     Directory tempDir;
@@ -142,6 +111,8 @@ void main() {
     });
 
     tearDownAll(() async {
+      final minio = _getClient();
+      await minio.removeObject(bucketName, objectName);
       await tempDir.delete(recursive: true);
     });
 
@@ -198,6 +169,71 @@ void main() {
       expect(stat.size, equals(0));
     });
   });
+
+  group(
+    'setObjectACL',
+    () {
+      String bucketName;
+      Directory tempDir;
+      File testFile;
+      final objectName = 'a.jpg';
+
+      setUpAll(() async {
+        bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+
+        tempDir = await Directory.systemTemp.createTemp();
+        testFile = await File('${tempDir.path}/$objectName').create();
+        await testFile.writeAsString('random bytes');
+
+        final minio = _getClient();
+        await minio.makeBucket(bucketName);
+
+        await minio.fPutObject(bucketName, objectName, testFile.path);
+      });
+
+      tearDownAll(() async {
+        await tempDir.delete(recursive: true);
+      });
+
+      test('setObjectACL() set objects acl', () async {
+        final minio = _getClient();
+        await minio.setObjectACL(bucketName, objectName, 'public-read');
+      });
+    },
+  );
+
+  group(
+    'getObjectACL',
+    () {
+      String bucketName;
+      Directory tempDir;
+      File testFile;
+      final objectName = 'a.jpg';
+
+      setUpAll(() async {
+        bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+
+        tempDir = await Directory.systemTemp.createTemp();
+        testFile = await File('${tempDir.path}/$objectName').create();
+        await testFile.writeAsString('random bytes');
+
+        final minio = _getClient();
+        await minio.makeBucket(bucketName);
+
+        await minio.fPutObject(bucketName, objectName, testFile.path);
+      });
+
+      tearDownAll(() async {
+        await tempDir.delete(recursive: true);
+      });
+
+      test('getObjectACL() fetch objects acl', () async {
+        final minio = _getClient();
+        var acl = await minio.getObjectACL(bucketName, objectName);
+        expect(acl.grants.permission, equals(null));
+      });
+    },
+  );
 }
 
 /// Initializes an instance of [Minio] with per default valid configuration.
