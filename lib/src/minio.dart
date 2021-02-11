@@ -12,7 +12,6 @@ import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
 
 import '../models.dart';
-import '../models.dart';
 import 'minio_helpers.dart';
 
 class Minio {
@@ -985,6 +984,18 @@ class Minio {
     validate(resp, expect: 204);
   }
 
+  Future<void> setObjectACL(String bucket, String object, String policy) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    final resp = await _client.request(
+      method: 'PUT',
+      bucket: bucket,
+      object: object,
+      queries: {'acl': policy},
+    );
+  }
+
   Future<AccessControlPolicy> getObjectACL(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -993,7 +1004,7 @@ class Minio {
       method: 'GET',
       bucket: bucket,
       object: object,
-      queries: {"acl": ""},
+      queries: {'acl': ''},
     );
 
     return AccessControlPolicy.fromXml(
