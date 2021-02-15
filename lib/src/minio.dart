@@ -11,6 +11,9 @@ import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
 
+import '../models.dart';
+import 'minio_helpers.dart';
+
 class Minio {
   /// Initializes a new client object.
   Minio({
@@ -981,6 +984,34 @@ class Minio {
     validate(resp, expect: 204);
   }
 
+  Future<void> setObjectACL(String bucket, String object, String policy) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    final resp = await _client.request(
+      method: 'PUT',
+      bucket: bucket,
+      object: object,
+      queries: {'acl': policy},
+    );
+  }
+
+  Future<AccessControlPolicy> getObjectACL(String bucket, String object) async {
+    MinioInvalidBucketNameError.check(bucket);
+    MinioInvalidObjectNameError.check(object);
+
+    final resp = await _client.request(
+      method: 'GET',
+      bucket: bucket,
+      object: object,
+      queries: {'acl': ''},
+    );
+
+    return AccessControlPolicy.fromXml(
+      xml.XmlDocument.parse(resp.body).firstChild,
+    );
+  }
+
   /// Stat information of the object.
   Future<StatObjectResult> statObject(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
@@ -1004,6 +1035,7 @@ class Minio {
       size: int.parse(resp.headers['content-length']),
       metaData: extractMetadata(resp.headers),
       lastModified: parseRfc7231Time(resp.headers['last-modified']),
+      acl: await getObjectACL(bucket, object),
     );
   }
 }

@@ -121,7 +121,7 @@ Future<String> getModel(String url) async {
     }
   }
   buffer.writeln('    });');
-  buffer.writeln('    return builder.build();');
+  buffer.writeln('    return builder.buildDocument();');
   buffer.writeln('  }');
   buffer.writeln('');
 

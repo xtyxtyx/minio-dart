@@ -23,7 +23,7 @@ class AbortIncompleteMultipartUpload {
       builder.element('DaysAfterInitiation',
           nest: daysAfterInitiation.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the number of days after which Amazon S3 aborts an incomplete multipart upload.
@@ -45,7 +45,7 @@ class AccelerateConfiguration {
     builder.element('AccelerateConfiguration', nest: () {
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the transfer acceleration status of the bucket.
@@ -70,7 +70,7 @@ class AccessControlPolicy {
       builder.element('Grants', nest: grants.toXml());
       builder.element('Owner', nest: owner.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A list of grants.
@@ -95,7 +95,7 @@ class AccessControlTranslation {
     builder.element('AccessControlTranslation', nest: () {
       builder.element('Owner', nest: owner);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the replica ownership. For default and valid values, see PUT bucket replication in the Amazon Simple Storage Service API Reference.
@@ -120,7 +120,7 @@ class AnalyticsAndOperator {
       builder.element('Prefix', nest: prefix);
       builder.element('Tags', nest: tags.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The prefix to use when evaluating an AND predicate: The prefix that an object must have to be included in the metrics results.
@@ -153,7 +153,7 @@ class AnalyticsConfiguration {
       builder.element('StorageClassAnalysis',
           nest: storageClassAnalysis.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The filter used to describe a set of objects for analyses. A filter must have exactly one prefix, one tag, or one conjunction (AnalyticsAndOperator). If no filter is provided, all objects will be considered in any analysis.
@@ -182,7 +182,7 @@ class AnalyticsExportDestination {
     builder.element('AnalyticsExportDestination', nest: () {
       builder.element('S3BucketDestination', nest: s3BucketDestination.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A destination signifying output to an S3 bucket.
@@ -210,7 +210,7 @@ class AnalyticsFilter {
       builder.element('Prefix', nest: prefix);
       builder.element('Tag', nest: tag.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A conjunction (logical AND) of predicates, which is used in evaluating an analytics filter. The operator must have at least two predicates.
@@ -247,7 +247,7 @@ class AnalyticsS3BucketDestination {
       builder.element('Format', nest: format);
       builder.element('Prefix', nest: prefix);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The Amazon Resource Name (ARN) of the bucket to which data is exported.
@@ -281,7 +281,7 @@ class Bucket {
       builder.element('CreationDate', nest: creationDate.toIso8601String());
       builder.element('Name', nest: name);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Date the bucket was created.
@@ -306,7 +306,7 @@ class BucketLifecycleConfiguration {
     builder.element('BucketLifecycleConfiguration', nest: () {
       builder.element('Rules', nest: rules.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A lifecycle rule for individual objects in an Amazon S3 bucket.
@@ -328,7 +328,7 @@ class BucketLoggingStatus {
     builder.element('BucketLoggingStatus', nest: () {
       builder.element('LoggingEnabled', nest: loggingEnabled.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket. For more information, see PUT Bucket logging in the Amazon Simple Storage Service API Reference.
@@ -362,7 +362,7 @@ class CloudFunctionConfiguration {
       builder.element('Id', nest: id);
       builder.element('InvocationRole', nest: invocationRole);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Lambda cloud function ARN that Amazon S3 can invoke when it detects events of the specified type.
@@ -396,7 +396,7 @@ class CommonPrefix {
     builder.element('CommonPrefix', nest: () {
       builder.element('Prefix', nest: prefix);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Container for the specified common prefix.
@@ -418,7 +418,7 @@ class CompletedMultipartUpload {
     builder.element('CompletedMultipartUpload', nest: () {
       builder.element('Parts', nest: parts.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Array of CompletedPart data types.
@@ -443,7 +443,7 @@ class CompletedPart {
       builder.element('ETag', nest: eTag);
       builder.element('PartNumber', nest: partNumber.toString());
     });
-    return (builder.build() as XmlDocument).rootElement;
+    return builder.buildDocument().rootElement;
   }
 
   /// Entity tag returned when the part was uploaded.
@@ -473,7 +473,7 @@ class Condition {
           nest: httpErrorCodeReturnedEquals);
       builder.element('KeyPrefixEquals', nest: keyPrefixEquals);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The HTTP error code when the redirect is applied. In the event of an error, if the error code equals this value, then the specified redirect is applied. Required when parent element Condition is specified and sibling KeyPrefixEquals is not specified. If both are specified, then both must be true for the redirect to be applied.
@@ -492,7 +492,7 @@ class ContinuationEvent {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ContinuationEvent', nest: () {});
-    return builder.build();
+    return builder.buildDocument();
   }
 }
 
@@ -514,7 +514,7 @@ class CopyObjectResult {
       builder.element('ETag', nest: eTag);
       builder.element('LastModified', nest: lastModified.toIso8601String());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Returns the ETag of the new object. The ETag reflects only changes to the contents of an object, not its metadata. The source and destination ETag is identical for a successfully copied object.
@@ -542,7 +542,7 @@ class CopyPartResult {
       builder.element('ETag', nest: eTag);
       builder.element('LastModified', nest: lastModified.toIso8601String());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Entity tag of the object.
@@ -567,7 +567,7 @@ class CORSConfiguration {
     builder.element('CORSConfiguration', nest: () {
       builder.element('CORSRules', nest: cORSRules.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A set of origins and methods (cross-origin access that you want to allow). You can add up to 100 rules to the configuration.
@@ -601,7 +601,7 @@ class CORSRule {
       builder.element('ExposeHeaders', nest: exposeHeaders);
       builder.element('MaxAgeSeconds', nest: maxAgeSeconds.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Headers that are specified in the Access-Control-Request-Headers header. These headers are allowed in a preflight OPTIONS request. In response to any preflight OPTIONS request, Amazon S3 returns any requested headers that are allowed.
@@ -635,7 +635,7 @@ class CreateBucketConfiguration {
     builder.element('CreateBucketConfiguration', nest: () {
       builder.element('LocationConstraint', nest: locationConstraint);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the Region where the bucket will be created. If you don't specify a Region, the bucket is created in the US East (N. Virginia) Region (us-east-1).
@@ -678,7 +678,7 @@ class CSVInput {
       builder.element('QuoteEscapeCharacter', nest: quoteEscapeCharacter);
       builder.element('RecordDelimiter', nest: recordDelimiter);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies that CSV field values may contain quoted record delimiters and such records should be allowed. Default value is FALSE. Setting this value to TRUE may lower performance.
@@ -730,7 +730,7 @@ class CSVOutput {
       builder.element('QuoteFields', nest: quoteFields);
       builder.element('RecordDelimiter', nest: recordDelimiter);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The value used to separate individual fields in a record. You can specify an arbitrary delimiter.
@@ -770,7 +770,7 @@ class DefaultRetention {
       builder.element('Mode', nest: mode);
       builder.element('Years', nest: years.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The number of days that you want to specify for the default retention period.
@@ -803,7 +803,7 @@ class Delete {
       }
       builder.element('Quiet', nest: quiet ? 'TRUE' : 'FALSE');
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The objects to delete.
@@ -837,7 +837,7 @@ class DeletedObject {
       builder.element('Key', nest: key);
       builder.element('VersionId', nest: versionId);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies whether the versioned object that was permanently deleted was (true) or was not (false) a delete marker. In a simple DELETE, this header indicates whether (true) or not (false) a delete marker was created.
@@ -880,7 +880,7 @@ class DeleteMarkerEntry {
       builder.element('Owner', nest: owner.toXml());
       builder.element('VersionId', nest: versionId);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies whether the object is (true) or is not (false) the latest version of an object.
@@ -914,7 +914,7 @@ class DeleteMarkerReplication {
     builder.element('DeleteMarkerReplication', nest: () {
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Indicates whether to replicate delete markers.
@@ -958,7 +958,7 @@ class Destination {
       builder.element('ReplicationTime', nest: replicationTime.toXml());
       builder.element('StorageClass', nest: storageClass);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specify this only in a cross-account scenario (where source and destination bucket owners are not the same), and you want to change replica ownership to the AWS account that owns the destination bucket. If this is not specified in the replication configuration, the replicas are owned by same AWS account that owns the source object.
@@ -1004,7 +1004,7 @@ class Encryption {
       builder.element('KMSContext', nest: kMSContext);
       builder.element('KMSKeyId', nest: kMSKeyId);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The server-side encryption algorithm used when storing job results in Amazon S3 (for example, AES256, aws:kms).
@@ -1032,7 +1032,7 @@ class EncryptionConfiguration {
     builder.element('EncryptionConfiguration', nest: () {
       builder.element('ReplicaKmsKeyID', nest: replicaKmsKeyID);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the ID (Key ARN or Alias ARN) of the customer managed customer master key (CMK) stored in AWS Key Management Service (KMS) for the destination bucket. Amazon S3 uses this key to encrypt replica objects. Amazon S3 only supports symmetric customer managed CMKs. For more information, see Using Symmetric and Asymmetric Keys in the AWS Key Management Service Developer Guide.
@@ -1048,7 +1048,7 @@ class EndEvent {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('EndEvent', nest: () {});
-    return builder.build();
+    return builder.buildDocument();
   }
 }
 
@@ -1076,7 +1076,7 @@ class Error {
       builder.element('Message', nest: message);
       builder.element('VersionId', nest: versionId);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The error code is a string that uniquely identifies an error condition. It is meant to be read and understood by programs that detect and handle errors by type.
@@ -1107,7 +1107,7 @@ class ErrorDocument {
     builder.element('ErrorDocument', nest: () {
       builder.element('Key', nest: key);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The object key name to use when a 4XX class error occurs.
@@ -1129,7 +1129,7 @@ class ExistingObjectReplication {
     builder.element('ExistingObjectReplication', nest: () {
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Type: String
@@ -1154,7 +1154,7 @@ class FilterRule {
       builder.element('Name', nest: name);
       builder.element('Value', nest: value);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The object key name prefix or suffix identifying one or more objects to which the filtering rule applies. The maximum length is 1,024 characters. Overlapping prefixes and suffixes are not supported. For more information, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
@@ -1179,7 +1179,7 @@ class GlacierJobParameters {
     builder.element('GlacierJobParameters', nest: () {
       builder.element('Tier', nest: tier);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// S3 Glacier retrieval tier at which the restore will be processed.
@@ -1204,7 +1204,7 @@ class Grant {
       builder.element('Grantee', nest: grantee.toXml());
       builder.element('Permission', nest: permission);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The person being granted permissions.
@@ -1241,7 +1241,7 @@ class Grantee {
       builder.element('Type', nest: type);
       builder.element('URI', nest: uRI);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Screen name of the grantee.
@@ -1275,7 +1275,7 @@ class IndexDocument {
     builder.element('IndexDocument', nest: () {
       builder.element('Suffix', nest: suffix);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A suffix that is appended to a request that is for a directory on the website endpoint (for example,if the suffix is index.html and you make a request to samplebucket/images/ the data that is returned will be for the object with the key name images/index.html) The suffix must not be empty and must not include a slash character.
@@ -1300,7 +1300,7 @@ class Initiator {
       builder.element('DisplayName', nest: displayName);
       builder.element('ID', nest: iD);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Name of the Principal.
@@ -1334,7 +1334,7 @@ class InputSerialization {
       builder.element('JSON', nest: jSON.toXml());
       builder.element('Parquet', nest: parquet.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies object's compression format. Valid values: NONE, GZIP, BZIP2. Default Value: NONE.
@@ -1383,7 +1383,7 @@ class InventoryConfiguration {
       builder.element('OptionalFields', nest: optionalFields);
       builder.element('Schedule', nest: schedule.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Contains information about where to publish the inventory results.
@@ -1424,7 +1424,7 @@ class InventoryDestination {
     builder.element('InventoryDestination', nest: () {
       builder.element('S3BucketDestination', nest: s3BucketDestination.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Contains the bucket name, file format, bucket owner (optional), and prefix (optional) where inventory results are published.
@@ -1449,7 +1449,7 @@ class InventoryEncryption {
       builder.element('SSEKMS', nest: sSEKMS.toXml());
       builder.element('SSES3', nest: sSES3.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the use of SSE-KMS to encrypt delivered inventory reports.
@@ -1474,7 +1474,7 @@ class InventoryFilter {
     builder.element('InventoryFilter', nest: () {
       builder.element('Prefix', nest: prefix);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The prefix that an object must have to be included in the inventory results.
@@ -1508,7 +1508,7 @@ class InventoryS3BucketDestination {
       builder.element('Format', nest: format);
       builder.element('Prefix', nest: prefix);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The ID of the account that owns the destination bucket. Although optional, we recommend that the value be set to prevent problems if the destination bucket ownership changes.
@@ -1542,7 +1542,7 @@ class InventorySchedule {
     builder.element('InventorySchedule', nest: () {
       builder.element('Frequency', nest: frequency);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies how frequently inventory results are produced.
@@ -1564,7 +1564,7 @@ class JSONInput {
     builder.element('JSONInput', nest: () {
       builder.element('Type', nest: type);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The type of JSON. Valid values: Document, Lines.
@@ -1586,7 +1586,7 @@ class JSONOutput {
     builder.element('JSONOutput', nest: () {
       builder.element('RecordDelimiter', nest: recordDelimiter);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The value used to separate individual records in the output.
@@ -1617,7 +1617,7 @@ class LambdaFunctionConfiguration {
       builder.element('Id', nest: id);
       builder.element('LambdaFunctionArn', nest: lambdaFunctionArn);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The Amazon S3 bucket event for which to invoke the AWS Lambda function. For more information, see Supported Event Types in the Amazon Simple Storage Service Developer Guide.
@@ -1648,7 +1648,7 @@ class LifecycleConfiguration {
     builder.element('LifecycleConfiguration', nest: () {
       builder.element('Rules', nest: rules.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies lifecycle configuration rules for an Amazon S3 bucket.
@@ -1679,7 +1679,7 @@ class LifecycleExpiration {
       builder.element('ExpiredObjectDeleteMarker',
           nest: expiredObjectDeleteMarker ? 'TRUE' : 'FALSE');
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Indicates at what date the object is to be moved or deleted. Should be in GMT ISO 8601 Format.
@@ -1737,7 +1737,7 @@ class LifecycleRule {
       builder.element('Status', nest: status);
       builder.element('Transitions', nest: transitions.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
@@ -1786,7 +1786,7 @@ class LifecycleRuleAndOperator {
       builder.element('Prefix', nest: prefix);
       builder.element('Tags', nest: tags.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Prefix identifying one or more objects to which the rule applies.
@@ -1817,7 +1817,7 @@ class LifecycleRuleFilter {
       builder.element('Prefix', nest: prefix);
       builder.element('Tag', nest: tag.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// This is used in a Lifecycle Rule Filter to apply a logical AND to two or more predicates. The Lifecycle Rule will apply to any object matching all of the predicates configured inside the And operator.
@@ -1851,7 +1851,7 @@ class LoggingEnabled {
       builder.element('TargetGrants', nest: targetGrants.toXml());
       builder.element('TargetPrefix', nest: targetPrefix);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the bucket where you want Amazon S3 to store server access logs. You can have your logs delivered to any bucket that you own, including the same bucket that is being logged. You can also configure multiple buckets to deliver their logs to the same target bucket. In this case, you should choose a different TargetPrefix for each source bucket so that the delivered log files can be distinguished by key.
@@ -1882,7 +1882,7 @@ class MetadataEntry {
       builder.element('Name', nest: name);
       builder.element('Value', nest: value);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Name of the Object.
@@ -1911,7 +1911,7 @@ class Metrics {
       builder.element('EventThreshold', nest: eventThreshold.toXml());
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   ///  A container specifying the time threshold for emitting the s3:Replication:OperationMissedThreshold event.
@@ -1939,7 +1939,7 @@ class MetricsAndOperator {
       builder.element('Prefix', nest: prefix);
       builder.element('Tags', nest: tags.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The prefix used when evaluating an AND predicate.
@@ -1967,7 +1967,7 @@ class MetricsConfiguration {
       builder.element('Filter', nest: filter.toXml());
       builder.element('Id', nest: id);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies a metrics configuration filter. The metrics configuration will only include objects that meet the filter's criteria. A filter must be a prefix, a tag, or a conjunction (MetricsAndOperator).
@@ -1998,7 +1998,7 @@ class MetricsFilter {
       builder.element('Prefix', nest: prefix);
       builder.element('Tag', nest: tag.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.
@@ -2041,7 +2041,7 @@ class MultipartUpload {
       builder.element('StorageClass', nest: storageClass);
       builder.element('UploadId', nest: uploadId);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Date and time at which the multipart upload was initiated.
@@ -2078,7 +2078,7 @@ class NoncurrentVersionExpiration {
     builder.element('NoncurrentVersionExpiration', nest: () {
       builder.element('NoncurrentDays', nest: noncurrentDays.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates When an Object Became Noncurrent in the Amazon Simple Storage Service Developer Guide.
@@ -2103,7 +2103,7 @@ class NoncurrentVersionTransition {
       builder.element('NoncurrentDays', nest: noncurrentDays.toString());
       builder.element('StorageClass', nest: storageClass);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates How Long an Object Has Been Noncurrent in the Amazon Simple Storage Service Developer Guide.
@@ -2146,7 +2146,7 @@ class NotificationConfiguration {
             nest: topicConfigurations.toXml());
       }
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Describes the AWS Lambda functions to invoke and the events for which to invoke them.
@@ -2184,7 +2184,7 @@ class NotificationConfigurationDeprecated {
       builder.element('QueueConfiguration', nest: queueConfiguration.toXml());
       builder.element('TopicConfiguration', nest: topicConfiguration.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Container for specifying the AWS Lambda notification configuration.
@@ -2212,7 +2212,7 @@ class NotificationConfigurationFilter {
     builder.element('NotificationConfigurationFilter', nest: () {
       builder.element('Key', nest: key.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A container for object key name prefix and suffix filtering rules.
@@ -2249,7 +2249,7 @@ class Object {
       builder.element('Size', nest: size.toString());
       builder.element('StorageClass', nest: storageClass);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The entity tag is an MD5 hash of the object. ETag reflects only changes to the contents of an object, not its metadata.
@@ -2291,7 +2291,7 @@ class ObjectIdentifier {
         builder.element('VersionId', nest: versionId);
       }
     });
-    return (builder.build() as XmlDocument).rootElement;
+    return (builder.buildDocument()).rootElement;
   }
 
   /// Key name of the object to delete.
@@ -2319,7 +2319,7 @@ class ObjectLockConfiguration {
       builder.element('ObjectLockEnabled', nest: objectLockEnabled);
       builder.element('Rule', nest: rule.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Indicates whether this bucket has an Object Lock configuration enabled.
@@ -2344,7 +2344,7 @@ class ObjectLockLegalHold {
     builder.element('ObjectLockLegalHold', nest: () {
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Indicates whether the specified object has a Legal Hold in place.
@@ -2370,7 +2370,7 @@ class ObjectLockRetention {
       builder.element('RetainUntilDate',
           nest: retainUntilDate.toIso8601String());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Indicates the Retention mode for the specified object.
@@ -2396,7 +2396,7 @@ class ObjectLockRule {
     builder.element('ObjectLockRule', nest: () {
       builder.element('DefaultRetention', nest: defaultRetention.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The default retention period that you want to apply to new objects placed in the specified bucket.
@@ -2439,7 +2439,7 @@ class ObjectVersion {
       builder.element('StorageClass', nest: storageClass);
       builder.element('VersionId', nest: versionId);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The entity tag is an MD5 hash of that version of the object.
@@ -2482,7 +2482,7 @@ class OutputLocation {
     builder.element('OutputLocation', nest: () {
       builder.element('S3', nest: s3.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Describes an S3 location that will receive the results of the restore request.
@@ -2507,7 +2507,7 @@ class OutputSerialization {
       builder.element('CSV', nest: cSV.toXml());
       builder.element('JSON', nest: jSON.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Describes the serialization of CSV-encoded Select results.
@@ -2535,7 +2535,7 @@ class Owner {
       builder.element('DisplayName', nest: displayName);
       builder.element('ID', nest: iD);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Container for the display name of the owner.
@@ -2554,7 +2554,7 @@ class ParquetInput {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ParquetInput', nest: () {});
-    return builder.build();
+    return builder.buildDocument();
   }
 }
 
@@ -2582,7 +2582,7 @@ class Part {
       builder.element('PartNumber', nest: partNumber.toString());
       builder.element('Size', nest: size.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Entity tag returned when the part was uploaded.
@@ -2613,7 +2613,7 @@ class PolicyStatus {
     builder.element('PolicyStatus', nest: () {
       builder.element('IsPublic', nest: isPublic ? 'TRUE' : 'FALSE');
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The policy status for this bucket. TRUE indicates that this bucket is public. FALSE indicates that the bucket is not public.
@@ -2641,7 +2641,7 @@ class Progress {
       builder.element('BytesReturned', nest: bytesReturned.toString());
       builder.element('BytesScanned', nest: bytesScanned.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The current number of uncompressed object bytes processed.
@@ -2669,7 +2669,7 @@ class ProgressEvent {
     builder.element('ProgressEvent', nest: () {
       builder.element('Details', nest: details.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The Progress event details.
@@ -2708,7 +2708,7 @@ class PublicAccessBlockConfiguration {
       builder.element('RestrictPublicBuckets',
           nest: restrictPublicBuckets ? 'TRUE' : 'FALSE');
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies whether Amazon S3 should block public access control lists (ACLs) for this bucket and objects in this bucket. Setting this element to TRUE causes the following behavior:
@@ -2748,7 +2748,7 @@ class QueueConfiguration {
       builder.element('Id', nest: id);
       builder.element('QueueArn', nest: queueArn);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A collection of bucket events for which to send notifications
@@ -2788,7 +2788,7 @@ class QueueConfigurationDeprecated {
       builder.element('Id', nest: id);
       builder.element('Queue', nest: queue);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   ///  This member has been deprecated.
@@ -2819,7 +2819,7 @@ class RecordsEvent {
     builder.element('RecordsEvent', nest: () {
       builder.element('Payload', nest: payload);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The byte array of partial, one or more result records.
@@ -2853,7 +2853,7 @@ class Redirect {
       builder.element('ReplaceKeyPrefixWith', nest: replaceKeyPrefixWith);
       builder.element('ReplaceKeyWith', nest: replaceKeyWith);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The host name to use in the redirect request.
@@ -2890,7 +2890,7 @@ class RedirectAllRequestsTo {
       builder.element('HostName', nest: hostName);
       builder.element('Protocol', nest: protocol);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Name of the host where requests are redirected.
@@ -2918,7 +2918,7 @@ class ReplicationConfiguration {
       builder.element('Role', nest: role);
       builder.element('Rules', nest: rules.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM) role that Amazon S3 assumes when replicating objects. For more information, see How to Set Up Replication in the Amazon Simple Storage Service Developer Guide.
@@ -2973,7 +2973,7 @@ class ReplicationRule {
           nest: sourceSelectionCriteria.toXml());
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies whether Amazon S3 replicates the delete markers. If you specify a Filter, you must specify this element. However, in the latest version of replication configuration (when Filter is specified), Amazon S3 doesn't replicate delete markers. Therefore, the DeleteMarkerReplication element can contain only <Status>Disabled</Status>. For an example configuration, see Basic Rule Configuration.
@@ -3022,7 +3022,7 @@ class ReplicationRuleAndOperator {
       builder.element('Prefix', nest: prefix);
       builder.element('Tags', nest: tags.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// An object key name prefix that identifies the subset of objects to which the rule applies.
@@ -3053,7 +3053,7 @@ class ReplicationRuleFilter {
       builder.element('Prefix', nest: prefix);
       builder.element('Tag', nest: tag.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A container for specifying rule filters. The filters determine the subset of objects to which the rule applies. This element is required only if you specify more than one filter. For example:
@@ -3084,7 +3084,7 @@ class ReplicationTime {
       builder.element('Status', nest: status);
       builder.element('Time', nest: time.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   ///  Specifies whether the replication time is enabled.
@@ -3109,7 +3109,7 @@ class ReplicationTimeValue {
     builder.element('ReplicationTimeValue', nest: () {
       builder.element('Minutes', nest: minutes.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   ///  Contains an integer specifying time in minutes.
@@ -3131,7 +3131,7 @@ class RequestPaymentConfiguration {
     builder.element('RequestPaymentConfiguration', nest: () {
       builder.element('Payer', nest: payer);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies who pays for the download and request fees.
@@ -3153,7 +3153,7 @@ class RequestProgress {
     builder.element('RequestProgress', nest: () {
       builder.element('Enabled', nest: enabled ? 'TRUE' : 'FALSE');
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies whether periodic QueryProgress frames should be sent. Valid values: TRUE, FALSE. Default value: FALSE.
@@ -3196,7 +3196,7 @@ class RestoreRequest {
       builder.element('Tier', nest: tier);
       builder.element('Type', nest: type);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Lifetime of the active copy in days. Do not use with restores that specify OutputLocation.
@@ -3239,7 +3239,7 @@ class RoutingRule {
       builder.element('Condition', nest: condition.toXml());
       builder.element('Redirect', nest: redirect.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A container for describing a condition that must be met for the specified redirect to apply. For example, 1. If request is for pages in the /docs folder, redirect to the /documents folder. 2. If request results in HTTP error 4xx, redirect request to another host where you might process the error.
@@ -3291,7 +3291,7 @@ class Rule {
       builder.element('Status', nest: status);
       builder.element('Transition', nest: transition.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
@@ -3334,7 +3334,7 @@ class S3KeyFilter {
     builder.element('S3KeyFilter', nest: () {
       builder.element('FilterRules', nest: filterRules.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A list of containers for the key-value pair that defines the criteria for the filter rule.
@@ -3377,7 +3377,7 @@ class S3Location {
       builder.element('Tagging', nest: tagging.toXml());
       builder.element('UserMetadata', nest: userMetadata.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A list of grants that control access to the staged results.
@@ -3423,7 +3423,7 @@ class ScanRange {
       builder.element('End', nest: end.toString());
       builder.element('Start', nest: start.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the end of the byte range. This parameter is optional. Valid values: non-negative integers. The default value is one less than the size of the object being queried. If only the End parameter is supplied, it is interpreted to mean scan the last N bytes of the file. For example, <scanrange><end>50</end></scanrange> means scan the last 50 bytes.
@@ -3460,7 +3460,7 @@ class SelectObjectContentEventStream {
       builder.element('Records', nest: records.toXml());
       builder.element('Stats', nest: stats.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The Continuation Event.
@@ -3505,7 +3505,7 @@ class SelectParameters {
       builder.element('InputSerialization', nest: inputSerialization.toXml());
       builder.element('OutputSerialization', nest: outputSerialization.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The expression that is used to query the object.
@@ -3539,7 +3539,7 @@ class ServerSideEncryptionByDefault {
       builder.element('KMSMasterKeyID', nest: kMSMasterKeyID);
       builder.element('SSEAlgorithm', nest: sSEAlgorithm);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// AWS Key Management Service (KMS) customer master key ID to use for the default encryption. This parameter is allowed if and only if SSEAlgorithm is set to aws:kms.
@@ -3564,7 +3564,7 @@ class ServerSideEncryptionConfiguration {
     builder.element('ServerSideEncryptionConfiguration', nest: () {
       builder.element('Rules', nest: rules.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Container for information about a particular server-side encryption configuration rule.
@@ -3588,7 +3588,7 @@ class ServerSideEncryptionRule {
       builder.element('ApplyServerSideEncryptionByDefault',
           nest: applyServerSideEncryptionByDefault.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the default server-side encryption to apply to new objects in the bucket. If a PUT Object request doesn't specify any server-side encryption, this default encryption will be applied.
@@ -3612,7 +3612,7 @@ class SourceSelectionCriteria {
       builder.element('SseKmsEncryptedObjects',
           nest: sseKmsEncryptedObjects.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   ///  A container for filter information for the selection of Amazon S3 objects encrypted with AWS KMS. If you include SourceSelectionCriteria in the replication configuration, this element is required.
@@ -3634,7 +3634,7 @@ class SSEKMS {
     builder.element('SSEKMS', nest: () {
       builder.element('KeyId', nest: keyId);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies the ID of the AWS Key Management Service (AWS KMS) symmetric customer managed customer master key (CMK) to use for encrypting inventory reports.
@@ -3656,7 +3656,7 @@ class SseKmsEncryptedObjects {
     builder.element('SseKmsEncryptedObjects', nest: () {
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies whether Amazon S3 replicates objects created with server-side encryption using a customer master key (CMK) stored in AWS Key Management Service.
@@ -3672,7 +3672,7 @@ class SSES3 {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('SSES3', nest: () {});
-    return builder.build();
+    return builder.buildDocument();
   }
 }
 
@@ -3697,7 +3697,7 @@ class Stats {
       builder.element('BytesReturned', nest: bytesReturned.toString());
       builder.element('BytesScanned', nest: bytesScanned.toString());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The total number of uncompressed object bytes processed.
@@ -3725,7 +3725,7 @@ class StatsEvent {
     builder.element('StatsEvent', nest: () {
       builder.element('Details', nest: details.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The Stats event details.
@@ -3748,7 +3748,7 @@ class StorageClassAnalysis {
     builder.element('StorageClassAnalysis', nest: () {
       builder.element('DataExport', nest: dataExport.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies how data related to the storage class analysis for an Amazon S3 bucket should be exported.
@@ -3774,7 +3774,7 @@ class StorageClassAnalysisDataExport {
       builder.element('Destination', nest: destination.toXml());
       builder.element('OutputSchemaVersion', nest: outputSchemaVersion);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The place to store the data for an analysis.
@@ -3802,7 +3802,7 @@ class Tag {
       builder.element('Key', nest: key);
       builder.element('Value', nest: value);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Name of the tag.
@@ -3827,7 +3827,7 @@ class Tagging {
     builder.element('Tagging', nest: () {
       builder.element('TagSet', nest: tagSet.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// A collection for a set of tags
@@ -3852,7 +3852,7 @@ class TargetGrant {
       builder.element('Grantee', nest: grantee.toXml());
       builder.element('Permission', nest: permission);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Container for the person being granted permissions.
@@ -3886,7 +3886,7 @@ class TopicConfiguration {
       builder.element('Id', nest: id);
       builder.element('TopicArn', nest: topicArn);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The Amazon S3 bucket event about which to send notifications. For more information, see Supported Event Types in the Amazon Simple Storage Service Developer Guide.
@@ -3926,7 +3926,7 @@ class TopicConfigurationDeprecated {
       builder.element('Id', nest: id);
       builder.element('Topic', nest: topic);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   ///  This member has been deprecated.
@@ -3963,7 +3963,7 @@ class Transition {
       builder.element('Days', nest: days.toString());
       builder.element('StorageClass', nest: storageClass);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Indicates when objects are transitioned to the specified storage class. The date value must be in ISO 8601 format. The time is always midnight UTC.
@@ -3994,7 +3994,7 @@ class VersioningConfiguration {
       builder.element('MFADelete', nest: mFADelete);
       builder.element('Status', nest: status);
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Specifies whether MFA delete is enabled in the bucket versioning configuration. This element is only returned if the bucket has been configured with MFA delete. If the bucket has never been so configured, this element is not returned.
@@ -4030,7 +4030,7 @@ class WebsiteConfiguration {
           nest: redirectAllRequestsTo.toXml());
       builder.element('RoutingRules', nest: routingRules.toXml());
     });
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// The name of the error document for the website.
