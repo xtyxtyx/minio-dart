@@ -1,3 +1,7 @@
+## 2.0.0-pre
+
+- Migrate to NNBD
+
 ## 1.4.0-pre
 
 - Object's ACL Query; Include object's ACL in stat [#23](https://github.com/xtyxtyx/minio-dart/pull/23), thanks [@rtgnx](https://github.com/rtgnx)
