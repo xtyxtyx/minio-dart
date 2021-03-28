@@ -33,12 +33,12 @@ String jsonBase64(Map<String, dynamic> jsonObject) {
   return base64.encode(utf8.encode(json.encode(jsonObject)));
 }
 
-XmlElement getNodeProp(XmlElement xml, String name) {
+XmlElement? getNodeProp(XmlElement xml, String name) {
   final result = xml.findElements(name);
   return result.isNotEmpty ? result.first : null;
 }
 
-String encodeQuery(String rawKey, String rawValue) {
+String encodeQuery(String rawKey, String? rawValue) {
   final pair = [rawKey];
   if (rawValue != null) {
     pair.add(Uri.encodeQueryComponent(rawValue));

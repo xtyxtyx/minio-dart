@@ -32,7 +32,7 @@ Future<List<String>> getAllModelUrls() async {
   final document = parse(page.body);
   final urls = document.querySelectorAll('.listitem a');
   return urls
-      .map<String>((a) => a.attributes['href'].substring(2))
+      .map<String>((a) => a.attributes['href']!.substring(2))
       .map((a) => '$baseUrl/$a')
       .toList();
 }
@@ -42,16 +42,16 @@ Future<String> getModel(String url) async {
   final page = await http.get(Uri.parse(url));
   final document = parse(page.body);
 
-  final name = document.querySelector('h1').text;
+  final name = document.querySelector('h1')!.text;
   final description = document
-      .querySelector('#main-col-body p')
+      .querySelector('#main-col-body p')!
       .text
       .replaceAll(RegExp(r'\s+'), ' ');
 
   final fields = <FieldSpec>[];
   for (var dt in document.querySelectorAll('dt')) {
     final name = dt.text.trim();
-    final spec = parseField(name, dt.nextElementSibling);
+    final spec = parseField(name, dt.nextElementSibling!);
     fields.add(spec);
   }
 
@@ -136,12 +136,12 @@ Future<String> getModel(String url) async {
 }
 
 class FieldSpec {
-  String name;
-  String dartName;
-  String source;
-  String description;
-  bool isRequired;
-  TypeSpec type;
+  String? name;
+  String? dartName;
+  String? source;
+  String? description;
+  bool? isRequired;
+  late TypeSpec type;
 
   @override
   String toString() {
@@ -150,8 +150,8 @@ class FieldSpec {
 }
 
 class TypeSpec {
-  String name;
-  String dartName;
+  String? name;
+  String? dartName;
   bool isObject = false;
   bool isArray = false;
 
@@ -168,7 +168,7 @@ String toCamelCase(String name) {
 FieldSpec parseField(String name, Element dd) {
   final source = dd.text;
   final description =
-      dd.querySelector('p').text.replaceAll(RegExp(r'\s+'), ' ');
+      dd.querySelector('p')!.text.replaceAll(RegExp(r'\s+'), ' ');
   final isRequired = dd.text.contains('Required: Yes');
   final type = parseType(source);
 
@@ -195,13 +195,13 @@ TypeSpec parseType(String source) {
     'Boolean': 'bool',
   };
   final pattern = RegExp(r'Type: (Array of |)(\w+)( data type|)');
-  final match = pattern.firstMatch(source);
+  final match = pattern.firstMatch(source)!;
 
-  final isArray = match.group(1).trim().isNotEmpty;
-  final isObject = match.group(3).trim().isNotEmpty;
+  final isArray = match.group(1)!.trim().isNotEmpty;
+  final isObject = match.group(3)!.trim().isNotEmpty;
   final type = match.group(2);
 
-  final dartType = isObject ? type : typeMap[type];
+  final dartType = isObject ? type : typeMap[type!];
   final dartName = isArray ? 'List<$dartType>' : dartType;
 
   return TypeSpec()

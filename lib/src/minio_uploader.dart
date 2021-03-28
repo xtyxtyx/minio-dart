@@ -27,15 +27,15 @@ class MinioUploader implements StreamConsumer<List<int>> {
   final Map<String, String> metadata;
 
   var partNumber = 1;
-  String etag;
+  String? etag;
   List<CompletedPart> parts = [];
-  Map<int, Part> oldParts;
-  String uploadId;
+  Map<int?, Part>? oldParts;
+  String? uploadId;
 
   @override
   Future addStream(Stream<List<int>> stream) async {
     await for (var chunk in stream) {
-      List<int> md5digest;
+      List<int>? md5digest;
       final headers = <String, String>{};
       headers.addAll(metadata);
       headers['Content-Length'] = chunk.length.toString();
@@ -56,7 +56,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
       final partNumber = this.partNumber++;
 
       if (oldParts != null) {
-        final oldPart = oldParts[partNumber];
+        final oldPart = oldParts![partNumber];
         if (oldPart != null) {
           md5digest ??= md5.convert(chunk).bytes;
           if (hex.encode(md5digest) == oldPart.eTag) {
@@ -67,7 +67,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
         }
       }
 
-      final queries = <String, String>{
+      final queries = <String, String?>{
         'partNumber': '$partNumber',
         'uploadId': uploadId,
       };
@@ -79,9 +79,9 @@ class MinioUploader implements StreamConsumer<List<int>> {
   }
 
   @override
-  Future<String> close() async {
+  Future<String?> close() async {
     if (uploadId == null) return etag;
-    return minio.completeMultipartUpload(bucket, object, uploadId, parts);
+    return minio.completeMultipartUpload(bucket, object, uploadId!, parts);
   }
 
   Map<String, String> getHeaders(List<int> chunk) {
@@ -95,10 +95,10 @@ class MinioUploader implements StreamConsumer<List<int>> {
     return headers;
   }
 
-  Future<String> upload(
+  Future<String?> upload(
     List<int> chunk,
     Map<String, String> headers,
-    Map<String, String> queries,
+    Map<String, String?>? queries,
   ) async {
     final resp = await client.request(
       method: 'PUT',
@@ -131,7 +131,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
       return;
     }
 
-    final parts = await minio.listParts(bucket, object, uploadId);
+    final parts = minio.listParts(bucket, object, uploadId!);
     final entries = await parts
         .asyncMap((part) => MapEntry(part.partNumber, part))
         .toList();

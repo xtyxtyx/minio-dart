@@ -14,9 +14,9 @@ class NotificationPoller {
 
   final MinioClient _client;
   final String bucket;
-  final String prefix;
-  final String suffix;
-  final List<String> events;
+  final String? prefix;
+  final String? suffix;
+  final List<String>? events;
 
   final _eventStream = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get stream => _eventStream.stream;

@@ -17,7 +17,6 @@ const awsS3Endpoint = {
 
 // getS3Endpoint get relevant endpoint for the region.
 String getS3Endpoint(String region) {
-  assert(region != null);
   final endpoint = awsS3Endpoint[region];
   return endpoint ?? 's3.amazonaws.com';
 }

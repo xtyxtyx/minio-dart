@@ -11,7 +11,7 @@ extension MinioX on Minio {
     String bucket,
     String object,
     String filePath, [
-    Map<String, String> metadata,
+    Map<String, String>? metadata,
   ]) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -24,7 +24,7 @@ extension MinioX on Minio {
     final stat = await file.stat();
     if (stat.size > maxObjectSize) {
       throw MinioError(
-        '${filePath} size : ${stat.size}, max allowed size : 5TB',
+        '$filePath size : ${stat.size}, max allowed size : 5TB',
       );
     }
 
@@ -32,7 +32,7 @@ extension MinioX on Minio {
       bucket,
       object,
       file.openRead(),
-      stat.size,
+      size: stat.size,
       metadata: metadata,
     );
   }
@@ -50,12 +50,14 @@ extension MinioX on Minio {
     final dir = dirname(filePath);
     await Directory(dir).create(recursive: true);
 
-    final partFileName = '${filePath}.${stat.etag}.part.minio';
+    final partFileName = '$filePath.${stat.etag}.part.minio';
     final partFile = File(partFileName);
     IOSink partFileStream;
     var offset = 0;
 
-    final rename = () => partFile.rename(filePath);
+    final rename = () {
+      partFile.rename(filePath);
+    };
 
     if (await partFile.exists()) {
       final localStat = await partFile.stat();

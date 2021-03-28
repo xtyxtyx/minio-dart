@@ -53,6 +53,7 @@ void main() {
 
     tearDownAll(() async {
       final minio = _getClient();
+      await minio.removeBucket(bucketName);
     });
 
     test('bucketExists() returns true for an existing bucket', () async {
@@ -97,8 +98,8 @@ void main() {
 
   group('fPutObject', () {
     final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
-    Directory tempDir;
-    File testFile;
+    late Directory tempDir;
+    late File testFile;
     final objectName = 'a.jpg';
 
     setUpAll(() async {
@@ -121,7 +122,7 @@ void main() {
       await minio.fPutObject(bucketName, objectName, testFile.path);
 
       final stat = await minio.statObject(bucketName, objectName);
-      expect(stat.metaData['content-type'], equals('image/jpeg'));
+      expect(stat.metaData!['content-type'], equals('image/jpeg'));
     });
 
     test('fPutObject() adds user-defined object metadata w/ prefix', () async {
@@ -137,7 +138,7 @@ void main() {
 
       final stat = await minio.statObject(bucketName, objectName);
       expect(
-        stat.metaData[userDefinedMetadataKey.substring(prefix.length)],
+        stat.metaData![userDefinedMetadataKey.substring(prefix.length)],
         equals(userDefinedMetadataValue),
       );
     });
@@ -153,7 +154,7 @@ void main() {
       await minio.fPutObject(bucketName, objectName, testFile.path, metadata);
 
       final stat = await minio.statObject(bucketName, objectName);
-      expect(stat.metaData[userDefinedMetadataKey],
+      expect(stat.metaData![userDefinedMetadataKey],
           equals(userDefinedMetadataValue));
     });
 
@@ -173,8 +174,8 @@ void main() {
   group(
     'setObjectACL',
     () {
-      String bucketName;
-      Directory tempDir;
+      late String bucketName;
+      late Directory tempDir;
       File testFile;
       final objectName = 'a.jpg';
 
@@ -205,8 +206,8 @@ void main() {
   group(
     'getObjectACL',
     () {
-      String bucketName;
-      Directory tempDir;
+      late String bucketName;
+      late Directory tempDir;
       File testFile;
       final objectName = 'a.jpg';
 
@@ -230,7 +231,7 @@ void main() {
       test('getObjectACL() fetch objects acl', () async {
         final minio = _getClient();
         var acl = await minio.getObjectACL(bucketName, objectName);
-        expect(acl.grants.permission, equals(null));
+        expect(acl.grants!.permission, equals(null));
       });
     },
   );

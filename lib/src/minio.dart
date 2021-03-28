@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
@@ -10,6 +11,7 @@ import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
+import 'package:xml/xml.dart' show XmlElement;
 
 import '../models.dart';
 import 'minio_helpers.dart';
@@ -20,16 +22,13 @@ class Minio {
     this.endPoint,
     this.port,
     this.useSSL = true,
-    this.accessKey = '',
-    this.secretKey = '',
+    required this.accessKey,
+    required this.secretKey,
     this.sessionToken,
     this.region,
     this.enableTrace = false,
   })  : assert(isValidEndpoint(endPoint)),
-        assert(port == null || isValidPort(port)),
-        assert(useSSL != null),
-        assert(accessKey != null),
-        assert(secretKey != null) {
+        assert(port == null || isValidPort(port)) {
     _client = MinioClient(this);
   }
 
@@ -43,10 +42,10 @@ class Minio {
   final maxObjectSize = 5 * 1024 * 1024 * 1024 * 1024;
 
   /// endPoint is a host name or an IP address.
-  final String endPoint;
+  final String? endPoint;
 
   /// TCP/IP port number. This input is optional. Default value set to 80 for HTTP and 443 for HTTPs.
-  final int port;
+  final int? port;
 
   /// If set to true, https is used instead of http. Default is true.
   final bool useSSL;
@@ -58,16 +57,16 @@ class Minio {
   final String secretKey;
 
   /// Set this value to provide x-amz-security-token (AWS S3 specific). (Optional)
-  final String sessionToken;
+  final String? sessionToken;
 
   /// Set this value to override region cache. (Optional)
-  final String region;
+  final String? region;
 
   /// Set this value to enable tracing. (Optional)
   final bool enableTrace;
 
-  MinioClient _client;
-  final _regionMap = <String, String>{};
+  late MinioClient _client;
+  final _regionMap = <String?, String>{};
 
   /// Checks if a bucket exists.
   ///
@@ -81,7 +80,7 @@ class Minio {
       validate(response);
       return response.statusCode == 200;
     } on MinioS3Error catch (e) {
-      final code = e.error.code;
+      final code = e.error?.code;
       if (code == 'NoSuchBucket' || code == 'NotFound' || code == 'Not Found') {
         return false;
       }
@@ -101,14 +100,10 @@ class Minio {
   }
 
   int _calculatePartSize(int size) {
-    assert(size != null && size >= 0);
+    assert(size >= 0);
 
     if (size > maxObjectSize) {
       throw ArgumentError('size should not be more than $maxObjectSize');
-    }
-
-    if (this.partSize != null) {
-      return this.partSize;
     }
 
     var partSize = this.partSize;
@@ -130,9 +125,6 @@ class Minio {
   ) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
-
-    assert(uploadId != null);
-    assert(parts != null);
 
     var queries = {'uploadId': uploadId};
     var payload = CompleteMultipartUpload(parts).toXml().toString();
@@ -162,7 +154,7 @@ class Minio {
     String bucket,
     String object,
     String srcObject, [
-    CopyConditions conditions,
+    CopyConditions? conditions,
   ]) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -173,17 +165,18 @@ class Minio {
 
     if (conditions != null) {
       if (conditions.modified != null) {
-        headers['x-amz-copy-source-if-modified-since'] = conditions.modified;
+        headers['x-amz-copy-source-if-modified-since'] = conditions.modified!;
       }
       if (conditions.unmodified != null) {
         headers['x-amz-copy-source-if-unmodified-since'] =
-            conditions.unmodified;
+            conditions.unmodified!;
       }
       if (conditions.matchETag != null) {
-        headers['x-amz-copy-source-if-match'] = conditions.matchETag;
+        headers['x-amz-copy-source-if-match'] = conditions.matchETag!;
       }
       if (conditions.matchETagExcept != null) {
-        headers['x-amz-copy-source-if-none-match'] = conditions.matchETagExcept;
+        headers['x-amz-copy-source-if-none-match'] =
+            conditions.matchETagExcept!;
       }
     }
 
@@ -198,19 +191,19 @@ class Minio {
 
     final node = xml.XmlDocument.parse(resp.body);
     final result = CopyObjectResult.fromXml(node.rootElement);
-    result.eTag = trimDoubleQuote(result.eTag);
+    result.eTag = trimDoubleQuote(result.eTag!);
     return result;
   }
 
   /// Find uploadId of an incomplete upload.
-  Future<String> findUploadId(String bucket, String object) async {
+  Future<String?> findUploadId(String bucket, String object) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    MultipartUpload latestUpload;
-    String keyMarker;
-    String uploadIdMarker;
-    var isTruncated = false;
+    MultipartUpload? latestUpload;
+    String? keyMarker;
+    String? uploadIdMarker;
+    bool? isTruncated = false;
 
     do {
       final result = await listIncompleteUploadsQuery(
@@ -223,14 +216,14 @@ class Minio {
       for (var upload in result.uploads) {
         if (upload.key != object) continue;
         if (latestUpload == null ||
-            upload.initiated.isAfter(latestUpload.initiated)) {
+            upload.initiated!.isAfter(latestUpload.initiated!)) {
           latestUpload = upload;
         }
       }
       keyMarker = result.nextKeyMarker;
       uploadIdMarker = result.nextUploadIdMarker;
       isTruncated = result.isTruncated;
-    } while (isTruncated);
+    } while (isTruncated!);
 
     return latestUpload?.uploadId;
   }
@@ -255,7 +248,7 @@ class Minio {
   /// Get the bucket policy associated with the specified bucket. If `objectPrefix`
   /// is not empty, the bucket policy will be filtered based on object permissions
   /// as well.
-  Future<Map<String, dynamic>> getBucketPolicy(bucket) async {
+  Future<Map<String, dynamic>?> getBucketPolicy(bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
     final resp = await _client.request(
@@ -273,8 +266,13 @@ class Minio {
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
-    if (region != null) return region;
-    if (_regionMap.containsKey(bucket)) return _regionMap[bucket];
+    if (region != null) {
+      return region!;
+    }
+
+    if (_regionMap.containsKey(bucket)) {
+      return _regionMap[bucket]!;
+    }
 
     final resp = await _client.request(
       method: 'GET',
@@ -288,7 +286,8 @@ class Minio {
     final node = xml.XmlDocument.parse(resp.body);
 
     var location = node.findAllElements('LocationConstraint').first.text;
-    if (location == null || location.isEmpty) {
+    // if (location == null || location.isEmpty) {
+    if (location.isEmpty) {
       location = 'us-east-1';
     }
 
@@ -307,8 +306,8 @@ class Minio {
   Future<ByteStream> getPartialObject(
     String bucket,
     String object, [
-    int offset,
-    int length,
+    int? offset,
+    int? length,
   ]) async {
     assert(offset == null || offset >= 0);
     assert(length == null || length > 0);
@@ -316,7 +315,7 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    String range;
+    String? range;
     if (offset != null || length != null) {
       if (offset != null) {
         range = 'bytes=$offset-';
@@ -347,7 +346,7 @@ class Minio {
   Future<String> initiateNewMultipartUpload(
     String bucket,
     String object,
-    Map<String, String> metaData,
+    Map<String, String>? metaData,
   ) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -377,8 +376,8 @@ class Minio {
 
     final delimiter = recursive ? '' : '/';
 
-    String keyMarker;
-    String uploadIdMarker;
+    String? keyMarker;
+    String? uploadIdMarker;
     var isTruncated = false;
 
     do {
@@ -390,13 +389,14 @@ class Minio {
         delimiter,
       );
       for (var upload in result.uploads) {
-        final parts = await listParts(bucket, upload.key, upload.uploadId);
-        final size = await parts.fold(0, (acc, item) => acc + item.size);
+        final parts = listParts(bucket, upload.key!, upload.uploadId!);
+        final size =
+            await parts.fold(0, (dynamic acc, item) => acc + item.size);
         yield IncompleteUpload(upload: upload, size: size);
       }
       keyMarker = result.nextKeyMarker;
       uploadIdMarker = result.nextUploadIdMarker;
-      isTruncated = result.isTruncated;
+      isTruncated = result.isTruncated!;
     } while (isTruncated);
   }
 
@@ -404,8 +404,8 @@ class Minio {
   Future<ListMultipartUploadsOutput> listIncompleteUploadsQuery(
     String bucket,
     String prefix,
-    String keyMarker,
-    String uploadIdMarker,
+    String? keyMarker,
+    String? uploadIdMarker,
     String delimiter,
   ) async {
     MinioInvalidBucketNameError.check(bucket);
@@ -434,7 +434,7 @@ class Minio {
     validate(resp);
 
     final node = xml.XmlDocument.parse(resp.body);
-    return ListMultipartUploadsOutput.fromXml(node.root);
+    return ListMultipartUploadsOutput.fromXml(node.root as XmlElement);
   }
 
   /// Listen for notifications on a bucket. Additionally one can provider
@@ -443,9 +443,9 @@ class Minio {
   /// are regitered and unregistered by the server automatically based on incoming requests.
   NotificationPoller listenBucketNotification(
     String bucket, {
-    String prefix,
-    String suffix,
-    List<String> events,
+    String? prefix,
+    String? suffix,
+    List<String>? events,
   }) {
     MinioInvalidBucketNameError.check(bucket);
 
@@ -465,7 +465,9 @@ class Minio {
     validate(resp);
     final bucketsNode =
         xml.XmlDocument.parse(resp.body).findAllElements('Buckets').first;
-    return bucketsNode.children.map((n) => Bucket.fromXml(n)).toList();
+    return bucketsNode.children
+        .map((n) => Bucket.fromXml(n as XmlElement))
+        .toList();
   }
 
   /// Returns all [Object]s in a bucket.
@@ -479,7 +481,7 @@ class Minio {
     MinioInvalidPrefixError.check(prefix);
     final delimiter = recursive ? '' : '/';
 
-    String marker;
+    String? marker;
     var isTruncated = false;
 
     do {
@@ -490,11 +492,12 @@ class Minio {
         delimiter,
         1000,
       );
-      isTruncated = resp.isTruncated;
+      isTruncated = resp.isTruncated!;
       marker = resp.nextMarker;
-      yield ListObjectsChunk()
-        ..objects = resp.contents
-        ..prefixes = resp.commonPrefixes.map((e) => e.prefix).toList();
+      yield ListObjectsChunk(
+        objects: resp.contents!,
+        prefixes: resp.commonPrefixes.map((e) => e.prefix).toList(),
+      );
     } while (isTruncated);
   }
 
@@ -502,9 +505,9 @@ class Minio {
   Future<ListObjectsOutput> listObjectsQuery(
     String bucket,
     String prefix,
-    String marker,
+    String? marker,
     String delimiter,
-    int maxKeys,
+    int? maxKeys,
   ) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidPrefixError.check(prefix);
@@ -531,7 +534,7 @@ class Minio {
     validate(resp);
 
     final node = xml.XmlDocument.parse(resp.body);
-    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')?.text;
+    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')!.text;
     final nextMarker = getNodeProp(node.rootElement, 'NextMarker')?.text;
     final objs = node.findAllElements('Contents').map((c) => Object.fromXml(c));
     final prefixes = node
@@ -551,14 +554,14 @@ class Minio {
     String bucket, {
     String prefix = '',
     bool recursive = false,
-    String startAfter,
+    String? startAfter,
   }) async* {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidPrefixError.check(prefix);
     final delimiter = recursive ? '' : '/';
 
-    var isTruncated = false;
-    String continuationToken;
+    bool? isTruncated = false;
+    String? continuationToken;
 
     do {
       final resp = await listObjectsV2Query(
@@ -571,20 +574,21 @@ class Minio {
       );
       isTruncated = resp.isTruncated;
       continuationToken = resp.nextContinuationToken;
-      yield ListObjectsChunk()
-        ..objects = resp.contents
-        ..prefixes = resp.commonPrefixes.map((e) => e.prefix).toList();
-    } while (isTruncated);
+      yield ListObjectsChunk(
+        objects: resp.contents!,
+        prefixes: resp.commonPrefixes.map((e) => e.prefix).toList(),
+      );
+    } while (isTruncated!);
   }
 
   /// listObjectsV2Query - (List Objects V2) - List some or all (up to 1000) of the objects in a bucket.
   Future<ListObjectsV2Output> listObjectsV2Query(
     String bucket,
     String prefix,
-    String continuationToken,
+    String? continuationToken,
     String delimiter,
-    int maxKeys,
-    String startAfter,
+    int? maxKeys,
+    String? startAfter,
   ) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidPrefixError.check(prefix);
@@ -616,7 +620,7 @@ class Minio {
     validate(resp);
 
     final node = xml.XmlDocument.parse(resp.body);
-    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')?.text;
+    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')!.text;
     final nextContinuationToken =
         getNodeProp(node.rootElement, 'NextContinuationToken')?.text;
     final objs = node.findAllElements('Contents').map((c) => Object.fromXml(c));
@@ -652,10 +656,10 @@ class Minio {
 
   /// Called by listParts to fetch a batch of part-info
   Future<ListPartsOutput> listPartsQuery(
-    String bucket,
-    String object,
-    String uploadId,
-    int marker,
+    String? bucket,
+    String? object,
+    String? uploadId,
+    int? marker,
   ) async {
     var queries = <String, dynamic>{'uploadId': uploadId};
 
@@ -673,11 +677,11 @@ class Minio {
     validate(resp);
 
     final node = xml.XmlDocument.parse(resp.body);
-    return ListPartsOutput.fromXml(node.root);
+    return ListPartsOutput.fromXml(node.root as XmlElement);
   }
 
   /// Creates the bucket [bucket].
-  Future<void> makeBucket(String bucket, [String region]) async {
+  Future<void> makeBucket(String bucket, [String? region]) async {
     MinioInvalidBucketNameError.check(bucket);
     if (this.region != null && region != null && this.region != region) {
       throw MinioInvalidArgumentError(
@@ -698,7 +702,7 @@ class Minio {
     );
 
     validate(resp);
-    return resp.body;
+    // return resp.body;
   }
 
   /// Generate a presigned URL for GET
@@ -711,9 +715,9 @@ class Minio {
   Future<String> presignedGetObject(
     String bucket,
     String object, {
-    int expires,
-    Map<String, String> respHeaders,
-    DateTime requestDate,
+    int? expires,
+    Map<String, String>? respHeaders,
+    DateTime? requestDate,
   }) {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -738,7 +742,7 @@ class Minio {
       );
     }
 
-    final region = await getBucketRegion(postPolicy.formData['bucket']);
+    final region = await getBucketRegion(postPolicy.formData['bucket']!);
     var date = DateTime.now().toUtc();
     var dateStr = makeDateLong(date);
 
@@ -779,7 +783,7 @@ class Minio {
             null, null, null)
         .url;
     var portStr = (port == 80 || port == 443 || port == null) ? '' : ':$port';
-    var urlStr = '${url.scheme}://${url.host}${portStr}${url.path}';
+    var urlStr = '${url.scheme}://${url.host}$portStr${url.path}';
     return PostPolicyResult(postURL: urlStr, formData: postPolicy.formData);
   }
 
@@ -792,7 +796,7 @@ class Minio {
   Future<String> presignedPutObject(
     String bucket,
     String object, {
-    int expires,
+    int? expires,
   }) {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -812,10 +816,10 @@ class Minio {
     String method,
     String bucket,
     String object, {
-    int expires,
-    String resource,
-    Map<String, String> reqParams,
-    DateTime requestDate,
+    int? expires,
+    String? resource,
+    Map<String, String>? reqParams,
+    DateTime? requestDate,
   }) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -843,15 +847,14 @@ class Minio {
   Future<String> putObject(
     String bucket,
     String object,
-    Stream<List<int>> data,
-    int size, {
-    Map<String, String> metadata,
+    Stream<List<int>> data, {
+    int? size,
+    Map<String, String>? metadata,
   }) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    assert(data != null);
-    assert(size >= 0 || size == null);
+    assert(size == null || size >= 0);
 
     metadata = prependXAMZMeta(metadata ?? <String, String>{});
 
@@ -950,7 +953,6 @@ class Minio {
     NotificationConfiguration config,
   ) async {
     MinioInvalidBucketNameError.check(bucket);
-    assert(config != null);
 
     final resp = await _client.request(
       method: 'PUT',
@@ -967,7 +969,7 @@ class Minio {
   /// [policy] is detailed [here](https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html).
   Future<void> setBucketPolicy(
     String bucket, [
-    Map<String, dynamic> policy,
+    Map<String, dynamic>? policy,
   ]) async {
     MinioInvalidBucketNameError.check(bucket);
 
@@ -988,7 +990,7 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    final resp = await _client.request(
+    await _client.request(
       method: 'PUT',
       bucket: bucket,
       object: object,
@@ -1008,7 +1010,7 @@ class Minio {
     );
 
     return AccessControlPolicy.fromXml(
-      xml.XmlDocument.parse(resp.body).firstChild,
+      xml.XmlDocument.parse(resp.body).firstChild as XmlElement?,
     );
   }
 
@@ -1032,9 +1034,9 @@ class Minio {
 
     return StatObjectResult(
       etag: etag,
-      size: int.parse(resp.headers['content-length']),
+      size: int.parse(resp.headers['content-length']!),
       metaData: extractMetadata(resp.headers),
-      lastModified: parseRfc7231Time(resp.headers['last-modified']),
+      lastModified: parseRfc7231Time(resp.headers['last-modified']!),
       acl: await getObjectACL(bucket, object),
     );
   }

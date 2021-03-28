@@ -31,9 +31,9 @@ class MinioRequest extends BaseRequest {
   }
 
   MinioRequest replace({
-    String method,
-    Uri url,
-    Map<String, String> headers,
+    String? method,
+    Uri? url,
+    Map<String, String>? headers,
     body,
   }) {
     final result = MinioRequest(method ?? this.method, url ?? this.url);
@@ -53,21 +53,25 @@ class MinioClient {
   final Minio minio;
   final String userAgent = 'MinIO (Unknown; Unknown) minio-dart/0.1.9';
 
-  bool enableSHA256;
-  bool anonymous;
-  int port;
+  late bool enableSHA256;
+  late bool anonymous;
+  int? port;
 
   Future<StreamedResponse> _request({
-    String method,
-    String bucket,
-    String object,
-    String region,
-    String resource,
+    required String method,
+    String? bucket,
+    String? object,
+    String? region,
+    String? resource,
     dynamic payload = '',
-    Map<String, dynamic> queries,
-    Map<String, String> headers,
+    Map<String, dynamic>? queries,
+    Map<String, String>? headers,
   }) async {
-    region ??= await minio.getBucketRegion(bucket);
+    if (bucket != null) {
+      region ??= await minio.getBucketRegion(bucket);
+    }
+
+    region ??= 'us-east-1';
 
     final request = getBaseRequest(
         method, bucket, object, region, resource, queries, headers);
@@ -90,14 +94,14 @@ class MinioClient {
   }
 
   Future<Response> request({
-    String method,
-    String bucket,
-    String object,
-    String region,
-    String resource,
+    required String method,
+    String? bucket,
+    String? object,
+    String? region,
+    String? resource,
     dynamic payload = '',
-    Map<String, dynamic> queries,
-    Map<String, String> headers,
+    Map<String, dynamic>? queries,
+    Map<String, String>? headers,
   }) async {
     final stream = await _request(
       method: method,
@@ -117,14 +121,14 @@ class MinioClient {
   }
 
   Future<StreamedResponse> requestStream({
-    String method,
-    String bucket,
-    String object,
-    String region,
-    String resource,
+    required String method,
+    String? bucket,
+    String? object,
+    String? region,
+    String? resource,
     dynamic payload = '',
-    Map<String, dynamic> queries,
-    Map<String, String> headers,
+    Map<String, dynamic>? queries,
+    Map<String, String>? headers,
   }) async {
     final response = await _request(
       method: method,
@@ -143,12 +147,12 @@ class MinioClient {
 
   MinioRequest getBaseRequest(
     String method,
-    String bucket,
-    String object,
+    String? bucket,
+    String? object,
     String region,
-    String resource,
-    Map<String, dynamic> queries,
-    Map<String, String> headers,
+    String? resource,
+    Map<String, dynamic>? queries,
+    Map<String, String>? headers,
   ) {
     final url = getRequestUrl(bucket, object, resource, queries);
     final request = MinioRequest(method, url);
@@ -162,24 +166,24 @@ class MinioClient {
   }
 
   Uri getRequestUrl(
-    String bucket,
-    String object,
-    String resource,
-    Map<String, dynamic> queries,
+    String? bucket,
+    String? object,
+    String? resource,
+    Map<String, dynamic>? queries,
   ) {
-    var host = minio.endPoint.toLowerCase();
+    var host = minio.endPoint!.toLowerCase();
     var path = '/';
 
     if (isAmazonEndpoint(host)) {
-      host = getS3Endpoint(minio.region);
+      host = getS3Endpoint(minio.region!);
     }
 
     if (isVirtualHostStyle(host, minio.useSSL, bucket)) {
-      if (bucket != null) host = '${bucket}.${host}';
-      if (object != null) path = '/${object}';
+      if (bucket != null) host = '$bucket.$host';
+      if (object != null) path = '/$object';
     } else {
-      if (bucket != null) path = '/${bucket}';
-      if (object != null) path = '/${bucket}/${object}';
+      if (bucket != null) path = '/$bucket';
+      if (object != null) path = '/$bucket/$object';
     }
 
     final resourcePart = resource == null ? '' : '$resource';

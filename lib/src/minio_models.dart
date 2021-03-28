@@ -5,22 +5,27 @@ import 'package:xml/xml.dart';
 import '../models.dart';
 
 class ListObjectsChunk {
-  List<Object> objects;
-  List<String> prefixes;
+  ListObjectsChunk({
+    required this.objects,
+    required this.prefixes,
+  });
+
+  final List<Object> objects;
+  final List<String?> prefixes;
 }
 
 class ListObjectsOutput {
-  bool isTruncated;
-  String nextMarker;
-  List<Object> contents;
-  List<CommonPrefix> commonPrefixes;
+  bool? isTruncated;
+  String? nextMarker;
+  List<Object>? contents;
+  late List<CommonPrefix> commonPrefixes;
 }
 
 class ListObjectsV2Output {
-  bool isTruncated;
-  String nextContinuationToken;
-  List<Object> contents;
-  List<CommonPrefix> commonPrefixes;
+  bool? isTruncated;
+  String? nextContinuationToken;
+  List<Object>? contents;
+  late List<CommonPrefix> commonPrefixes;
 }
 
 class CompleteMultipartUpload {
@@ -41,7 +46,7 @@ class CompleteMultipartUpload {
 
 class ListMultipartUploadsOutput {
   ListMultipartUploadsOutput.fromXml(XmlElement xml) {
-    isTruncated = getProp(xml, 'IsLatest')?.text?.toUpperCase() == 'TRUE';
+    isTruncated = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
     nextKeyMarker = getProp(xml, 'NextKeyMarker')?.text;
     nextUploadIdMarker = getProp(xml, 'NextUploadIdMarker')?.text;
     uploads = xml
@@ -50,23 +55,23 @@ class ListMultipartUploadsOutput {
         .toList();
   }
 
-  bool isTruncated;
-  String nextKeyMarker;
-  String nextUploadIdMarker;
-  List<MultipartUpload> uploads;
+  bool? isTruncated;
+  String? nextKeyMarker;
+  String? nextUploadIdMarker;
+  late List<MultipartUpload> uploads;
 }
 
 class ListPartsOutput {
   ListPartsOutput.fromXml(XmlElement xml) {
-    isTruncated = getProp(xml, 'IsLatest')?.text?.toUpperCase() == 'TRUE';
+    isTruncated = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
     nextPartNumberMarker =
-        int.parse(getProp(xml, 'NextPartNumberMarker')?.text);
+        int.parse(getProp(xml, 'NextPartNumberMarker')!.text);
     parts = xml.findElements('Upload').map((e) => Part.fromXml(e)).toList();
   }
 
-  bool isTruncated;
-  int nextPartNumberMarker;
-  List<Part> parts;
+  late bool isTruncated;
+  late int nextPartNumberMarker;
+  late List<Part> parts;
 }
 
 class IncompleteUpload {
@@ -75,15 +80,15 @@ class IncompleteUpload {
     this.size,
   });
 
-  final MultipartUpload upload;
-  final int size;
+  final MultipartUpload? upload;
+  final int? size;
 }
 
 class CopyConditions {
-  String modified;
-  String unmodified;
-  String matchETag;
-  String matchETagExcept;
+  String? modified;
+  String? unmodified;
+  String? matchETag;
+  String? matchETagExcept;
 
   void setModified(DateTime date) {
     modified = date.toUtc().toIso8601String();
@@ -111,11 +116,11 @@ class StatObjectResult {
     this.acl,
   });
 
-  final int size;
-  final String etag;
-  final DateTime lastModified;
-  final Map<String, String> metaData;
-  final AccessControlPolicy acl;
+  final int? size;
+  final String? etag;
+  final DateTime? lastModified;
+  final Map<String, String?>? metaData;
+  final AccessControlPolicy? acl;
 }
 
 /// Build PostPolicy object that can be signed by presignedPostPolicy
@@ -128,9 +133,6 @@ class PostPolicy {
 
   /// set expiration date
   void setExpires(DateTime date) {
-    if (date == null) {
-      throw MinioInvalidDateError('Invalid date : cannot be null');
-    }
     policy['expiration'] = date.toIso8601String();
   }
 
@@ -157,9 +159,6 @@ class PostPolicy {
 
   /// set Content-Type
   void setContentType(String type) {
-    if (type == null) {
-      throw MinioError('content-type cannot be null');
-    }
     policy['conditions'].push(['eq', r'$Content-Type', type]);
     formData['Content-Type'] = type;
   }
@@ -182,6 +181,6 @@ class PostPolicy {
 class PostPolicyResult {
   PostPolicyResult({this.postURL, this.formData});
 
-  final String postURL;
-  final Map<String, String> formData;
+  final String? postURL;
+  final Map<String, String>? formData;
 }

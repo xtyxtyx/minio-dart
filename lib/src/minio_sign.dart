@@ -17,7 +17,7 @@ String signV4(
   final signedHeaders = getSignedHeaders(request.headers.keys);
   final hashedPayload = request.headers['x-amz-content-sha256'];
   final canonicalRequest =
-      getCanonicalRequest(request, signedHeaders, hashedPayload);
+      getCanonicalRequest(request, signedHeaders, hashedPayload!);
   final stringToSign = getStringToSign(canonicalRequest, requestDate, region);
   final signingKey = getSigningKey(requestDate, region, minio.secretKey);
   final credential = getCredential(minio.accessKey, region, requestDate);
@@ -54,7 +54,7 @@ String getCanonicalRequest(
   final requestQuery = queryKeys.map((key) {
     final value = request.url.queryParameters[key];
     final hasValue = value != null;
-    final valuePart = hasValue ? Uri.encodeQueryComponent(value) : '';
+    final valuePart = hasValue ? Uri.encodeQueryComponent(value!) : '';
     return Uri.encodeQueryComponent(key) + '=' + valuePart;
   }).join('&');
 
@@ -84,7 +84,7 @@ String getStringToSign(
 }
 
 String getScope(String region, DateTime date) {
-  return '${makeDateShort(date)}/${region}/s3/aws4_request';
+  return '${makeDateShort(date)}/$region/s3/aws4_request';
 }
 
 List<int> getSigningKey(DateTime date, String region, String secretKey) {
@@ -119,7 +119,7 @@ String presignSignatureV4(
   final signedHeaders = getSignedHeaders(request.headers.keys);
   final credential = getCredential(minio.accessKey, region, requestDate);
 
-  final requestQuery = <String, String>{};
+  final requestQuery = <String, String?>{};
   requestQuery['X-Amz-Algorithm'] = signV4Algorithm;
   requestQuery['X-Amz-Credential'] = credential;
   requestQuery['X-Amz-Date'] = iso8601Date;
@@ -142,7 +142,7 @@ String presignSignatureV4(
   final stringToSign = getStringToSign(canonicalRequest, requestDate, region);
   final signingKey = getSigningKey(requestDate, region, minio.secretKey);
   final signature = sha256HmacHex(stringToSign, signingKey);
-  final presignedUrl = request.url.toString() + '&X-Amz-Signature=${signature}';
+  final presignedUrl = request.url.toString() + '&X-Amz-Signature=$signature';
 
   return presignedUrl;
 }
