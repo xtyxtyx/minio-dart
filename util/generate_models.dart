@@ -28,7 +28,7 @@ const baseUrl = 'https://docs.aws.amazon.com/AmazonS3/latest/API';
 Future<List<String>> getAllModelUrls() async {
   print('Getting Index.');
   final url = '$baseUrl/API_Types_Amazon_Simple_Storage_Service.html';
-  final page = await http.get(url);
+  final page = await http.get(Uri.parse(url));
   final document = parse(page.body);
   final urls = document.querySelectorAll('.listitem a');
   return urls
@@ -39,7 +39,7 @@ Future<List<String>> getAllModelUrls() async {
 
 Future<String> getModel(String url) async {
   print('Getting: $url.');
-  final page = await http.get(url);
+  final page = await http.get(Uri.parse(url));
   final document = parse(page.body);
 
   final name = document.querySelector('h1').text;
