@@ -1,5 +1,6 @@
 import 'package:minio/models.dart';
 import 'package:minio/src/minio_errors.dart';
+import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart';
 
 import '../models.dart';
@@ -91,11 +92,11 @@ class CopyConditions {
   String? matchETagExcept;
 
   void setModified(DateTime date) {
-    modified = date.toUtc().toIso8601String();
+    modified = toRfc7231Time(date.toUtc());
   }
 
   void setUnmodified(DateTime date) {
-    unmodified = date.toUtc().toIso8601String();
+    unmodified = toRfc7231Time(date.toUtc());
   }
 
   void setMatchETag(String etag) {

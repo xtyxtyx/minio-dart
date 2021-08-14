@@ -91,8 +91,15 @@ String trimDoubleQuote(String str) {
 }
 
 DateTime parseRfc7231Time(String time) {
-  final format = DateFormat('EEE, dd MMM yyyy hh:mm:ss zzz');
-  return format.parse(time);
+  final format = DateFormat('EEE, dd MMM yyyy HH:mm:ss');
+  final isUtc = time.endsWith('GMT');
+  return format.parse(time, isUtc);
+}
+
+String toRfc7231Time(DateTime time) {
+  final format = DateFormat('EEE, dd MMM yyyy HH:mm:ss');
+  final result = format.format(time);
+  return time.isUtc ? result + ' GMT' : result;
 }
 
 List<List<T>> groupList<T>(List<T> list, int maxMembers) {
