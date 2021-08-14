@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart';
 import 'package:minio/models.dart';
 import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_helpers.dart';
 import 'package:minio/src/minio_poller.dart';
 import 'package:minio/src/minio_sign.dart';
+import 'package:minio/src/minio_stream.dart';
 import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
@@ -19,16 +19,27 @@ import 'minio_helpers.dart';
 class Minio {
   /// Initializes a new client object.
   Minio({
-    this.endPoint,
-    this.port,
-    this.useSSL = true,
+    required this.endPoint,
     required this.accessKey,
     required this.secretKey,
+    int? port,
+    this.useSSL = true,
     this.sessionToken,
     this.region,
     this.enableTrace = false,
-  })  : assert(isValidEndpoint(endPoint)),
-        assert(port == null || isValidPort(port)) {
+  }) : port = port ?? implyPort(useSSL) {
+    if (!isValidEndpoint(endPoint)) {
+      throw MinioInvalidEndpointError(
+        'End point $endPoint is not a valid domain or ip address',
+      );
+    }
+
+    if (!isValidPort(this.port)) {
+      throw MinioInvalidPortError(
+        'Invalid port number ${this.port}',
+      );
+    }
+
     _client = MinioClient(this);
   }
 
@@ -42,10 +53,14 @@ class Minio {
   final maxObjectSize = 5 * 1024 * 1024 * 1024 * 1024;
 
   /// endPoint is a host name or an IP address.
-  final String? endPoint;
+  ///
+  /// For example:
+  /// - play.min.io
+  /// - 1.2.3.4
+  final String endPoint;
 
   /// TCP/IP port number. This input is optional. Default value set to 80 for HTTP and 443 for HTTPs.
-  final int? port;
+  final int port;
 
   /// If set to true, https is used instead of http. Default is true.
   final bool useSSL;
@@ -296,14 +311,12 @@ class Minio {
   }
 
   /// get a readable stream of the object content.
-  Future<ByteStream> getObject(String bucket, String object) {
-    MinioInvalidBucketNameError.check(bucket);
-    MinioInvalidObjectNameError.check(object);
+  Future<MinioByteStream> getObject(String bucket, String object) {
     return getPartialObject(bucket, object, null, null);
   }
 
   /// get a readable stream of the partial object content.
-  Future<ByteStream> getPartialObject(
+  Future<MinioByteStream> getPartialObject(
     String bucket,
     String object, [
     int? offset,
@@ -339,7 +352,11 @@ class Minio {
     );
 
     await validateStreamed(resp, expect: expectedStatus);
-    return resp.stream;
+
+    return MinioByteStream.fromStream(
+      stream: resp.stream,
+      contentLength: resp.contentLength,
+    );
   }
 
   /// Initiate a new multipart upload.
@@ -782,7 +799,7 @@ class Minio {
         .getBaseRequest('POST', postPolicy.formData['bucket'], null, region,
             null, null, null)
         .url;
-    var portStr = (port == 80 || port == 443 || port == null) ? '' : ':$port';
+    var portStr = (port == 80 || port == 443) ? '' : ':$port';
     var urlStr = '${url.scheme}://${url.host}$portStr${url.path}';
     return PostPolicyResult(postURL: urlStr, formData: postPolicy.formData);
   }
@@ -824,7 +841,9 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    assert(expires == null || expires >= 0);
+    if (expires != null && expires < 0) {
+      throw MinioInvalidArgumentError('invalid expire time value: $expires');
+    }
 
     expires ??= expires = 24 * 60 * 60 * 7; // 7 days in seconds
     reqParams ??= {};

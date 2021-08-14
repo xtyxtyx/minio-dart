@@ -47,15 +47,15 @@ class MinioClient {
   MinioClient(this.minio) {
     anonymous = minio.accessKey.isEmpty && minio.secretKey.isEmpty;
     enableSHA256 = !anonymous && !minio.useSSL;
-    port = minio.port ?? implyPort(minio.useSSL);
+    port = minio.port;
   }
 
   final Minio minio;
-  final String userAgent = 'MinIO (Unknown; Unknown) minio-dart/0.1.9';
+  final String userAgent = 'MinIO (Unknown; Unknown) minio-dart/2.0.0';
 
   late bool enableSHA256;
   late bool anonymous;
-  int? port;
+  late final int port;
 
   Future<StreamedResponse> _request({
     required String method,
@@ -171,7 +171,7 @@ class MinioClient {
     String? resource,
     Map<String, dynamic>? queries,
   ) {
-    var host = minio.endPoint!.toLowerCase();
+    var host = minio.endPoint.toLowerCase();
     var path = '/';
 
     if (isAmazonEndpoint(host)) {
