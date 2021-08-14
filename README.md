@@ -65,6 +65,29 @@ For complete example, see: [example]
 
 > To use `fPutObject()` and `fGetObject`, you have to `import 'package:minio/io.dart';`
 
+**Get object**
+
+```dart
+import 'dart:io';
+import 'package:minio/minio.dart';
+
+void main() async {
+  final minio = Minio(
+    endPoint: 's3.amazonaws.com',
+    accessKey: 'YOUR-ACCESSKEYID',
+    secretKey: 'YOUR-SECRETACCESSKEY',
+  );
+
+  final stream = await minio.getObject('BUCKET-NAME', 'OBJECT-NAME');
+
+  // Get object length
+  print(stream.contentLength);
+
+  // Write object data stream to file
+  await stream.pipe(File('output.txt').openWrite());
+}
+```
+
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].

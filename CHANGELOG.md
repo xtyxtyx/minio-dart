@@ -1,3 +1,6 @@
+# 2.1.0-pre
+- `getObject` now returns `MinioByteStream` with an additional `contentLength` field.
+
 ## 2.0.0-pre
 
 - Migrate to NNBD
