@@ -44,7 +44,7 @@ String getCanonicalRequest(
   List<String> signedHeaders,
   String hashedPayload,
 ) {
-  final requestResource = request.url.path;
+  final requestResource = encodePath(request.url);
   final headers = signedHeaders.map(
     (header) => '${header.toLowerCase()}:${request.headers[header]}',
   );

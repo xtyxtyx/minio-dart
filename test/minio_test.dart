@@ -362,7 +362,6 @@ void testPutObject() {
   group('putObject()', () {
     final minio = getMinioClient();
     final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
-    final objectName = DateTime.now().microsecondsSinceEpoch.toString();
     final objectData = Uint8List.fromList([1, 2, 3]);
 
     setUpAll(() async {
@@ -374,6 +373,16 @@ void testPutObject() {
     });
 
     test('succeeds', () async {
+      final objectName = DateTime.now().microsecondsSinceEpoch.toString();
+      await minio.putObject(bucketName, objectName, Stream.value(objectData));
+      final stat = await minio.statObject(bucketName, objectName);
+      expect(stat.size, equals(objectData.length));
+      await minio.removeObject(bucketName, objectName);
+    });
+
+    test('works with object names with symbols', () async {
+      final objectName =
+          DateTime.now().microsecondsSinceEpoch.toString() + r'-._~,!@#$%^&*()';
       await minio.putObject(bucketName, objectName, Stream.value(objectData));
       final stat = await minio.statObject(bucketName, objectName);
       expect(stat.size, equals(objectData.length));

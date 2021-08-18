@@ -1,3 +1,4 @@
+import 'package:convert/convert.dart';
 import 'package:http/http.dart';
 import 'package:mime/mime.dart' show lookupMimeType;
 import 'package:minio/src/minio_errors.dart';
@@ -230,4 +231,42 @@ void validate(Response response, {int? expect}) {
     throw MinioS3Error(
         '$expect expected, got ${response.statusCode}', null, response);
   }
+}
+
+final _a = 'a'.codeUnitAt(0);
+final _A = 'A'.codeUnitAt(0);
+final _z = 'z'.codeUnitAt(0);
+final _Z = 'Z'.codeUnitAt(0);
+final _0 = '0'.codeUnitAt(0);
+final _9 = '9'.codeUnitAt(0);
+
+final _pathIgnoredChars = {
+  '%'.codeUnitAt(0),
+  '-'.codeUnitAt(0),
+  '_'.codeUnitAt(0),
+  '.'.codeUnitAt(0),
+  '~'.codeUnitAt(0),
+  '/'.codeUnitAt(0),
+};
+
+/// encode [uri].path to HTML hex escape sequence
+String encodePath(Uri uri) {
+  final result = StringBuffer();
+  for (var char in uri.path.codeUnits) {
+    if (_A <= char && char <= _Z ||
+        _a <= char && char <= _z ||
+        _0 <= char && char <= _9) {
+      result.writeCharCode(char);
+      continue;
+    }
+
+    if (_pathIgnoredChars.contains(char)) {
+      result.writeCharCode(char);
+      continue;
+    }
+
+    result.write('%');
+    result.write(hex.encode([char]).toUpperCase());
+  }
+  return result.toString();
 }

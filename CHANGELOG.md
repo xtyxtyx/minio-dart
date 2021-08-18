@@ -1,3 +1,6 @@
+# 3.0.0
+- Fixes signing error in case object name contains symbols [#29]
+
 # 2.1.0-pre
 - `getObject` now returns `MinioByteStream` with an additional `contentLength` field.
 
@@ -77,3 +80,5 @@
 ## 0.1.0
 
 - Initial version, created by Stagehand
+
+[#29]: https://github.com/xtyxtyx/minio-dart/issues/29
