@@ -12,3 +12,6 @@ doc/api/
 
 # IDE directories
 .idea/
+
+# For debugging purpose
+test/main.dart

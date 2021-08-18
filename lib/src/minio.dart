@@ -466,11 +466,11 @@ class Minio {
   }) {
     MinioInvalidBucketNameError.check(bucket);
 
-    final listener =
-        NotificationPoller(_client, bucket, prefix, suffix, events);
-    listener.start();
+    final poller = NotificationPoller(_client, bucket, prefix, suffix, events);
 
-    return listener;
+    poller.start();
+
+    return poller;
   }
 
   /// List of buckets created.
@@ -878,15 +878,15 @@ class Minio {
     metadata = prependXAMZMeta(metadata ?? <String, String>{});
 
     size ??= maxObjectSize;
-    size = _calculatePartSize(size);
+    final partSize = _calculatePartSize(size);
 
-    final chunker = BlockStream(size);
+    final chunker = BlockStream(partSize);
     final uploader = MinioUploader(
       this,
       _client,
       bucket,
       object,
-      size,
+      partSize,
       metadata,
     );
     final etag = await data.transform(chunker).pipe(uploader);
@@ -894,8 +894,12 @@ class Minio {
   }
 
   /// Remove all bucket notification
-  Future<void> removeAllBucketNotification(bucket) => setBucketNotification(
-      bucket, NotificationConfiguration(null, null, null));
+  Future<void> removeAllBucketNotification(String bucket) async {
+    await setBucketNotification(
+      bucket,
+      NotificationConfiguration(null, null, null),
+    );
+  }
 
   /// Remove a bucket.
   Future<void> removeBucket(String bucket) async {

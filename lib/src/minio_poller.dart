@@ -23,6 +23,10 @@ class NotificationPoller {
 
   bool _stop = true;
 
+  bool get isStarted {
+    return !_stop;
+  }
+
   /// Starts the polling.
   void start() async {
     _stop = false;
@@ -57,7 +61,6 @@ class NotificationPoller {
 
       final chunk = utf8.decode(resp);
       if (chunk.trim().isEmpty) continue;
-
       final data = json.decode(chunk);
       final records = List<Map<String, dynamic>>.from(data['Records']);
       await _eventStream.addStream(Stream.fromIterable(records));
