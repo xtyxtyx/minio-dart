@@ -9,22 +9,22 @@ import 'package:test/test.dart';
 import 'helpers.dart';
 
 void main() {
-  // testConstruct();
-  // testListBuckets();
-  // testBucketExists();
-  // testFPutObject();
-  // testGetObjectACL();
-  // testSetObjectACL();
-  // testGetObject();
-  // testPutObject();
-  // testGetBucketNotification();
-  // testSetBucketNotification();
-  // testRemoveAllBucketNotification();
-  // testListenBucketNotification();
-  // testStatObject();
-  // testMakeBucket();
-  // testRemoveBucket();
-  // testRemoveObject();
+  testConstruct();
+  testListBuckets();
+  testBucketExists();
+  testFPutObject();
+  testGetObjectACL();
+  testSetObjectACL();
+  testGetObject();
+  testPutObject();
+  testGetBucketNotification();
+  testSetBucketNotification();
+  testRemoveAllBucketNotification();
+  testListenBucketNotification();
+  testStatObject();
+  testMakeBucket();
+  testRemoveBucket();
+  testRemoveObject();
 }
 
 void testConstruct() {
