@@ -19,7 +19,7 @@ class ListObjectsResult {
 
   @override
   String toString() {
-    return 'ListObjectsChunk{objects: $objects, prefixes: $prefixes}';
+    return '$runtimeType{objects: $objects, prefixes: $prefixes}';
   }
 }
 

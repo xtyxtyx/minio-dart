@@ -25,6 +25,7 @@ void main() {
   testMakeBucket();
   testRemoveBucket();
   testRemoveObject();
+  testListObjects();
 }
 
 void testConstruct() {
@@ -89,17 +90,6 @@ void testListBuckets() {
 
     await minio.removeBucket(bucketName1);
     await minio.removeBucket(bucketName2);
-  });
-
-  test('listBuckets() can list buckets with spaces in name', () async {
-    final minio = getMinioClient();
-    final bucketName = uniqueName() + '  folder';
-    await minio.makeBucket(bucketName);
-
-    final buckets = await minio.listBuckets();
-    expect(buckets.any((b) => b.name == bucketName), isTrue);
-
-    await minio.removeBucket(bucketName);
   });
 
   test('listBuckets() fails due to wrong access key', () async {
@@ -616,6 +606,60 @@ void testRemoveObject() {
 
     test('does not throw on invalid object', () async {
       await minio.removeObject(bucketName, '$objectName-invalid');
+    });
+  });
+}
+
+void testListObjects() {
+  group('listAllObjects()', () {
+    final minio = getMinioClient();
+    final bucketName = uniqueName();
+    final objectName = uniqueName();
+    final data = [1, 2, 3, 4, 5];
+
+    setUpAll(() async {
+      await minio.makeBucket(bucketName);
+      await minio.putObject(bucketName, objectName, Stream.value(data));
+    });
+
+    tearDownAll(() async {
+      await minio.removeObject(bucketName, objectName);
+      await minio.removeBucket(bucketName);
+    });
+
+    test('succeeds', () async {
+      final result = await minio.listAllObjects(bucketName);
+      expect(result.objects.map((e) => e.key).contains(objectName), isTrue);
+    });
+
+    test('fails on invalid bucket', () {
+      expect(
+        () async => await minio.listAllObjects('$bucketName-invalid'),
+        throwsA(isA<MinioError>()),
+      );
+    });
+  });
+
+  group('listAllObjects() works when prefix contains spaces', () {
+    final minio = getMinioClient();
+    final bucket = uniqueName();
+    final object = 'new  folder/new file.txt';
+    final data = [1, 2, 3, 4, 5];
+
+    setUpAll(() async {
+      await minio.makeBucket(bucket);
+      await minio.putObject(bucket, object, Stream.value(data));
+    });
+
+    tearDownAll(() async {
+      await minio.removeObject(bucket, object);
+      await minio.removeBucket(bucket);
+    });
+
+    test('succeeds', () async {
+      final result = await minio.listAllObjects(bucket, prefix: 'new  folder/');
+      print(result);
+      expect(result.objects.map((e) => e.key).contains(object), isTrue);
     });
   });
 }
