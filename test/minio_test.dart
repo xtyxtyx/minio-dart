@@ -99,8 +99,8 @@ void testListBuckets() {
       throwsA(
         isA<MinioS3Error>().having(
           (e) => e.error!.code,
-          'message',
-          'AccessDenied',
+          'code',
+          isIn(['AccessDenied', 'InvalidAccessKeyId']),
         ),
       ),
     );
@@ -114,8 +114,8 @@ void testListBuckets() {
       throwsA(
         isA<MinioS3Error>().having(
           (e) => e.error!.code,
-          'message',
-          'AccessDenied',
+          'code',
+          isIn(['AccessDenied', 'SignatureDoesNotMatch']),
         ),
       ),
     );
