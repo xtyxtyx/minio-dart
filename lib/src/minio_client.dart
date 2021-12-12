@@ -186,16 +186,21 @@ class MinioClient {
       if (object != null) path = '/$bucket/$object';
     }
 
-    final resourcePart = resource == null ? '' : '$resource';
-    final queryPart = queries == null ? '' : '&${encodeQueries(queries)}';
-    final query = resourcePart + queryPart;
+    final query = StringBuffer();
+    if (resource != null) {
+      query.write(resource);
+    }
+    if (queries != null) {
+      if (query.isNotEmpty) query.write('&');
+      query.write(encodeQueries(queries));
+    }
 
     return Uri(
       scheme: minio.useSSL ? 'https' : 'http',
       host: host,
       port: minio.port,
       pathSegments: path.split('/'),
-      query: query,
+      query: query.toString(),
     );
   }
 

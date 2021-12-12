@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:minio/minio.dart';
 
 /// Initializes an instance of [Minio] with per default valid configuration.
@@ -24,3 +26,11 @@ Minio getMinioClient({
       region: region,
       enableTrace: enableTrace,
     );
+
+/// Generates a random name for a bucket or object.
+String uniqueName() {
+  final random = Random();
+  final now = DateTime.now();
+  final name = 'id-${now.microsecondsSinceEpoch}-${random.nextInt(8192)}';
+  return name;
+}

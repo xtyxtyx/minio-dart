@@ -4,7 +4,7 @@ import 'helpers.dart';
 
 void main() {
   group('MinioByteStream', () {
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
     final objectName = 'content-length-test';
     final testData = [1, 2, 3, 4, 5];
 

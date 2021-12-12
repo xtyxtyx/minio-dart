@@ -7,18 +7,18 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 
 ## API
 
-| Bucket operations       | Object operations        | Presigned operations | Bucket Policy & Notification operations |
-|-------------------------|--------------------------|----------------------|-----------------------------------------|
-| [makeBucket]            | [getObject]              | [presignedUrl]       | [getBucketNotification]                 |
-| [listBuckets]           | [getPartialObject]       | [presignedGetObject] | [setBucketNotification]                 |
-| [bucketExists]          | [fGetObject]             | [presignedPutObject] | [removeAllBucketNotification]           |
-| [removeBucket]          | [putObject]              | [presignedPostPolicy]| [listenBucketNotification]              |
-| [listObjects]           | [fPutObject]             |                      | [getBucketPolicy]                       |
-| [listObjectsV2]         | [copyObject]             |                      | [setBucketPolicy]                       |
-| [listIncompleteUploads] | [statObject]             |                      |                                         |
-|                         | [removeObject]           |                      |                                         |
-|                         | [removeObjects]          |                      |                                         |
-|                         | [removeIncompleteUpload] |                      |                                         |
+| Bucket operations       | Object operations        | Presigned operations  | Bucket Policy & Notification operations |
+| ----------------------- | ------------------------ | --------------------- | --------------------------------------- |
+| [makeBucket]            | [getObject]              | [presignedUrl]        | [getBucketNotification]                 |
+| [listBuckets]           | [getPartialObject]       | [presignedGetObject]  | [setBucketNotification]                 |
+| [bucketExists]          | [fGetObject]             | [presignedPutObject]  | [removeAllBucketNotification]           |
+| [removeBucket]          | [putObject]              | [presignedPostPolicy] | [listenBucketNotification]              |
+| [listObjects]           | [fPutObject]             |                       | [getBucketPolicy]                       |
+| [listObjectsV2]         | [copyObject]             |                       | [setBucketPolicy]                       |
+| [listIncompleteUploads] | [statObject]             |                       |                                         |
+| [listAllObjects]        | [removeObject]           |                       |                                         |
+| [listAllObjectsV2]      | [removeObjects]          |                       |                                         |
+|                         | [removeIncompleteUpload] |                       |                                         |
 
 
 ## Usage
@@ -42,6 +42,17 @@ final minio = Minio(
   endPoint: 's3.amazonaws.com',
   accessKey: 'YOUR-ACCESSKEYID',
   secretKey: 'YOUR-SECRETACCESSKEY',
+);
+```
+
+**Filebase**
+
+```dart
+final minio = Minio(
+  endPoint: 's3.filebase.com',
+  accessKey: 'YOUR-ACCESSKEYID',
+  secretKey: 'YOUR-SECRETACCESSKEY',
+  useSSL: true,
 );
 ```
 
@@ -109,6 +120,8 @@ MIT
 [listObjects]: https://pub.dev/documentation/minio/latest/minio/Minio/listObjects.html
 [listObjectsV2]: https://pub.dev/documentation/minio/latest/minio/Minio/listObjectsV2.html
 [listIncompleteUploads]: https://pub.dev/documentation/minio/latest/minio/Minio/listIncompleteUploads.html
+[listAllObjects]: https://pub.dev/documentation/minio/latest/minio/Minio/listAllObjects.html
+[listAllObjectsV2]: https://pub.dev/documentation/minio/latest/minio/Minio/listAllObjectsV2.html
 
 [getObject]: https://pub.dev/documentation/minio/latest/minio/Minio/getObject.html
 [getPartialObject]: https://pub.dev/documentation/minio/latest/minio/Minio/getPartialObject.html

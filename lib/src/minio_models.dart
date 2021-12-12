@@ -5,14 +5,22 @@ import 'package:xml/xml.dart';
 
 import '../models.dart';
 
-class ListObjectsChunk {
-  ListObjectsChunk({
+class ListObjectsResult {
+  ListObjectsResult({
     required this.objects,
     required this.prefixes,
   });
 
+  /// Metadata about each object returned.
   final List<Object> objects;
-  final List<String?> prefixes;
+
+  /// Like directorys in a file system, prefixes are delimited by slashes.
+  final List<String> prefixes;
+
+  @override
+  String toString() {
+    return 'ListObjectsChunk{objects: $objects, prefixes: $prefixes}';
+  }
 }
 
 class ListObjectsOutput {

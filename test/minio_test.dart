@@ -77,10 +77,10 @@ void testListBuckets() {
 
   test('listBuckets() can list buckets', () async {
     final minio = getMinioClient();
-    final bucketName1 = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName1 = uniqueName();
     await minio.makeBucket(bucketName1);
 
-    final bucketName2 = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName2 = uniqueName();
     await minio.makeBucket(bucketName2);
 
     final buckets = await minio.listBuckets();
@@ -97,10 +97,10 @@ void testListBuckets() {
     expect(
       () async => await minio.listBuckets(),
       throwsA(
-        isA<MinioError>().having(
-          (e) => e.message,
+        isA<MinioS3Error>().having(
+          (e) => e.error!.code,
           'message',
-          'The Access Key Id you provided does not exist in our records.',
+          'AccessDenied',
         ),
       ),
     );
@@ -112,10 +112,10 @@ void testListBuckets() {
     expect(
       () async => await minio.listBuckets(),
       throwsA(
-        isA<MinioError>().having(
-          (e) => e.message,
+        isA<MinioS3Error>().having(
+          (e) => e.error!.code,
           'message',
-          'The request signature we calculated does not match the signature you provided. Check your key and signing method.',
+          'AccessDenied',
         ),
       ),
     );
@@ -124,7 +124,7 @@ void testListBuckets() {
 
 void testBucketExists() {
   group('bucketExists', () {
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
 
     setUpAll(() async {
       final minio = getMinioClient();
@@ -179,7 +179,7 @@ void testBucketExists() {
 
 void testFPutObject() {
   group('fPutObject', () {
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
     late Directory tempDir;
     late File testFile;
     final objectName = 'a.jpg';
@@ -262,7 +262,7 @@ void testSetObjectACL() {
     final objectName = 'a.jpg';
 
     setUpAll(() async {
-      bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+      bucketName = uniqueName();
 
       tempDir = await Directory.systemTemp.createTemp();
       testFile = await File('${tempDir.path}/$objectName').create();
@@ -293,7 +293,7 @@ void testGetObjectACL() {
     final objectName = 'a.jpg';
 
     setUpAll(() async {
-      bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+      bucketName = uniqueName();
 
       tempDir = await Directory.systemTemp.createTemp();
       testFile = await File('${tempDir.path}/$objectName').create();
@@ -320,8 +320,8 @@ void testGetObjectACL() {
 void testGetObject() {
   group('getObject()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
-    final objectName = DateTime.now().microsecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
+    final objectName = uniqueName();
     final objectData = Uint8List.fromList([1, 2, 3]);
 
     setUpAll(() async {
@@ -361,7 +361,7 @@ void testGetObject() {
 void testPutObject() {
   group('putObject()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
     final objectData = Uint8List.fromList([1, 2, 3]);
 
     setUpAll(() async {
@@ -373,7 +373,7 @@ void testPutObject() {
     });
 
     test('succeeds', () async {
-      final objectName = DateTime.now().microsecondsSinceEpoch.toString();
+      final objectName = uniqueName();
       await minio.putObject(bucketName, objectName, Stream.value(objectData));
       final stat = await minio.statObject(bucketName, objectName);
       expect(stat.size, equals(objectData.length));
@@ -381,8 +381,7 @@ void testPutObject() {
     });
 
     test('works with object names with symbols', () async {
-      final objectName =
-          DateTime.now().microsecondsSinceEpoch.toString() + r'-._~,!@#$%^&*()';
+      final objectName = uniqueName() + r'-._~,!@#$%^&*()';
       await minio.putObject(bucketName, objectName, Stream.value(objectData));
       final stat = await minio.statObject(bucketName, objectName);
       expect(stat.size, equals(objectData.length));
@@ -394,7 +393,7 @@ void testPutObject() {
 void testGetBucketNotification() {
   group('getBucketNotification()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -413,7 +412,7 @@ void testGetBucketNotification() {
 void testSetBucketNotification() {
   group('setBucketNotification()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -435,7 +434,7 @@ void testSetBucketNotification() {
 void testRemoveAllBucketNotification() {
   group('removeAllBucketNotification()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -454,8 +453,8 @@ void testRemoveAllBucketNotification() {
 void testListenBucketNotification() {
   group('listenBucketNotification()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
-    // final objectName = DateTime.now().microsecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
+    // final objectName = uniqueName();
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -495,8 +494,8 @@ void testListenBucketNotification() {
 void testStatObject() {
   group('statObject()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
-    final objectName = DateTime.now().microsecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
+    final objectName = uniqueName();
     final data = [1, 2, 3, 4, 5];
 
     setUpAll(() async {
@@ -536,7 +535,7 @@ void testStatObject() {
 void testMakeBucket() {
   group('makeBucket()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -557,7 +556,7 @@ void testMakeBucket() {
 void testRemoveBucket() {
   group('removeBucket()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
 
     test('succeeds', () async {
       await minio.makeBucket(bucketName);
@@ -576,8 +575,8 @@ void testRemoveBucket() {
 void testRemoveObject() {
   group('removeObject()', () {
     final minio = getMinioClient();
-    final bucketName = DateTime.now().millisecondsSinceEpoch.toString();
-    final objectName = DateTime.now().microsecondsSinceEpoch.toString();
+    final bucketName = uniqueName();
+    final objectName = uniqueName();
     final data = [1, 2, 3, 4, 5];
 
     setUpAll(() async {

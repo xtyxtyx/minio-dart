@@ -271,9 +271,11 @@ class Bucket {
     this.name,
   );
 
-  Bucket.fromXml(XmlElement xml) {
-    creationDate = DateTime.parse(getProp(xml, 'CreationDate')!.text);
-    name = getProp(xml, 'Name')?.text;
+  factory Bucket.fromXml(XmlElement xml) {
+    return Bucket(
+      DateTime.parse(getProp(xml, 'CreationDate')!.text),
+      getProp(xml, 'Name')!.text,
+    );
   }
 
   XmlNode toXml() {
@@ -289,7 +291,12 @@ class Bucket {
   DateTime? creationDate;
 
   /// The name of the bucket.
-  String? name;
+  String name;
+
+  @override
+  String toString() {
+    return 'Bucket{creationDate: $creationDate, name: $name}';
+  }
 }
 
 /// Specifies the lifecycle configuration for objects in an Amazon S3 bucket. For more information, see Object Lifecycle Management in the Amazon Simple Storage Service Developer Guide.
@@ -1091,6 +1098,11 @@ class Error {
 
   /// The version ID of the error.
   String? versionId;
+
+  @override
+  String toString() {
+    return 'Error{code: $code, key: $key, message: $message, versionId: $versionId}';
+  }
 }
 
 /// The error information.
@@ -2270,6 +2282,11 @@ class Object {
 
   /// The class of storage used to store the object.
   String? storageClass;
+
+  @override
+  String toString() {
+    return 'Object{eTag: $eTag, key: $key, lastModified: $lastModified, owner: $owner, size: $size, storageClass: $storageClass}';
+  }
 }
 
 /// Object Identifier is unique value to identify objects.
