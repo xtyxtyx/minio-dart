@@ -91,6 +91,17 @@ void testListBuckets() {
     await minio.removeBucket(bucketName2);
   });
 
+  test('listBuckets() can list buckets with spaces in name', () async {
+    final minio = getMinioClient();
+    final bucketName = uniqueName() + '  folder';
+    await minio.makeBucket(bucketName);
+
+    final buckets = await minio.listBuckets();
+    expect(buckets.any((b) => b.name == bucketName), isTrue);
+
+    await minio.removeBucket(bucketName);
+  });
+
   test('listBuckets() fails due to wrong access key', () async {
     final minio = getMinioClient(accessKey: 'incorrect-access-key');
 
