@@ -1,3 +1,8 @@
+# 3,1,9
+- Add `listAllObjects` and `listAllObjectsV2`
+- Fix signing error in `listObjects` when prefix contains spaces [#34]
+- Improved compatibility with Filebase [#31]
+
 # 3.0.0
 - Fixes signing error in case object name contains symbols [#29]
 
