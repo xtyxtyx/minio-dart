@@ -488,8 +488,8 @@ class Minio {
   }
 
   /// Returns all [Object]s in a bucket.
-  /// If recursive is true, the returned stream may also contains [CommonPrefix]
-  Stream<ListObjectsChunk> listObjects(
+  /// To list objects in a bucket with prefix, set [prefix] to the desired prefix.
+  Stream<ListObjectsResult> listObjects(
     String bucket, {
     String prefix = '',
     bool recursive = false,
@@ -511,11 +511,31 @@ class Minio {
       );
       isTruncated = resp.isTruncated!;
       marker = resp.nextMarker;
-      yield ListObjectsChunk(
+      yield ListObjectsResult(
         objects: resp.contents!,
-        prefixes: resp.commonPrefixes.map((e) => e.prefix).toList(),
+        prefixes: resp.commonPrefixes.map((e) => e.prefix!).toList(),
       );
     } while (isTruncated);
+  }
+
+  /// Returns all [Object]s in a bucket. This is a shortcut for [listObjects].
+  /// Use [listObjects] to list buckets with a large number of objects.
+  Future<ListObjectsResult> listAllObjects(
+    String bucket, {
+    String prefix = '',
+    bool recursive = false,
+  }) async {
+    final chunks = listObjects(bucket, prefix: prefix, recursive: recursive);
+    final objects = <Object>[];
+    final prefixes = <String>[];
+    await for (final chunk in chunks) {
+      objects.addAll(chunk.objects);
+      prefixes.addAll(chunk.prefixes);
+    }
+    return ListObjectsResult(
+      objects: objects,
+      prefixes: prefixes,
+    );
   }
 
   /// list a batch of objects
@@ -566,8 +586,10 @@ class Minio {
   }
 
   /// Returns all [Object]s in a bucket.
-  /// If recursive is true, the returned stream may also contains [CommonPrefix]
-  Stream<ListObjectsChunk> listObjectsV2(
+  /// To list objects in a bucket with prefix, set [prefix] to the desired prefix.
+  /// This uses ListObjectsV2 in the S3 API. For backward compatibility, use
+  /// [listObjects] instead.
+  Stream<ListObjectsResult> listObjectsV2(
     String bucket, {
     String prefix = '',
     bool recursive = false,
@@ -591,11 +613,33 @@ class Minio {
       );
       isTruncated = resp.isTruncated;
       continuationToken = resp.nextContinuationToken;
-      yield ListObjectsChunk(
+      yield ListObjectsResult(
         objects: resp.contents!,
-        prefixes: resp.commonPrefixes.map((e) => e.prefix).toList(),
+        prefixes: resp.commonPrefixes.map((e) => e.prefix!).toList(),
       );
     } while (isTruncated!);
+  }
+
+  /// Returns all [Object]s in a bucket. This is a shortcut for [listObjectsV2].
+  /// Use [listObjects] to list buckets with a large number of objects.
+  /// This uses ListObjectsV2 in the S3 API. For backward compatibility, use
+  /// [listAllObjects] instead.
+  Future<ListObjectsResult> listAllObjectsV2(
+    String bucket, {
+    String prefix = '',
+    bool recursive = false,
+  }) async {
+    final chunks = listObjects(bucket, prefix: prefix, recursive: recursive);
+    final objects = <Object>[];
+    final prefixes = <String>[];
+    await for (final chunk in chunks) {
+      objects.addAll(chunk.objects);
+      prefixes.addAll(chunk.prefixes);
+    }
+    return ListObjectsResult(
+      objects: objects,
+      prefixes: prefixes,
+    );
   }
 
   /// listObjectsV2Query - (List Objects V2) - List some or all (up to 1000) of the objects in a bucket.
@@ -1033,7 +1077,9 @@ class Minio {
     );
 
     return AccessControlPolicy.fromXml(
-      xml.XmlDocument.parse(resp.body).firstChild as XmlElement?,
+      xml.XmlDocument.parse(resp.body)
+          .findElements('AccessControlPolicy')
+          .first,
     );
   }
 
