@@ -1,3 +1,6 @@
+# 3.2.0
+- Fix response body utf-8 encoding [#14]
+
 # 3.1.0
 - Add `listAllObjects` and `listAllObjectsV2`
 - Fix signing error in `listObjects` when prefix contains spaces [#34]
@@ -86,4 +89,7 @@
 
 - Initial version, created by Stagehand
 
+[#34]: https://github.com/xtyxtyx/minio-dart/issues/34
+[#31]: https://github.com/xtyxtyx/minio-dart/issues/31
 [#29]: https://github.com/xtyxtyx/minio-dart/issues/29
+[#14]: https://github.com/xtyxtyx/minio-dart/issues/14
