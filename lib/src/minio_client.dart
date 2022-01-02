@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart';
 import 'package:minio/minio.dart';
@@ -40,6 +41,42 @@ class MinioRequest extends BaseRequest {
     result.body = body ?? this.body;
     result.headers.addAll(headers ?? this.headers);
     return result;
+  }
+}
+
+/// An HTTP response where the entire response body is known in advance.
+class MinioResponse extends BaseResponse {
+  /// The bytes comprising the body of this response.
+  final Uint8List bodyBytes;
+
+  /// Body of s3 response is always encoded as UTF-8.
+  String get body => utf8.decode(bodyBytes);
+
+  /// Create a new HTTP response with a byte array body.
+  MinioResponse.bytes(
+    this.bodyBytes,
+    int statusCode, {
+    BaseRequest? request,
+    Map<String, String> headers = const {},
+    bool isRedirect = false,
+    bool persistentConnection = true,
+    String? reasonPhrase,
+  }) : super(statusCode,
+            contentLength: bodyBytes.length,
+            request: request,
+            headers: headers,
+            isRedirect: isRedirect,
+            persistentConnection: persistentConnection,
+            reasonPhrase: reasonPhrase);
+
+  static Future<MinioResponse> fromStream(StreamedResponse response) async {
+    final body = await response.stream.toBytes();
+    return MinioResponse.bytes(body, response.statusCode,
+        request: response.request,
+        headers: response.headers,
+        isRedirect: response.isRedirect,
+        persistentConnection: response.persistentConnection,
+        reasonPhrase: response.reasonPhrase);
   }
 }
 
@@ -93,7 +130,7 @@ class MinioClient {
     return response;
   }
 
-  Future<Response> request({
+  Future<MinioResponse> request({
     required String method,
     String? bucket,
     String? object,
@@ -114,7 +151,7 @@ class MinioClient {
       headers: headers,
     );
 
-    final response = await Response.fromStream(stream);
+    final response = await MinioResponse.fromStream(stream);
     logResponse(response);
 
     return response;

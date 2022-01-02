@@ -1,6 +1,7 @@
 import 'package:convert/convert.dart';
 import 'package:http/http.dart';
 import 'package:mime/mime.dart' show lookupMimeType;
+import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_models_generated.dart';
 import 'package:xml/xml.dart' as xml;
@@ -199,20 +200,20 @@ Future<void> validateStreamed(
   int? expect,
 }) async {
   if (streamedResponse.statusCode >= 400) {
-    final response = await Response.fromStream(streamedResponse);
+    final response = await MinioResponse.fromStream(streamedResponse);
     final body = xml.XmlDocument.parse(response.body);
     final error = Error.fromXml(body.rootElement);
     throw MinioS3Error(error.message, error, response);
   }
 
   if (expect != null && streamedResponse.statusCode != expect) {
-    final response = await Response.fromStream(streamedResponse);
+    final response = await MinioResponse.fromStream(streamedResponse);
     throw MinioS3Error(
         '$expect expected, got ${streamedResponse.statusCode}', null, response);
   }
 }
 
-void validate(Response response, {int? expect}) {
+void validate(MinioResponse response, {int? expect}) {
   if (response.statusCode >= 400) {
     var error;
 
