@@ -1,3 +1,6 @@
+# 3.3.3-pre
+- Update stream file upload
+
 # 3.3.2-pre
 - Add tests
 

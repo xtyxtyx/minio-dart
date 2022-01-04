@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
 import 'package:minio/src/minio_models_generated.dart';
+import 'package:minio/src/utils.dart';
 import 'package:test/test.dart';
 
 import 'helpers.dart';
@@ -412,7 +413,21 @@ void testPutObject() {
       expect(stat.size, equals(dataLength));
     });
 
-    test('large file upload works', () async {
+    test('stream upload works', () async {
+      final objectName = uniqueName();
+      final dataLength = 1024 * 1024;
+      final data = Uint8List.fromList(List<int>.generate(dataLength, (i) => i));
+      await minio.putObject(
+        bucketName,
+        objectName,
+        Stream.value(data).transform(MaxChunkSize(123)),
+      );
+      final stat = await minio.statObject(bucketName, objectName);
+      await minio.removeObject(bucketName, objectName);
+      expect(stat.size, equals(dataLength));
+    });
+
+    test('multipart file upload works', () async {
       final objectName = uniqueName();
       final dataLength = 12 * 1024 * 1024;
       final data = Uint8List.fromList(List<int>.generate(dataLength, (i) => i));

@@ -39,7 +39,7 @@ class MinioRequest extends BaseRequest {
       headers['content-length'] = body.length.toString();
     }
 
-    stream = stream.transform(BlockStream(1 << 16));
+    stream = stream.transform(MaxChunkSize(1 << 16));
 
     if (onProgress == null) {
       return ByteStream(stream);

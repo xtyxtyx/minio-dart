@@ -942,7 +942,7 @@ class Minio {
       metadata,
       onProgress,
     );
-    final chunker = BlockStream(partSize);
+    final chunker = MinChunkSize(partSize);
     final etag = await data.transform(chunker).pipe(uploader);
     return etag.toString();
   }

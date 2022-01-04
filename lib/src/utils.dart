@@ -63,8 +63,8 @@ String encodeQueries(Map<String, dynamic> queries) {
   return pairs.join('&');
 }
 
-class BlockStream extends StreamTransformerBase<Uint8List, Uint8List> {
-  BlockStream(this.size);
+class MaxChunkSize extends StreamTransformerBase<Uint8List, Uint8List> {
+  MaxChunkSize(this.size);
 
   final int size;
 
@@ -85,6 +85,31 @@ class BlockStream extends StreamTransformerBase<Uint8List, Uint8List> {
       if (blocks * size < chunk.length) {
         yield Uint8List.sublistView(chunk, blocks * size);
       }
+    }
+  }
+}
+
+class MinChunkSize extends StreamTransformerBase<Uint8List, Uint8List> {
+  MinChunkSize(this.size);
+
+  final int size;
+
+  @override
+  Stream<Uint8List> bind(Stream<Uint8List> stream) async* {
+    var buffer = BytesBuilder(copy: false);
+
+    await for (var chunk in stream) {
+      buffer.add(chunk);
+
+      if (buffer.length < size) {
+        continue;
+      }
+
+      yield buffer.takeBytes();
+    }
+
+    if (buffer.isNotEmpty) {
+      yield buffer.takeBytes();
     }
   }
 }

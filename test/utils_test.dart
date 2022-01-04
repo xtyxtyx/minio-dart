@@ -39,7 +39,7 @@ void testRfc7231Time() {
 }
 
 void testBlockStream() {
-  test('BlockStream can split chunks to blocks', () async {
+  test('MaxChunkSize works', () async {
     final streamData = [
       Uint8List.fromList([1, 2]),
       Uint8List.fromList([3, 4, 5, 6]),
@@ -47,7 +47,7 @@ void testBlockStream() {
       Uint8List.fromList([10, 11, 12, 13]),
     ];
 
-    final stream = Stream.fromIterable(streamData).transform(BlockStream(3));
+    final stream = Stream.fromIterable(streamData).transform(MaxChunkSize(3));
 
     expect(
       await stream.toList(),
@@ -58,6 +58,25 @@ void testBlockStream() {
         Uint8List.fromList([7, 8, 9]),
         Uint8List.fromList([10, 11, 12]),
         Uint8List.fromList([13]),
+      ]),
+    );
+  });
+
+  test('MinChunkSize works', () async {
+    final streamData = [
+      Uint8List.fromList([1, 2]),
+      Uint8List.fromList([3, 4, 5, 6]),
+      Uint8List.fromList([7, 8, 9]),
+      Uint8List.fromList([10, 11, 12, 13]),
+    ];
+
+    final stream = Stream.fromIterable(streamData).transform(MinChunkSize(5));
+
+    expect(
+      await stream.toList(),
+      equals([
+        Uint8List.fromList([1, 2, 3, 4, 5, 6]),
+        Uint8List.fromList([7, 8, 9, 10, 11, 12, 13]),
       ]),
     );
   });
