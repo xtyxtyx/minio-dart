@@ -684,21 +684,25 @@ void testListObjects() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final objectName = uniqueName();
+    final objectNameUtf8 = uniqueName() + '文件ファイル。ㄴㅁㄴ';
     final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
       await minio.putObject(bucketName, objectName, Stream.value(data));
+      await minio.putObject(bucketName, objectNameUtf8, Stream.value(data));
     });
 
     tearDownAll(() async {
       await minio.removeObject(bucketName, objectName);
+      await minio.removeObject(bucketName, objectNameUtf8);
       await minio.removeBucket(bucketName);
     });
 
     test('succeeds', () async {
       final result = await minio.listAllObjects(bucketName);
       expect(result.objects.map((e) => e.key).contains(objectName), isTrue);
+      expect(result.objects.map((e) => e.key).contains(objectNameUtf8), isTrue);
     });
 
     test('fails on invalid bucket', () {
