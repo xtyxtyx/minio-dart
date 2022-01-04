@@ -1,3 +1,7 @@
+# 3.3.1-pre
+- Improve upload progress granularity
+- Fix broken test
+
 # 3.3.0-pre
 - Support listening upload progress
 
