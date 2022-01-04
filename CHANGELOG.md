@@ -1,3 +1,6 @@
+# 3.3.0-pre
+- Support listening upload progress
+
 # 3.2.0
 - Fix response body utf-8 encoding [#14]
 
