@@ -20,29 +20,35 @@ class MinioRequest extends BaseRequest {
   ByteStream finalize() {
     super.finalize();
 
-    late final ByteStream byteStream;
-
-    if (body is String) {
-      final data = utf8.encode(body);
-      headers['content-length'] = data.length.toString();
-      byteStream = ByteStream.fromBytes(utf8.encode(body));
-    } else if (body is List<int>) {
-      headers['content-length'] = body.length.toString();
-      byteStream = ByteStream.fromBytes(body);
-    } else if (body is Stream<List<int>>) {
-      byteStream = ByteStream(body);
-    } else {
-      throw UnsupportedError('unsupported body type: ${body.runtimeType}');
+    if (body == null) {
+      return const ByteStream(Stream.empty());
     }
 
+    if (body is Stream<Uint8List>) {
+      return ByteStream(body);
+    }
+
+    late Stream<Uint8List> stream;
+
+    if (body is String) {
+      final data = Utf8Encoder().convert(body);
+      headers['content-length'] = data.length.toString();
+      stream = Stream<Uint8List>.value(data);
+    } else if (body is Uint8List) {
+      stream = Stream<Uint8List>.value(body);
+      headers['content-length'] = body.length.toString();
+    }
+
+    stream = stream.transform(BlockStream(1 << 16));
+
     if (onProgress == null) {
-      return byteStream;
+      return ByteStream(stream);
     }
 
     var bytesRead = 0;
 
     return ByteStream(
-      byteStream.transform(
+      stream.transform(
         StreamTransformer.fromHandlers(
           handleData: (data, sink) {
             sink.add(data);

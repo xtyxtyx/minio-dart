@@ -398,8 +398,33 @@ void testPutObject() {
         Stream.value(objectData),
         onProgress: (bytes) => progress = bytes,
       );
-      expect(progress, equals(objectData.length));
       await minio.removeObject(bucketName, objectName);
+      expect(progress, equals(objectData.length));
+    });
+
+    test('medium size file upload works', () async {
+      final objectName = uniqueName();
+      final dataLength = 1024 * 1024;
+      final data = Uint8List.fromList(List<int>.generate(dataLength, (i) => i));
+      await minio.putObject(bucketName, objectName, Stream.value(data));
+      final stat = await minio.statObject(bucketName, objectName);
+      await minio.removeObject(bucketName, objectName);
+      expect(stat.size, equals(dataLength));
+    });
+
+    test('large file upload works', () async {
+      final objectName = uniqueName();
+      final dataLength = 12 * 1024 * 1024;
+      final data = Uint8List.fromList(List<int>.generate(dataLength, (i) => i));
+      await minio.putObject(
+        bucketName,
+        objectName,
+        Stream.value(data),
+        chunkSize: 5 * 1024 * 1024,
+      );
+      final stat = await minio.statObject(bucketName, objectName);
+      await minio.removeObject(bucketName, objectName);
+      expect(stat.size, equals(dataLength));
     });
   });
 }

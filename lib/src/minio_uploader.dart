@@ -118,7 +118,7 @@ class MinioUploader implements StreamConsumer<Uint8List> {
       queries: queries,
       bucket: bucket,
       object: object,
-      payload: Stream.value(chunk).transform(BlockStream(1 << 16)),
+      payload: chunk,
       onProgress: _updateProgress,
     );
 
