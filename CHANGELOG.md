@@ -1,3 +1,6 @@
+# 3.3.2-pre
+- Add tests
+
 # 3.3.1-pre
 - Improve upload progress granularity
 - Fix broken test
