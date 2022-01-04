@@ -427,6 +427,22 @@ void testPutObject() {
       expect(stat.size, equals(dataLength));
     });
 
+    test('empty stream upload works', () async {
+      final objectName = uniqueName();
+      await minio.putObject(bucketName, objectName, Stream.empty());
+      final stat = await minio.statObject(bucketName, objectName);
+      await minio.removeObject(bucketName, objectName);
+      expect(stat.size, equals(0));
+    });
+
+    test('zero byte stream upload works', () async {
+      final objectName = uniqueName();
+      await minio.putObject(bucketName, objectName, Stream.value(Uint8List(0)));
+      final stat = await minio.statObject(bucketName, objectName);
+      await minio.removeObject(bucketName, objectName);
+      expect(stat.size, equals(0));
+    });
+
     test('multipart file upload works', () async {
       final objectName = uniqueName();
       final dataLength = 12 * 1024 * 1024;

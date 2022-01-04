@@ -108,9 +108,7 @@ class MinChunkSize extends StreamTransformerBase<Uint8List, Uint8List> {
       yield buffer.takeBytes();
     }
 
-    if (buffer.isNotEmpty) {
-      yield buffer.takeBytes();
-    }
+    yield buffer.takeBytes();
   }
 }
 
