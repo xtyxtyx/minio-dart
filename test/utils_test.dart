@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:minio/src/utils.dart';
 import 'package:test/test.dart';
 
@@ -39,20 +41,23 @@ void testRfc7231Time() {
 void testBlockStream() {
   test('BlockStream can split chunks to blocks', () async {
     final streamData = [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9],
-      [10, 11, 12],
+      Uint8List.fromList([1, 2]),
+      Uint8List.fromList([3, 4, 5, 6]),
+      Uint8List.fromList([7, 8, 9]),
+      Uint8List.fromList([10, 11, 12, 13]),
     ];
 
-    final stream = Stream.fromIterable(streamData).transform(BlockStream(5));
+    final stream = Stream.fromIterable(streamData).transform(BlockStream(3));
 
     expect(
       await stream.toList(),
       equals([
-        [1, 2, 3, 4, 5],
-        [6, 7, 8, 9, 10],
-        [11, 12]
+        Uint8List.fromList([1, 2]),
+        Uint8List.fromList([3, 4, 5]),
+        Uint8List.fromList([6]),
+        Uint8List.fromList([7, 8, 9]),
+        Uint8List.fromList([10, 11, 12]),
+        Uint8List.fromList([13]),
       ]),
     );
   });
