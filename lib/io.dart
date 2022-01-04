@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:minio/src/minio.dart';
 import 'package:minio/src/minio_errors.dart';
@@ -31,7 +32,7 @@ extension MinioX on Minio {
     return putObject(
       bucket,
       object,
-      file.openRead(),
+      file.openRead().cast<Uint8List>(),
       size: stat.size,
       metadata: metadata,
     );

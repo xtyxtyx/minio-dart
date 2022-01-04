@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:test/test.dart';
 
 import 'helpers.dart';
@@ -6,7 +8,7 @@ void main() {
   group('MinioByteStream', () {
     final bucketName = uniqueName();
     final objectName = 'content-length-test';
-    final testData = [1, 2, 3, 4, 5];
+    final testData = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
       final minio = getMinioClient();

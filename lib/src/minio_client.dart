@@ -163,6 +163,7 @@ class MinioClient {
     dynamic payload = '',
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
+    void Function(int)? onProgress,
   }) async {
     final stream = await _request(
       method: method,
@@ -173,6 +174,7 @@ class MinioClient {
       resource: resource,
       queries: queries,
       headers: headers,
+      onProgress: onProgress,
     );
 
     final response = await MinioResponse.fromStream(stream);

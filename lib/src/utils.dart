@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
-import 'package:buffer/buffer.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
@@ -63,26 +63,29 @@ String encodeQueries(Map<String, dynamic> queries) {
   return pairs.join('&');
 }
 
-class BlockStream extends StreamTransformerBase<List<int>, List<int>> {
+class BlockStream extends StreamTransformerBase<Uint8List, Uint8List> {
   BlockStream(this.size);
 
   final int size;
 
   @override
-  Stream<List<int>> bind(Stream<List<int>> stream) async* {
-    var buffer = BytesBuffer();
-
+  Stream<Uint8List> bind(Stream<Uint8List> stream) async* {
     await for (var chunk in stream) {
-      buffer.add(chunk);
-      if (buffer.length >= size) {
-        final block = buffer.toBytes();
-        yield block.sublist(0, size);
-        buffer = BytesBuffer();
-        buffer.add(block.sublist(size));
+      if (chunk.length < size) {
+        yield chunk;
+        continue;
+      }
+
+      final blocks = chunk.length ~/ size;
+
+      for (var i = 0; i < blocks; i++) {
+        yield Uint8List.sublistView(chunk, i * size, (i + 1) * size);
+      }
+
+      if (blocks * size < chunk.length) {
+        yield Uint8List.sublistView(chunk, blocks * size);
       }
     }
-
-    yield buffer.toBytes();
   }
 }
 

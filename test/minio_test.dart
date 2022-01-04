@@ -510,7 +510,7 @@ void testStatObject() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final objectName = uniqueName();
-    final data = [1, 2, 3, 4, 5];
+    final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -591,7 +591,7 @@ void testRemoveObject() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final objectName = uniqueName();
-    final data = [1, 2, 3, 4, 5];
+    final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -628,7 +628,7 @@ void testListObjects() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final objectName = uniqueName();
-    final data = [1, 2, 3, 4, 5];
+    final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
@@ -657,7 +657,7 @@ void testListObjects() {
     final minio = getMinioClient();
     final bucket = uniqueName();
     final object = 'new  folder/new file.txt';
-    final data = [1, 2, 3, 4, 5];
+    final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
       await minio.makeBucket(bucket);

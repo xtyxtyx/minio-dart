@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:minio/models.dart';
 import 'package:minio/src/minio_client.dart';
@@ -911,7 +912,7 @@ class Minio {
   Future<String> putObject(
     String bucket,
     String object,
-    Stream<List<int>> data, {
+    Stream<Uint8List> data, {
     int? size,
     int? chunkSize,
     Map<String, String>? metadata,

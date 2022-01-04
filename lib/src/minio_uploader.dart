@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
@@ -9,7 +10,7 @@ import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_helpers.dart';
 import 'package:minio/src/utils.dart';
 
-class MinioUploader implements StreamConsumer<List<int>> {
+class MinioUploader implements StreamConsumer<Uint8List> {
   MinioUploader(
     this.minio,
     this.client,
@@ -39,8 +40,11 @@ class MinioUploader implements StreamConsumer<List<int>> {
 
   String? _uploadId;
 
+  // The number of bytes uploaded of the current part.
+  int? bytesUploaded;
+
   @override
-  Future addStream(Stream<List<int>> stream) async {
+  Future addStream(Stream<Uint8List> stream) async {
     await for (var chunk in stream) {
       List<int>? md5digest;
       final headers = <String, String>{};
@@ -53,7 +57,6 @@ class MinioUploader implements StreamConsumer<List<int>> {
 
       if (_partNumber == 1 && chunk.length < partSize) {
         _etag = await _uploadChunk(chunk, headers, null);
-        onProgress?.call(chunk.length);
         return;
       }
 
@@ -83,7 +86,6 @@ class MinioUploader implements StreamConsumer<List<int>> {
       final etag = await _uploadChunk(chunk, headers, queries);
       final part = CompletedPart(etag, partNumber);
       _parts[part] = chunk.length;
-      _reportMultipartUploadProgress();
     }
   }
 
@@ -106,7 +108,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
   }
 
   Future<String?> _uploadChunk(
-    List<int> chunk,
+    Uint8List chunk,
     Map<String, String> headers,
     Map<String, String?>? queries,
   ) async {
@@ -116,7 +118,8 @@ class MinioUploader implements StreamConsumer<List<int>> {
       queries: queries,
       bucket: bucket,
       object: object,
-      payload: chunk,
+      payload: Stream.value(chunk).transform(BlockStream(1 << 16)),
+      onProgress: _updateProgress,
     );
 
     validate(resp);
@@ -146,10 +149,22 @@ class MinioUploader implements StreamConsumer<List<int>> {
     _oldParts = Map.fromEntries(entries);
   }
 
-  void _reportMultipartUploadProgress() {
-    if (onProgress != null) {
-      final bytes = _parts.values.reduce((a, b) => a + b);
-      onProgress!(bytes);
+  void _updateProgress(int bytesUploaded) {
+    this.bytesUploaded = bytesUploaded;
+    _reportUploadProgress();
+  }
+
+  void _reportUploadProgress() {
+    if (onProgress == null || bytesUploaded == null) {
+      return;
     }
+
+    var totalBytesUploaded = bytesUploaded!;
+
+    for (var part in _parts.keys) {
+      totalBytesUploaded += _parts[part]!;
+    }
+
+    onProgress!(totalBytesUploaded);
   }
 }
