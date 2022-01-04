@@ -17,6 +17,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
     this.object,
     this.partSize,
     this.metadata,
+    this.onProgress,
   );
 
   final Minio minio;
@@ -25,12 +26,18 @@ class MinioUploader implements StreamConsumer<List<int>> {
   final String object;
   final int partSize;
   final Map<String, String> metadata;
+  final void Function(int)? onProgress;
 
-  var partNumber = 1;
-  String? etag;
-  List<CompletedPart> parts = [];
-  Map<int?, Part>? oldParts;
-  String? uploadId;
+  var _partNumber = 1;
+
+  String? _etag;
+
+  // Complete object upload, value is the length of the part.
+  final _parts = <CompletedPart, int>{};
+
+  Map<int?, Part>? _oldParts;
+
+  String? _uploadId;
 
   @override
   Future addStream(Stream<List<int>> stream) async {
@@ -44,24 +51,25 @@ class MinioUploader implements StreamConsumer<List<int>> {
         headers['Content-MD5'] = base64.encode(md5digest);
       }
 
-      if (this.partNumber == 1 && chunk.length < partSize) {
-        this.etag = await upload(chunk, headers, null);
+      if (_partNumber == 1 && chunk.length < partSize) {
+        _etag = await _uploadChunk(chunk, headers, null);
+        onProgress?.call(chunk.length);
         return;
       }
 
-      if (uploadId == null) {
-        await initMultipartUpload();
+      if (_uploadId == null) {
+        await _initMultipartUpload();
       }
 
-      final partNumber = this.partNumber++;
+      final partNumber = _partNumber++;
 
-      if (oldParts != null) {
-        final oldPart = oldParts![partNumber];
+      if (_oldParts != null) {
+        final oldPart = _oldParts![partNumber];
         if (oldPart != null) {
           md5digest ??= md5.convert(chunk).bytes;
           if (hex.encode(md5digest) == oldPart.eTag) {
             final part = CompletedPart(oldPart.eTag, partNumber);
-            parts.add(part);
+            _parts[part] = oldPart.size!;
             continue;
           }
         }
@@ -69,19 +77,21 @@ class MinioUploader implements StreamConsumer<List<int>> {
 
       final queries = <String, String?>{
         'partNumber': '$partNumber',
-        'uploadId': uploadId,
+        'uploadId': _uploadId,
       };
 
-      final etag = await upload(chunk, headers, queries);
+      final etag = await _uploadChunk(chunk, headers, queries);
       final part = CompletedPart(etag, partNumber);
-      parts.add(part);
+      _parts[part] = chunk.length;
+      _reportMultipartUploadProgress();
     }
   }
 
   @override
   Future<String?> close() async {
-    if (uploadId == null) return etag;
-    return minio.completeMultipartUpload(bucket, object, uploadId!, parts);
+    if (_uploadId == null) return _etag;
+    return minio.completeMultipartUpload(
+        bucket, object, _uploadId!, _parts.keys.toList());
   }
 
   Map<String, String> getHeaders(List<int> chunk) {
@@ -95,7 +105,7 @@ class MinioUploader implements StreamConsumer<List<int>> {
     return headers;
   }
 
-  Future<String?> upload(
+  Future<String?> _uploadChunk(
     List<int> chunk,
     Map<String, String> headers,
     Map<String, String?>? queries,
@@ -112,29 +122,34 @@ class MinioUploader implements StreamConsumer<List<int>> {
     validate(resp);
 
     var etag = resp.headers['etag'];
-    if (etag != null) {
-      etag = trimDoubleQuote(etag);
-    }
+    if (etag != null) etag = trimDoubleQuote(etag);
 
     return etag;
   }
 
-  Future<void> initMultipartUpload() async {
+  Future<void> _initMultipartUpload() async {
     //FIXME: this code still causes Signature Error
     //FIXME: https://github.com/xtyxtyx/minio-dart/issues/7
     //TODO: uncomment when fixed
     // uploadId = await minio.findUploadId(bucket, object);
 
-    if (uploadId == null) {
-      uploadId =
+    if (_uploadId == null) {
+      _uploadId =
           await minio.initiateNewMultipartUpload(bucket, object, metadata);
       return;
     }
 
-    final parts = minio.listParts(bucket, object, uploadId!);
+    final parts = minio.listParts(bucket, object, _uploadId!);
     final entries = await parts
         .asyncMap((part) => MapEntry(part.partNumber, part))
         .toList();
-    oldParts = Map.fromEntries(entries);
+    _oldParts = Map.fromEntries(entries);
+  }
+
+  void _reportMultipartUploadProgress() {
+    if (onProgress != null) {
+      final bytes = _parts.values.reduce((a, b) => a + b);
+      onProgress!(bytes);
+    }
   }
 }

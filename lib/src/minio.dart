@@ -277,7 +277,7 @@ class Minio {
     return json.decode(resp.body);
   }
 
-  /// gets the region of the bucket
+  /// Gets the region of [bucket]. The region is cached for subsequent calls.
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
@@ -841,7 +841,7 @@ class Minio {
     postPolicy.formData['x-amz-signature'] = signature;
     final url = _client
         .getBaseRequest('POST', postPolicy.formData['bucket'], null, region,
-            null, null, null)
+            null, null, null, null)
         .url;
     var portStr = (port == 80 || port == 443) ? '' : ':$port';
     var urlStr = '${url.scheme}://${url.host}$portStr${url.path}';
@@ -902,29 +902,36 @@ class Minio {
       resource,
       reqParams,
       {},
+      null,
     );
     return presignSignatureV4(this, request, region, requestDate, expires);
   }
 
-  /// Uploads the object.
+  /// Uploads the object. Returns the ETag of the uploaded object.
   Future<String> putObject(
     String bucket,
     String object,
     Stream<List<int>> data, {
     int? size,
+    int? chunkSize,
     Map<String, String>? metadata,
+    void Function(int)? onProgress,
   }) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    assert(size == null || size >= 0);
+    if (size != null && size < 0) {
+      throw MinioInvalidArgumentError('invalid size value: $size');
+    }
+
+    if (chunkSize != null && chunkSize < 5 * 1024 * 1024) {
+      throw MinioInvalidArgumentError('Minimum chunk size is 5MB');
+    }
 
     metadata = prependXAMZMeta(metadata ?? <String, String>{});
 
-    size ??= maxObjectSize;
-    final partSize = _calculatePartSize(size);
+    final partSize = chunkSize ?? _calculatePartSize(size ?? maxObjectSize);
 
-    final chunker = BlockStream(partSize);
     final uploader = MinioUploader(
       this,
       _client,
@@ -932,7 +939,9 @@ class Minio {
       object,
       partSize,
       metadata,
+      onProgress,
     );
+    final chunker = BlockStream(partSize);
     final etag = await data.transform(chunker).pipe(uploader);
     return etag.toString();
   }

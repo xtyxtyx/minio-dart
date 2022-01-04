@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -9,26 +10,48 @@ import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/utils.dart';
 
 class MinioRequest extends BaseRequest {
-  MinioRequest(String method, Uri url) : super(method, url);
+  MinioRequest(String method, Uri url, {this.onProgress}) : super(method, url);
 
   dynamic body;
+
+  final void Function(int)? onProgress;
 
   @override
   ByteStream finalize() {
     super.finalize();
+
+    late final ByteStream byteStream;
+
     if (body is String) {
       final data = utf8.encode(body);
       headers['content-length'] = data.length.toString();
-      return ByteStream.fromBytes(utf8.encode(body));
-    }
-    if (body is List<int>) {
+      byteStream = ByteStream.fromBytes(utf8.encode(body));
+    } else if (body is List<int>) {
       headers['content-length'] = body.length.toString();
-      return ByteStream.fromBytes(body);
+      byteStream = ByteStream.fromBytes(body);
+    } else if (body is Stream<List<int>>) {
+      byteStream = ByteStream(body);
+    } else {
+      throw UnsupportedError('unsupported body type: ${body.runtimeType}');
     }
-    if (body is Stream<List<int>>) {
-      return ByteStream(body);
+
+    if (onProgress == null) {
+      return byteStream;
     }
-    throw UnsupportedError('unsupported body type: ${body.runtimeType}');
+
+    var bytesRead = 0;
+
+    return ByteStream(
+      byteStream.transform(
+        StreamTransformer.fromHandlers(
+          handleData: (data, sink) {
+            sink.add(data);
+            bytesRead += data.length;
+            onProgress!(bytesRead);
+          },
+        ),
+      ),
+    );
   }
 
   MinioRequest replace({
@@ -103,6 +126,7 @@ class MinioClient {
     dynamic payload = '',
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
+    void Function(int)? onProgress,
   }) async {
     if (bucket != null) {
       region ??= await minio.getBucketRegion(bucket);
@@ -111,7 +135,7 @@ class MinioClient {
     region ??= 'us-east-1';
 
     final request = getBaseRequest(
-        method, bucket, object, region, resource, queries, headers);
+        method, bucket, object, region, resource, queries, headers, onProgress);
     request.body = payload;
 
     final date = DateTime.now().toUtc();
@@ -190,9 +214,10 @@ class MinioClient {
     String? resource,
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
+    void Function(int)? onProgress,
   ) {
     final url = getRequestUrl(bucket, object, resource, queries);
-    final request = MinioRequest(method, url);
+    final request = MinioRequest(method, url, onProgress: onProgress);
     request.headers['host'] = url.authority;
 
     if (headers != null) {

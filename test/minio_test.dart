@@ -388,6 +388,19 @@ void testPutObject() {
       expect(stat.size, equals(objectData.length));
       await minio.removeObject(bucketName, objectName);
     });
+
+    test('progress report works', () async {
+      final objectName = uniqueName();
+      int? progress;
+      await minio.putObject(
+        bucketName,
+        objectName,
+        Stream.value(objectData),
+        onProgress: (bytes) => progress = bytes,
+      );
+      expect(progress, equals(objectData.length));
+      await minio.removeObject(bucketName, objectName);
+    });
   });
 }
 
