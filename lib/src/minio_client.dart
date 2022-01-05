@@ -24,28 +24,28 @@ class MinioRequest extends BaseRequest {
       return const ByteStream(Stream.empty());
     }
 
-    if (body is Stream<Uint8List>) {
-      return ByteStream(body);
-    }
-
     late Stream<Uint8List> stream;
 
-    if (body is String) {
+    if (body is Stream<Uint8List>) {
+      stream = body;
+    } else if (body is String) {
       final data = Utf8Encoder().convert(body);
       headers['content-length'] = data.length.toString();
       stream = Stream<Uint8List>.value(data);
     } else if (body is Uint8List) {
       stream = Stream<Uint8List>.value(body);
       headers['content-length'] = body.length.toString();
+    } else {
+      throw UnsupportedError('Unsupported body type: ${body.runtimeType}');
     }
-
-    stream = stream.transform(MaxChunkSize(1 << 16));
 
     if (onProgress == null) {
       return ByteStream(stream);
     }
 
     var bytesRead = 0;
+
+    stream = stream.transform(MaxChunkSize(1 << 16));
 
     return ByteStream(
       stream.transform(

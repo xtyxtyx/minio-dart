@@ -1,3 +1,5 @@
+# 3.4.0-pre
+- Better upload progress on web
 # 3.3.3
 - Fix empty upload error
 - Update README.md
