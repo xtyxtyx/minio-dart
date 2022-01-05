@@ -1,8 +1,20 @@
+<p align="center">
+  <h1 align="center">MinIO Dart</h1>
+</p>
+
 This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to access any Amazon S3 compatible object storage server.
 
-![test](https://github.com/xtyxtyx/minio-dart/workflows/Dart/badge.svg)
-
-![Pub Version](https://img.shields.io/pub/v/minio)
+<p align="center">
+  <a href="https://github.com/xtyxtyx/minio-dart/actions/workflows/dart.yml">
+    <img src="https://github.com/xtyxtyx/minio-dart/workflows/Dart/badge.svg">
+  </a>
+  <a href="https://pub.dev/packages/minio">
+    <img src="https://img.shields.io/pub/v/minio">
+  </a>
+  <a href="https://ko-fi.com/F1F61K6BL">
+    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-F16061?style=flat&logo=buy-me-a-coffee&logoColor=white">
+  </a>
+</p>
 
 
 ## API
@@ -76,7 +88,7 @@ For complete example, see: [example]
 
 > To use `fPutObject()` and `fGetObject`, you have to `import 'package:minio/io.dart';`
 
-**File upload with progress**
+**Upload with progress**
 ```dart
 import 'package:minio/minio.dart';
 
