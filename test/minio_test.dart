@@ -323,21 +323,32 @@ void testGetObject() {
   group('getObject()', () {
     final minio = getMinioClient();
     final bucketName = uniqueName();
-    final objectName = uniqueName();
+    final object = uniqueName();
+    final objectUtf8 = uniqueName() + '/あるところ/某个文件.🦐';
     final objectData = Uint8List.fromList([1, 2, 3]);
 
     setUpAll(() async {
       await minio.makeBucket(bucketName);
-      await minio.putObject(bucketName, objectName, Stream.value(objectData));
+      await minio.putObject(bucketName, object, Stream.value(objectData));
+      await minio.putObject(bucketName, objectUtf8, Stream.value(objectData));
     });
 
     tearDownAll(() async {
-      await minio.removeObject(bucketName, objectName);
+      await minio.removeObject(bucketName, object);
+      await minio.removeObject(bucketName, objectUtf8);
       await minio.removeBucket(bucketName);
     });
 
     test('succeeds', () async {
-      final stream = await minio.getObject(bucketName, objectName);
+      final stream = await minio.getObject(bucketName, object);
+      final buffer = BytesBuilder();
+      await stream.forEach((data) => buffer.add(data));
+      expect(stream.contentLength, equals(objectData.length));
+      expect(buffer.takeBytes(), equals(objectData));
+    });
+
+    test('succeeds with utf8 object name', () async {
+      final stream = await minio.getObject(bucketName, object);
       final buffer = BytesBuilder();
       await stream.forEach((data) => buffer.add(data));
       expect(stream.contentLength, equals(objectData.length));
@@ -346,14 +357,14 @@ void testGetObject() {
 
     test('fails on invalid bucket', () {
       expect(
-        () async => await minio.getObject('$bucketName-invalid', objectName),
+        () async => await minio.getObject('$bucketName-invalid', object),
         throwsA(isA<MinioError>()),
       );
     });
 
     test('fails on invalid object', () {
       expect(
-        () async => await minio.getObject(bucketName, '$objectName-invalid'),
+        () async => await minio.getObject(bucketName, '$object-invalid'),
         throwsA(isA<MinioError>()),
       );
     });
@@ -701,6 +712,7 @@ void testListObjects() {
 
     test('succeeds', () async {
       final result = await minio.listAllObjects(bucketName);
+      print(result);
       expect(result.objects.map((e) => e.key).contains(objectName), isTrue);
       expect(result.objects.map((e) => e.key).contains(objectNameUtf8), isTrue);
     });
@@ -731,6 +743,29 @@ void testListObjects() {
 
     test('succeeds', () async {
       final result = await minio.listAllObjects(bucket, prefix: 'new  folder/');
+      expect(result.objects.map((e) => e.key).contains(object), isTrue);
+    });
+  });
+
+  group('listAllObjects() works when prefix contains utf-8 characters', () {
+    final minio = getMinioClient();
+    final bucket = uniqueName();
+    final prefix = '🍎🌰🍌🍓/文件夹1/';
+    final object = '${prefix}new file.txt';
+    final data = Uint8List.fromList([1, 2, 3, 4, 5]);
+
+    setUpAll(() async {
+      await minio.makeBucket(bucket);
+      await minio.putObject(bucket, object, Stream.value(data));
+    });
+
+    tearDownAll(() async {
+      await minio.removeObject(bucket, object);
+      await minio.removeBucket(bucket);
+    });
+
+    test('succeeds', () async {
+      final result = await minio.listAllObjects(bucket, prefix: prefix);
       print(result);
       expect(result.objects.map((e) => e.key).contains(object), isTrue);
     });

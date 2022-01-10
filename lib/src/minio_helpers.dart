@@ -272,31 +272,7 @@ String encodePath(Uri uri) {
   return result.toString();
 }
 
-final _queryIgnoredChars = {
-  '-'.codeUnitAt(0),
-  '_'.codeUnitAt(0),
-  '.'.codeUnitAt(0),
-  '~'.codeUnitAt(0),
-};
-
 /// encode [uri].path to HTML hex escape sequence
 String encodeCanonicalQuery(String query) {
-  final result = StringBuffer();
-  for (var char in query.codeUnits) {
-    if (_A <= char && char <= _Z ||
-        _a <= char && char <= _z ||
-        _0 <= char && char <= _9) {
-      result.writeCharCode(char);
-      continue;
-    }
-
-    if (_queryIgnoredChars.contains(char)) {
-      result.writeCharCode(char);
-      continue;
-    }
-
-    result.write('%');
-    result.write(hex.encode([char]).toUpperCase());
-  }
-  return result.toString();
+  return Uri.encodeQueryComponent(query).replaceAll('+', '%20');
 }
