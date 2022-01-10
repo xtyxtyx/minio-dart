@@ -12,7 +12,7 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
     <img src="https://img.shields.io/pub/v/minio">
   </a>
   <a href="https://ko-fi.com/F1F61K6BL">
-    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-F16061?style=flat&logo=buy-me-a-coffee&logoColor=white">
+    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-F16061?style=flat&logo=buy-me-a-coffee&logoColor=white&labelColor=555555">
   </a>
 </p>
 
