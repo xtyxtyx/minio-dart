@@ -1086,6 +1086,8 @@ class Minio {
       queries: {'acl': ''},
     );
 
+    validate(resp, expect: 200);
+
     return AccessControlPolicy.fromXml(
       xml.XmlDocument.parse(resp.body)
           .findElements('AccessControlPolicy')
