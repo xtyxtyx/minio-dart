@@ -3,8 +3,6 @@ import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart';
 
-import '../models.dart';
-
 class ListObjectsResult {
   ListObjectsResult({
     required this.objects,
