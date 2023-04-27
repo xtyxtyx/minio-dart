@@ -816,21 +816,21 @@ class Minio {
       postPolicy.setExpires(expires);
     }
 
-    postPolicy.policy['conditions'].push(['eq', r'$x-amz-date', dateStr]);
+    postPolicy.policy['conditions'].add(['eq', r'$x-amz-date', dateStr]);
     postPolicy.formData['x-amz-date'] = dateStr;
 
     postPolicy.policy['conditions']
-        .push(['eq', r'$x-amz-algorithm', 'AWS4-HMAC-SHA256']);
+        .add(['eq', r'$x-amz-algorithm', 'AWS4-HMAC-SHA256']);
     postPolicy.formData['x-amz-algorithm'] = 'AWS4-HMAC-SHA256';
 
-    postPolicy.policy['conditions'].push(
+    postPolicy.policy['conditions'].add(
         ['eq', r'$x-amz-credential', accessKey + '/' + getScope(region, date)]);
     postPolicy.formData['x-amz-credential'] =
         accessKey + '/' + getScope(region, date);
 
     if (sessionToken != null) {
       postPolicy.policy['conditions']
-          .push(['eq', r'$x-amz-security-token', sessionToken]);
+          .add(['eq', r'$x-amz-security-token', sessionToken]);
     }
 
     final policyBase64 = jsonBase64(postPolicy.policy);
