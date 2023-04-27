@@ -2,7 +2,7 @@ import 'package:minio/models.dart';
 import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_helpers.dart';
 
-class MinioError {
+class MinioError implements Exception {
   MinioError(this.message);
 
   final String? message;
@@ -18,7 +18,7 @@ class MinioAnonymousRequestError extends MinioError {
 }
 
 class MinioInvalidArgumentError extends MinioError {
-  MinioInvalidArgumentError(String message) : super(message);
+  MinioInvalidArgumentError(String message) : super(msessage);
 }
 
 class MinioInvalidPortError extends MinioError {
