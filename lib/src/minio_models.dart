@@ -155,20 +155,20 @@ class PostPolicy {
   /// set object name prefix, i.e policy allows any keys with this prefix
   void setKeyStartsWith(String prefix) {
     MinioInvalidPrefixError.check(prefix);
-    policy['conditions'].push(['starts-with', r'$key', prefix]);
+    policy['conditions'].add(['starts-with', r'$key', prefix]);
     formData['key'] = prefix;
   }
 
   /// set bucket name
   void setBucket(bucket) {
     MinioInvalidBucketNameError.check(bucket);
-    policy['conditions'].push(['eq', r'$bucket', bucket]);
+    policy['conditions'].add(['eq', r'$bucket', bucket]);
     formData['bucket'] = bucket;
   }
 
   /// set Content-Type
   void setContentType(String type) {
-    policy['conditions'].push(['eq', r'$Content-Type', type]);
+    policy['conditions'].add(['eq', r'$Content-Type', type]);
     formData['Content-Type'] = type;
   }
 
@@ -183,7 +183,7 @@ class PostPolicy {
     if (max < 0) {
       throw MinioError('max should be > 0');
     }
-    policy['conditions'].push(['content-length-range', min, max]);
+    policy['conditions'].add(['content-length-range', min, max]);
   }
 }
 
