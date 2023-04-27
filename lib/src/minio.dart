@@ -797,7 +797,7 @@ class Minio {
   /// presignedPostPolicy can be used in situations where we want more control on the upload than what
   /// presignedPutObject() provides. i.e Using presignedPostPolicy we will be able to put policy restrictions
   /// on the object's `name` `bucket` `expiry` `Content-Type`
-  Future presignedPostPolicy(PostPolicy postPolicy) async {
+  Future<PostPolicyResult> presignedPostPolicy(PostPolicy postPolicy) async {
     if (_client.anonymous) {
       throw MinioAnonymousRequestError(
         'Presigned POST policy cannot be generated for anonymous requests',
