@@ -115,6 +115,7 @@ class MinioUploader implements StreamConsumer<Uint8List> {
     final resp = await client.request(
       method: 'PUT',
       headers: headers,
+      region: minio.region,
       queries: queries,
       bucket: bucket,
       object: object,
