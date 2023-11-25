@@ -44,8 +44,8 @@ class MinioUploader implements StreamConsumer<Uint8List> {
   int? bytesUploaded;
 
   @override
-  Future addStream(Stream<Uint8List> stream) async {
-    await for (var chunk in stream) {
+  Future<void> addStream(Stream<Uint8List> stream) async {
+    await for (final chunk in stream) {
       List<int>? md5digest;
       final headers = <String, String>{};
       headers.addAll(metadata);
@@ -93,7 +93,11 @@ class MinioUploader implements StreamConsumer<Uint8List> {
   Future<String?> close() async {
     if (_uploadId == null) return _etag;
     return minio.completeMultipartUpload(
-        bucket, object, _uploadId!, _parts.keys.toList());
+      bucket,
+      object,
+      _uploadId!,
+      _parts.keys.toList(),
+    );
   }
 
   Map<String, String> getHeaders(List<int> chunk) {
@@ -161,7 +165,7 @@ class MinioUploader implements StreamConsumer<Uint8List> {
 
     var totalBytesUploaded = bytesUploaded!;
 
-    for (var part in _parts.keys) {
+    for (final part in _parts.keys) {
       totalBytesUploaded += _parts[part]!;
     }
 

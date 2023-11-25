@@ -10,10 +10,10 @@ void main() {
 
 void testRfc7231Time() {
   final time = DateTime(2017, 8, 11, 19, 34, 18);
-  final timeString = 'Fri, 11 Aug 2017 19:34:18';
+  const timeString = 'Fri, 11 Aug 2017 19:34:18';
 
   final timeUtc = DateTime.utc(2017, 8, 11, 19, 34, 18);
-  final timeStringUtc = 'Fri, 11 Aug 2017 19:34:18 GMT';
+  const timeStringUtc = 'Fri, 11 Aug 2017 19:34:18 GMT';
 
   group('parseRfc7231Time', () {
     test('works', () {
@@ -82,7 +82,7 @@ void testBlockStream() {
   });
 
   test('MinChunkSize with empty stream', () async {
-    final stream = Stream<Uint8List>.empty().transform(MinChunkSize(5));
+    final stream = const Stream<Uint8List>.empty().transform(MinChunkSize(5));
     expect(await stream.toList(), equals([Uint8List.fromList([])]));
   });
 

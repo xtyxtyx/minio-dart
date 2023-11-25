@@ -7,7 +7,7 @@ import 'helpers.dart';
 void main() {
   group('MinioByteStream', () {
     final bucketName = uniqueName();
-    final objectName = 'content-length-test';
+    const objectName = 'content-length-test';
     final testData = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
@@ -26,7 +26,7 @@ void main() {
       final minio = getMinioClient();
       final stream = await minio.getObject(bucketName, objectName);
       expect(stream.contentLength, equals(testData.length));
-      await stream.drain();
+      await stream.drain<List<int>>();
     });
   });
 }

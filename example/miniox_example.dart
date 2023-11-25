@@ -13,5 +13,8 @@ void main() async {
   await minio.fPutObject('testbucket', 'test.png', 'example/custed.png');
 
   final stat = await minio.statObject('testbucket', 'test.png');
-  assert(stat.size == File('example/custed.png').lengthSync());
+  assert(
+    stat.size == File('example/custed.png').lengthSync(),
+    'data size does not match',
+  );
 }

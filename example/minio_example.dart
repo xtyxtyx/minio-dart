@@ -6,14 +6,13 @@ void main() async {
     endPoint: 'play.min.io',
     accessKey: 'Q3AM3UQ867SPQQA43P2F',
     secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
-    useSSL: true,
     // enableTrace: true,
   );
 
-  final bucket = '00test';
-  final object = 'custed.png';
-  final copy1 = 'custed.copy1.png';
-  final copy2 = 'custed.copy2.png';
+  const bucket = '00test';
+  const object = 'custed.png';
+  const copy1 = 'custed.copy1.png';
+  const copy2 = 'custed.copy2.png';
 
   if (!await minio.bucketExists(bucket)) {
     await minio.makeBucket(bucket);
@@ -24,7 +23,7 @@ void main() async {
 
   final poller = minio.listenBucketNotification(bucket, events: [
     's3:ObjectCreated:*',
-  ]);
+  ],);
   poller.stream.listen((event) {
     print('--- event: ${event['eventName']}');
   });
@@ -53,12 +52,16 @@ void main() async {
 
   await minio.listObjects(bucket).forEach((chunk) {
     print('--- objects:');
-    chunk.objects.forEach((o) => print(o.key));
+    for (final o in chunk.objects) {
+      print(o.key);
+    }
   });
 
   await minio.listObjectsV2(bucket).forEach((chunk) {
     print('--- objects(v2):');
-    chunk.objects.forEach((o) => print(o.key));
+    for (final o in chunk.objects) {
+      print(o.key);
+    }
   });
 
   final stat = await minio.statObject(bucket, object);

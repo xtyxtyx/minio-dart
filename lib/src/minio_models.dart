@@ -3,8 +3,6 @@ import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart';
 
-import '../models.dart';
-
 class ListObjectsResult {
   ListObjectsResult({
     required this.objects,
@@ -19,7 +17,7 @@ class ListObjectsResult {
 
   @override
   String toString() {
-    return '$runtimeType{objects: $objects, prefixes: $prefixes}';
+    return 'ListObjectsResult{objects: $objects, prefixes: $prefixes}';
   }
 }
 
@@ -44,8 +42,10 @@ class CompleteMultipartUpload {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CompleteMultipartUpload',
-        nest: parts.map((p) => p.toXml()));
+    builder.element(
+      'CompleteMultipartUpload',
+      nest: parts.map((p) => p.toXml()),
+    );
     return builder.buildDocument();
   }
 
@@ -55,9 +55,9 @@ class CompleteMultipartUpload {
 
 class ListMultipartUploadsOutput {
   ListMultipartUploadsOutput.fromXml(XmlElement xml) {
-    isTruncated = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
-    nextKeyMarker = getProp(xml, 'NextKeyMarker')?.text;
-    nextUploadIdMarker = getProp(xml, 'NextUploadIdMarker')?.text;
+    isTruncated = getProp(xml, 'IsLatest')?.innerText.toUpperCase() == 'TRUE';
+    nextKeyMarker = getProp(xml, 'NextKeyMarker')?.innerText;
+    nextUploadIdMarker = getProp(xml, 'NextUploadIdMarker')?.innerText;
     uploads = xml
         .findElements('Upload')
         .map((e) => MultipartUpload.fromXml(e))
@@ -72,9 +72,9 @@ class ListMultipartUploadsOutput {
 
 class ListPartsOutput {
   ListPartsOutput.fromXml(XmlElement xml) {
-    isTruncated = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
+    isTruncated = getProp(xml, 'IsLatest')?.innerText.toUpperCase() == 'TRUE';
     nextPartNumberMarker =
-        int.parse(getProp(xml, 'NextPartNumberMarker')!.text);
+        int.parse(getProp(xml, 'NextPartNumberMarker')!.innerText);
     parts = xml.findElements('Upload').map((e) => Part.fromXml(e)).toList();
   }
 
@@ -135,7 +135,7 @@ class StatObjectResult {
 /// Build PostPolicy object that can be signed by presignedPostPolicy
 class PostPolicy {
   final policy = <String, dynamic>{
-    'conditions': [],
+    'conditions': const <dynamic>[],
   };
 
   final formData = <String, String>{};
@@ -160,7 +160,7 @@ class PostPolicy {
   }
 
   /// set bucket name
-  void setBucket(bucket) {
+  void setBucket(String bucket) {
     MinioInvalidBucketNameError.check(bucket);
     policy['conditions'].push(['eq', r'$bucket', bucket]);
     formData['bucket'] = bucket;
