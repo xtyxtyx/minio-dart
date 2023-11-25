@@ -3,8 +3,6 @@ import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart';
 
-import '../models.dart';
-
 class ListObjectsResult {
   ListObjectsResult({
     required this.objects,
@@ -160,7 +158,7 @@ class PostPolicy {
   }
 
   /// set bucket name
-  void setBucket(bucket) {
+  void setBucket(String bucket) {
     MinioInvalidBucketNameError.check(bucket);
     policy['conditions'].push(['eq', r'$bucket', bucket]);
     formData['bucket'] = bucket;

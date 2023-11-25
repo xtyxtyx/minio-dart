@@ -53,7 +53,7 @@ bool isVirtualHostStyle(String endpoint, bool useSSL, String? bucket) {
   return isAmazonEndpoint(endpoint);
 }
 
-bool isValidEndpoint(endpoint) {
+bool isValidEndpoint(String endpoint) {
   return isValidDomain(endpoint) || isValidIPv4(endpoint);
 }
 
@@ -124,27 +124,27 @@ String makeDateShort(DateTime date) {
 
 Map<String, String> prependXAMZMeta(Map<String, String?> metadata) {
   final newMetadata = Map<String, String>.from(metadata);
-  for (var key in metadata.keys) {
+  for (final key in metadata.keys) {
     if (!isAmzHeader(key) &&
         !isSupportedHeader(key) &&
         !isStorageclassHeader(key)) {
-      newMetadata['x-amz-meta-' + key] = newMetadata[key]!;
+      newMetadata['x-amz-meta-$key'] = newMetadata[key]!;
       newMetadata.remove(key);
     }
   }
   return newMetadata;
 }
 
-bool isAmzHeader(key) {
-  key = key.toLowerCase();
+bool isAmzHeader(String key) {
+  final loweredKey = key.toLowerCase();
   return key.startsWith('x-amz-meta-') ||
-      key == 'x-amz-acl' ||
-      key.startsWith('x-amz-server-side-encryption-') ||
-      key == 'x-amz-server-side-encryption';
+      loweredKey == 'x-amz-acl' ||
+      loweredKey.startsWith('x-amz-server-side-encryption-') ||
+      loweredKey == 'x-amz-server-side-encryption';
 }
 
 bool isSupportedHeader(key) {
-  var supported_headers = {
+  const supportedHeaders = {
     'content-type',
     'cache-control',
     'content-encoding',
@@ -152,7 +152,7 @@ bool isSupportedHeader(key) {
     'content-language',
     'x-amz-website-redirect-location',
   };
-  return (supported_headers.contains(key.toLowerCase()));
+  return (supportedHeaders.contains(key.toLowerCase()));
 }
 
 bool isStorageclassHeader(key) {
@@ -215,7 +215,7 @@ Future<void> validateStreamed(
 
 void validate(MinioResponse response, {int? expect}) {
   if (response.statusCode >= 400) {
-    var error;
+    Error error;
 
     // Parse HTTP response body as XML only when not empty
     if (response.body.isEmpty) {
@@ -225,7 +225,7 @@ void validate(MinioResponse response, {int? expect}) {
       error = Error.fromXml(body.rootElement);
     }
 
-    throw MinioS3Error(error?.message, error, response);
+    throw MinioS3Error(error.message, error, response);
   }
 
   if (expect != null && response.statusCode != expect) {

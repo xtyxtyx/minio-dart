@@ -14,9 +14,6 @@ import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:xml/xml.dart' show XmlElement;
 
-import '../models.dart';
-import 'minio_helpers.dart';
-
 class Minio {
   /// Initializes a new client object.
   Minio({
@@ -264,7 +261,7 @@ class Minio {
   /// Get the bucket policy associated with the specified bucket. If `objectPrefix`
   /// is not empty, the bucket policy will be filtered based on object permissions
   /// as well.
-  Future<Map<String, dynamic>?> getBucketPolicy(bucket) async {
+  Future<Map<String, dynamic>?> getBucketPolicy(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
     final resp = await _client.request(
@@ -275,7 +272,7 @@ class Minio {
 
     validate(resp, expect: 200);
 
-    return json.decode(resp.body);
+    return json.decode(resp.body) as Map<String, dynamic>?;
   }
 
   /// Gets the region of [bucket]. The region is cached for subsequent calls.
@@ -406,10 +403,10 @@ class Minio {
         uploadIdMarker,
         delimiter,
       );
-      for (var upload in result.uploads) {
+      for (final upload in result.uploads) {
         final parts = listParts(bucket, upload.key!, upload.uploadId!);
         final size =
-            await parts.fold(0, (dynamic acc, item) => acc + item.size);
+            await parts.fold(0, (dynamic acc, item) => acc + item.size) as int?;
         yield IncompleteUpload(upload: upload, size: size);
       }
       keyMarker = result.nextKeyMarker;

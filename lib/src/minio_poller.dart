@@ -56,13 +56,14 @@ class NotificationPoller {
       queries: queries,
     );
 
-    await for (var resp in respStream.stream) {
+    await for (final resp in respStream.stream) {
       if (_stop) break;
 
       final chunk = utf8.decode(resp);
       if (chunk.trim().isEmpty) continue;
-      final data = json.decode(chunk);
-      final records = List<Map<String, dynamic>>.from(data['Records']);
+      final data = json.decode(chunk) as Map<String, dynamic>;
+      final records =
+          List<Map<String, dynamic>>.from(data['Records'] as List<dynamic>);
       await _eventStream.addStream(Stream.fromIterable(records));
     }
   }

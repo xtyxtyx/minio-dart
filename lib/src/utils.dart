@@ -9,15 +9,16 @@ import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
 
 String sha256Hex(dynamic data) {
+  List<int> cData;
   if (data is String) {
-    data = utf8.encode(data);
+    cData = utf8.encode(data);
   } else if (data is List<int>) {
-    data = data;
+    cData = data;
   } else {
     throw ArgumentError('unsupported data type: ${data.runtimeType}');
   }
 
-  return hex.encode(sha256.convert(data).bytes);
+  return hex.encode(sha256.convert(cData).bytes);
 }
 
 String sha256HmacHex(String data, List<int> signingKey) => hex
@@ -48,12 +49,12 @@ String encodeQuery(String rawKey, String? rawValue) {
 
 String encodeQueries(Map<String, dynamic> queries) {
   final pairs = <String>[];
-  for (var key in queries.keys) {
+  for (final key in queries.keys) {
     final value = queries[key];
     if (value is String || value == null) {
-      pairs.add(encodeQuery(key, value));
+      pairs.add(encodeQuery(key, value as String?));
     } else if (value is Iterable<String>) {
-      for (var val in value) {
+      for (final val in value) {
         pairs.add(encodeQuery(key, val));
       }
     } else {
