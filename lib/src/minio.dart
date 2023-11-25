@@ -139,8 +139,8 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    var queries = {'uploadId': uploadId};
-    var payload = CompleteMultipartUpload(parts).toXml().toString();
+    final queries = {'uploadId': uploadId};
+    final payload = CompleteMultipartUpload(parts).toXml().toString();
 
     final resp = await _client.request(
       method: 'POST',
@@ -158,7 +158,7 @@ class Minio {
       throw MinioS3Error(error.message, error, resp);
     }
 
-    final etag = node.findAllElements('ETag').first.text;
+    final etag = node.findAllElements('ETag').first.innerText;
     return etag;
   }
 
@@ -226,7 +226,7 @@ class Minio {
         uploadIdMarker,
         '',
       );
-      for (var upload in result.uploads) {
+      for (final upload in result.uploads) {
         if (upload.key != object) continue;
         if (latestUpload == null ||
             upload.initiated!.isAfter(latestUpload.initiated!)) {
@@ -298,7 +298,7 @@ class Minio {
 
     final node = xml.XmlDocument.parse(resp.body);
 
-    var location = node.findAllElements('LocationConstraint').first.text;
+    var location = node.findAllElements('LocationConstraint').first.innerText;
     // if (location == null || location.isEmpty) {
     if (location.isEmpty) {
       location = 'us-east-1';
@@ -310,7 +310,7 @@ class Minio {
 
   /// get a readable stream of the object content.
   Future<MinioByteStream> getObject(String bucket, String object) {
-    return getPartialObject(bucket, object, null, null);
+    return getPartialObject(bucket, object);
   }
 
   /// get a readable stream of the partial object content.
@@ -377,7 +377,7 @@ class Minio {
     validate(resp, expect: 200);
 
     final node = xml.XmlDocument.parse(resp.body);
-    return node.findAllElements('UploadId').first.text;
+    return node.findAllElements('UploadId').first.innerText;
   }
 
   /// Returns a stream that emits objects that are partially uploaded.
@@ -426,7 +426,7 @@ class Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidPrefixError.check(prefix);
 
-    var queries = <String, dynamic>{
+    final queries = <String, dynamic>{
       'uploads': null,
       'prefix': prefix,
       'delimiter': delimiter,
@@ -569,8 +569,8 @@ class Minio {
     validate(resp);
 
     final node = xml.XmlDocument.parse(resp.body);
-    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')!.text;
-    final nextMarker = getNodeProp(node.rootElement, 'NextMarker')?.text;
+    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')!.innerText;
+    final nextMarker = getNodeProp(node.rootElement, 'NextMarker')?.innerText;
     final objs = node.findAllElements('Contents').map((c) => Object.fromXml(c));
     final prefixes = node
         .findAllElements('CommonPrefixes')
@@ -679,9 +679,9 @@ class Minio {
     validate(resp);
 
     final node = xml.XmlDocument.parse(resp.body);
-    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')!.text;
+    final isTruncated = getNodeProp(node.rootElement, 'IsTruncated')!.innerText;
     final nextContinuationToken =
-        getNodeProp(node.rootElement, 'NextContinuationToken')?.text;
+        getNodeProp(node.rootElement, 'NextContinuationToken')?.innerText;
     final objs = node.findAllElements('Contents').map((c) => Object.fromXml(c));
     final prefixes = node
         .findAllElements('CommonPrefixes')
@@ -720,7 +720,7 @@ class Minio {
     String? uploadId,
     int? marker,
   ) async {
-    var queries = <String, dynamic>{'uploadId': uploadId};
+    final queries = <String, dynamic>{'uploadId': uploadId};
 
     if (marker != null && marker != 0) {
       queries['part-number-marker'] = marker.toString();
@@ -794,7 +794,7 @@ class Minio {
   /// presignedPostPolicy can be used in situations where we want more control on the upload than what
   /// presignedPutObject() provides. i.e Using presignedPostPolicy we will be able to put policy restrictions
   /// on the object's `name` `bucket` `expiry` `Content-Type`
-  Future presignedPostPolicy(PostPolicy postPolicy) async {
+  Future<PostPolicyResult> presignedPostPolicy(PostPolicy postPolicy) async {
     if (_client.anonymous) {
       throw MinioAnonymousRequestError(
         'Presigned POST policy cannot be generated for anonymous requests',
@@ -802,14 +802,14 @@ class Minio {
     }
 
     final region = await getBucketRegion(postPolicy.formData['bucket']!);
-    var date = DateTime.now().toUtc();
-    var dateStr = makeDateLong(date);
+    final date = DateTime.now().toUtc();
+    final dateStr = makeDateLong(date);
 
     if (postPolicy.policy['expiration'] == null) {
       // 'expiration' is mandatory field for S3.
       // Set default expiration date of 7 days.
-      var expires = DateTime.now().toUtc();
-      expires.add(Duration(days: 7));
+      final expires = DateTime.now().toUtc();
+      expires.add(const Duration(days: 7));
       postPolicy.setExpires(expires);
     }
 
@@ -821,9 +821,10 @@ class Minio {
     postPolicy.formData['x-amz-algorithm'] = 'AWS4-HMAC-SHA256';
 
     postPolicy.policy['conditions'].push(
-        ['eq', r'$x-amz-credential', accessKey + '/' + getScope(region, date)]);
+      ['eq', r'$x-amz-credential', '$accessKey/${getScope(region, date)}'],
+    );
     postPolicy.formData['x-amz-credential'] =
-        accessKey + '/' + getScope(region, date);
+        '$accessKey/${getScope(region, date)}';
 
     if (sessionToken != null) {
       postPolicy.policy['conditions']
@@ -838,11 +839,19 @@ class Minio {
 
     postPolicy.formData['x-amz-signature'] = signature;
     final url = _client
-        .getBaseRequest('POST', postPolicy.formData['bucket'], null, region,
-            null, null, null, null)
+        .getBaseRequest(
+          'POST',
+          postPolicy.formData['bucket'],
+          null,
+          region,
+          null,
+          null,
+          null,
+          null,
+        )
         .url;
-    var portStr = (port == 80 || port == 443) ? '' : ':$port';
-    var urlStr = '${url.scheme}://${url.host}$portStr${url.path}';
+    final portStr = (port == 80 || port == 443) ? '' : ':$port';
+    final urlStr = '${url.scheme}://${url.host}$portStr${url.path}';
     return PostPolicyResult(postURL: urlStr, formData: postPolicy.formData);
   }
 
@@ -1003,7 +1012,7 @@ class Minio {
 
     final bunches = groupList(objects, 1000);
 
-    for (var bunch in bunches) {
+    for (final bunch in bunches) {
       final payload = Delete(
         bunch.map((key) => ObjectIdentifier(key, null)).toList(),
         true,

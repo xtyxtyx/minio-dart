@@ -6,3 +6,18 @@ linter:
   rules:
     file_names: false
     public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    cascade_invocations: false
+    parameter_assignments: false
+    type_annotate_public_apis: false
+    avoid_dynamic_calls: false
+    avoid_positional_boolean_parameters: false
+    only_throw_errors: false
+    non_constant_identifier_names: false
+    avoid_print: false
+    comment_references: false
+    flutter_style_todos: false
+    avoid_catching_errors: false
+    avoid_unused_constructor_parameters: false
+    use_setters_to_change_properties: false
+    prefer_asserts_with_message: false

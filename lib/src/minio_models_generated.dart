@@ -14,15 +14,20 @@ class AbortIncompleteMultipartUpload {
 
   AbortIncompleteMultipartUpload.fromXml(XmlElement? xml) {
     daysAfterInitiation =
-        int.tryParse(getProp(xml, 'DaysAfterInitiation')!.text);
+        int.tryParse(getProp(xml, 'DaysAfterInitiation')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AbortIncompleteMultipartUpload', nest: () {
-      builder.element('DaysAfterInitiation',
-          nest: daysAfterInitiation.toString());
-    });
+    builder.element(
+      'AbortIncompleteMultipartUpload',
+      nest: () {
+        builder.element(
+          'DaysAfterInitiation',
+          nest: daysAfterInitiation.toString(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -37,14 +42,17 @@ class AccelerateConfiguration {
   );
 
   AccelerateConfiguration.fromXml(XmlElement xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AccelerateConfiguration', nest: () {
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'AccelerateConfiguration',
+      nest: () {
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -66,10 +74,13 @@ class AccessControlPolicy {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AccessControlPolicy', nest: () {
-      builder.element('Grants', nest: grants!.toXml());
-      builder.element('Owner', nest: owner!.toXml());
-    });
+    builder.element(
+      'AccessControlPolicy',
+      nest: () {
+        builder.element('Grants', nest: grants!.toXml());
+        builder.element('Owner', nest: owner!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -87,14 +98,17 @@ class AccessControlTranslation {
   );
 
   AccessControlTranslation.fromXml(XmlElement? xml) {
-    owner = getProp(xml, 'Owner')?.text;
+    owner = getProp(xml, 'Owner')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AccessControlTranslation', nest: () {
-      builder.element('Owner', nest: owner);
-    });
+    builder.element(
+      'AccessControlTranslation',
+      nest: () {
+        builder.element('Owner', nest: owner);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -110,16 +124,19 @@ class AnalyticsAndOperator {
   );
 
   AnalyticsAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AnalyticsAndOperator', nest: () {
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
-    });
+    builder.element(
+      'AnalyticsAndOperator',
+      nest: () {
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tags', nest: tags!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -140,19 +157,24 @@ class AnalyticsConfiguration {
 
   AnalyticsConfiguration.fromXml(XmlElement xml) {
     filter = AnalyticsFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
+    id = getProp(xml, 'Id')?.innerText;
     storageClassAnalysis =
         StorageClassAnalysis.fromXml(getProp(xml, 'StorageClassAnalysis'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AnalyticsConfiguration', nest: () {
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
-      builder.element('StorageClassAnalysis',
-          nest: storageClassAnalysis!.toXml());
-    });
+    builder.element(
+      'AnalyticsConfiguration',
+      nest: () {
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('Id', nest: id);
+        builder.element(
+          'StorageClassAnalysis',
+          nest: storageClassAnalysis!.toXml(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -174,15 +196,21 @@ class AnalyticsExportDestination {
 
   AnalyticsExportDestination.fromXml(XmlElement? xml) {
     s3BucketDestination = AnalyticsS3BucketDestination.fromXml(
-        getProp(xml, 'S3BucketDestination'));
+      getProp(xml, 'S3BucketDestination'),
+    );
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AnalyticsExportDestination', nest: () {
-      builder.element('S3BucketDestination',
-          nest: s3BucketDestination!.toXml());
-    });
+    builder.element(
+      'AnalyticsExportDestination',
+      nest: () {
+        builder.element(
+          'S3BucketDestination',
+          nest: s3BucketDestination!.toXml(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -200,17 +228,20 @@ class AnalyticsFilter {
 
   AnalyticsFilter.fromXml(XmlElement? xml) {
     and = AnalyticsAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AnalyticsFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
-    });
+    builder.element(
+      'AnalyticsFilter',
+      nest: () {
+        builder.element('And', nest: and!.toXml());
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tag', nest: tag!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -234,20 +265,23 @@ class AnalyticsS3BucketDestination {
   );
 
   AnalyticsS3BucketDestination.fromXml(XmlElement? xml) {
-    bucket = getProp(xml, 'Bucket')?.text;
-    bucketAccountId = getProp(xml, 'BucketAccountId')?.text;
-    format = getProp(xml, 'Format')?.text;
-    prefix = getProp(xml, 'Prefix')?.text;
+    bucket = getProp(xml, 'Bucket')?.innerText;
+    bucketAccountId = getProp(xml, 'BucketAccountId')?.innerText;
+    format = getProp(xml, 'Format')?.innerText;
+    prefix = getProp(xml, 'Prefix')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('AnalyticsS3BucketDestination', nest: () {
-      builder.element('Bucket', nest: bucket);
-      builder.element('BucketAccountId', nest: bucketAccountId);
-      builder.element('Format', nest: format);
-      builder.element('Prefix', nest: prefix);
-    });
+    builder.element(
+      'AnalyticsS3BucketDestination',
+      nest: () {
+        builder.element('Bucket', nest: bucket);
+        builder.element('BucketAccountId', nest: bucketAccountId);
+        builder.element('Format', nest: format);
+        builder.element('Prefix', nest: prefix);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -273,17 +307,20 @@ class Bucket {
 
   factory Bucket.fromXml(XmlElement xml) {
     return Bucket(
-      DateTime.parse(getProp(xml, 'CreationDate')!.text),
-      getProp(xml, 'Name')!.text,
+      DateTime.parse(getProp(xml, 'CreationDate')!.innerText),
+      getProp(xml, 'Name')!.innerText,
     );
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Bucket', nest: () {
-      builder.element('CreationDate', nest: creationDate!.toIso8601String());
-      builder.element('Name', nest: name);
-    });
+    builder.element(
+      'Bucket',
+      nest: () {
+        builder.element('CreationDate', nest: creationDate!.toIso8601String());
+        builder.element('Name', nest: name);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -311,9 +348,12 @@ class BucketLifecycleConfiguration {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('BucketLifecycleConfiguration', nest: () {
-      builder.element('Rules', nest: rules!.toXml());
-    });
+    builder.element(
+      'BucketLifecycleConfiguration',
+      nest: () {
+        builder.element('Rules', nest: rules!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -333,9 +373,12 @@ class BucketLoggingStatus {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('BucketLoggingStatus', nest: () {
-      builder.element('LoggingEnabled', nest: loggingEnabled!.toXml());
-    });
+    builder.element(
+      'BucketLoggingStatus',
+      nest: () {
+        builder.element('LoggingEnabled', nest: loggingEnabled!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -354,22 +397,25 @@ class CloudFunctionConfiguration {
   );
 
   CloudFunctionConfiguration.fromXml(XmlElement? xml) {
-    cloudFunction = getProp(xml, 'CloudFunction')?.text;
-    event = getProp(xml, 'Event')?.text;
-    events = getProp(xml, 'Events')?.text;
-    id = getProp(xml, 'Id')?.text;
-    invocationRole = getProp(xml, 'InvocationRole')?.text;
+    cloudFunction = getProp(xml, 'CloudFunction')?.innerText;
+    event = getProp(xml, 'Event')?.innerText;
+    events = getProp(xml, 'Events')?.innerText;
+    id = getProp(xml, 'Id')?.innerText;
+    invocationRole = getProp(xml, 'InvocationRole')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CloudFunctionConfiguration', nest: () {
-      builder.element('CloudFunction', nest: cloudFunction);
-      builder.element('Event', nest: event);
-      builder.element('Events', nest: events);
-      builder.element('Id', nest: id);
-      builder.element('InvocationRole', nest: invocationRole);
-    });
+    builder.element(
+      'CloudFunctionConfiguration',
+      nest: () {
+        builder.element('CloudFunction', nest: cloudFunction);
+        builder.element('Event', nest: event);
+        builder.element('Events', nest: events);
+        builder.element('Id', nest: id);
+        builder.element('InvocationRole', nest: invocationRole);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -396,14 +442,17 @@ class CommonPrefix {
   );
 
   CommonPrefix.fromXml(XmlElement xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CommonPrefix', nest: () {
-      builder.element('Prefix', nest: prefix);
-    });
+    builder.element(
+      'CommonPrefix',
+      nest: () {
+        builder.element('Prefix', nest: prefix);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -423,9 +472,12 @@ class CompletedMultipartUpload {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CompletedMultipartUpload', nest: () {
-      builder.element('Parts', nest: parts!.toXml());
-    });
+    builder.element(
+      'CompletedMultipartUpload',
+      nest: () {
+        builder.element('Parts', nest: parts!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -441,16 +493,19 @@ class CompletedPart {
   );
 
   CompletedPart.fromXml(XmlElement? xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    partNumber = int.tryParse(getProp(xml, 'PartNumber')!.text);
+    eTag = getProp(xml, 'ETag')?.innerText;
+    partNumber = int.tryParse(getProp(xml, 'PartNumber')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Part', nest: () {
-      builder.element('ETag', nest: eTag);
-      builder.element('PartNumber', nest: partNumber.toString());
-    });
+    builder.element(
+      'Part',
+      nest: () {
+        builder.element('ETag', nest: eTag);
+        builder.element('PartNumber', nest: partNumber.toString());
+      },
+    );
     return builder.buildDocument().rootElement;
   }
 
@@ -470,17 +525,22 @@ class Condition {
 
   Condition.fromXml(XmlElement? xml) {
     httpErrorCodeReturnedEquals =
-        getProp(xml, 'HttpErrorCodeReturnedEquals')?.text;
-    keyPrefixEquals = getProp(xml, 'KeyPrefixEquals')?.text;
+        getProp(xml, 'HttpErrorCodeReturnedEquals')?.innerText;
+    keyPrefixEquals = getProp(xml, 'KeyPrefixEquals')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Condition', nest: () {
-      builder.element('HttpErrorCodeReturnedEquals',
-          nest: httpErrorCodeReturnedEquals);
-      builder.element('KeyPrefixEquals', nest: keyPrefixEquals);
-    });
+    builder.element(
+      'Condition',
+      nest: () {
+        builder.element(
+          'HttpErrorCodeReturnedEquals',
+          nest: httpErrorCodeReturnedEquals,
+        );
+        builder.element('KeyPrefixEquals', nest: keyPrefixEquals);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -512,16 +572,19 @@ class CopyObjectResult {
   );
 
   CopyObjectResult.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+    eTag = getProp(xml, 'ETag')?.innerText;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CopyObjectResult', nest: () {
-      builder.element('ETag', nest: eTag);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-    });
+    builder.element(
+      'CopyObjectResult',
+      nest: () {
+        builder.element('ETag', nest: eTag);
+        builder.element('LastModified', nest: lastModified!.toIso8601String());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -540,16 +603,19 @@ class CopyPartResult {
   );
 
   CopyPartResult.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+    eTag = getProp(xml, 'ETag')?.innerText;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CopyPartResult', nest: () {
-      builder.element('ETag', nest: eTag);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-    });
+    builder.element(
+      'CopyPartResult',
+      nest: () {
+        builder.element('ETag', nest: eTag);
+        builder.element('LastModified', nest: lastModified!.toIso8601String());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -572,9 +638,12 @@ class CORSConfiguration {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CORSConfiguration', nest: () {
-      builder.element('CORSRules', nest: cORSRules!.toXml());
-    });
+    builder.element(
+      'CORSConfiguration',
+      nest: () {
+        builder.element('CORSRules', nest: cORSRules!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -593,22 +662,25 @@ class CORSRule {
   );
 
   CORSRule.fromXml(XmlElement? xml) {
-    allowedHeaders = getProp(xml, 'AllowedHeaders')?.text;
-    allowedMethods = getProp(xml, 'AllowedMethods')?.text;
-    allowedOrigins = getProp(xml, 'AllowedOrigins')?.text;
-    exposeHeaders = getProp(xml, 'ExposeHeaders')?.text;
-    maxAgeSeconds = int.tryParse(getProp(xml, 'MaxAgeSeconds')!.text);
+    allowedHeaders = getProp(xml, 'AllowedHeaders')?.innerText;
+    allowedMethods = getProp(xml, 'AllowedMethods')?.innerText;
+    allowedOrigins = getProp(xml, 'AllowedOrigins')?.innerText;
+    exposeHeaders = getProp(xml, 'ExposeHeaders')?.innerText;
+    maxAgeSeconds = int.tryParse(getProp(xml, 'MaxAgeSeconds')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CORSRule', nest: () {
-      builder.element('AllowedHeaders', nest: allowedHeaders);
-      builder.element('AllowedMethods', nest: allowedMethods);
-      builder.element('AllowedOrigins', nest: allowedOrigins);
-      builder.element('ExposeHeaders', nest: exposeHeaders);
-      builder.element('MaxAgeSeconds', nest: maxAgeSeconds.toString());
-    });
+    builder.element(
+      'CORSRule',
+      nest: () {
+        builder.element('AllowedHeaders', nest: allowedHeaders);
+        builder.element('AllowedMethods', nest: allowedMethods);
+        builder.element('AllowedOrigins', nest: allowedOrigins);
+        builder.element('ExposeHeaders', nest: exposeHeaders);
+        builder.element('MaxAgeSeconds', nest: maxAgeSeconds.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -635,14 +707,17 @@ class CreateBucketConfiguration {
   );
 
   CreateBucketConfiguration.fromXml(XmlElement xml) {
-    locationConstraint = getProp(xml, 'LocationConstraint')?.text;
+    locationConstraint = getProp(xml, 'LocationConstraint')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CreateBucketConfiguration', nest: () {
-      builder.element('LocationConstraint', nest: locationConstraint);
-    });
+    builder.element(
+      'CreateBucketConfiguration',
+      nest: () {
+        builder.element('LocationConstraint', nest: locationConstraint);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -664,28 +739,33 @@ class CSVInput {
 
   CSVInput.fromXml(XmlElement? xml) {
     allowQuotedRecordDelimiter =
-        getProp(xml, 'AllowQuotedRecordDelimiter')?.text.toUpperCase() ==
+        getProp(xml, 'AllowQuotedRecordDelimiter')?.innerText.toUpperCase() ==
             'TRUE';
-    comments = getProp(xml, 'Comments')?.text;
-    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.text;
-    fileHeaderInfo = getProp(xml, 'FileHeaderInfo')?.text;
-    quoteCharacter = getProp(xml, 'QuoteCharacter')?.text;
-    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.text;
-    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
+    comments = getProp(xml, 'Comments')?.innerText;
+    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.innerText;
+    fileHeaderInfo = getProp(xml, 'FileHeaderInfo')?.innerText;
+    quoteCharacter = getProp(xml, 'QuoteCharacter')?.innerText;
+    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.innerText;
+    recordDelimiter = getProp(xml, 'RecordDelimiter')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CSVInput', nest: () {
-      builder.element('AllowQuotedRecordDelimiter',
-          nest: allowQuotedRecordDelimiter! ? 'TRUE' : 'FALSE');
-      builder.element('Comments', nest: comments);
-      builder.element('FieldDelimiter', nest: fieldDelimiter);
-      builder.element('FileHeaderInfo', nest: fileHeaderInfo);
-      builder.element('QuoteCharacter', nest: quoteCharacter);
-      builder.element('QuoteEscapeCharacter', nest: quoteEscapeCharacter);
-      builder.element('RecordDelimiter', nest: recordDelimiter);
-    });
+    builder.element(
+      'CSVInput',
+      nest: () {
+        builder.element(
+          'AllowQuotedRecordDelimiter',
+          nest: allowQuotedRecordDelimiter! ? 'TRUE' : 'FALSE',
+        );
+        builder.element('Comments', nest: comments);
+        builder.element('FieldDelimiter', nest: fieldDelimiter);
+        builder.element('FileHeaderInfo', nest: fileHeaderInfo);
+        builder.element('QuoteCharacter', nest: quoteCharacter);
+        builder.element('QuoteEscapeCharacter', nest: quoteEscapeCharacter);
+        builder.element('RecordDelimiter', nest: recordDelimiter);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -722,22 +802,25 @@ class CSVOutput {
   );
 
   CSVOutput.fromXml(XmlElement? xml) {
-    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.text;
-    quoteCharacter = getProp(xml, 'QuoteCharacter')?.text;
-    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.text;
-    quoteFields = getProp(xml, 'QuoteFields')?.text;
-    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
+    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.innerText;
+    quoteCharacter = getProp(xml, 'QuoteCharacter')?.innerText;
+    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.innerText;
+    quoteFields = getProp(xml, 'QuoteFields')?.innerText;
+    recordDelimiter = getProp(xml, 'RecordDelimiter')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CSVOutput', nest: () {
-      builder.element('FieldDelimiter', nest: fieldDelimiter);
-      builder.element('QuoteCharacter', nest: quoteCharacter);
-      builder.element('QuoteEscapeCharacter', nest: quoteEscapeCharacter);
-      builder.element('QuoteFields', nest: quoteFields);
-      builder.element('RecordDelimiter', nest: recordDelimiter);
-    });
+    builder.element(
+      'CSVOutput',
+      nest: () {
+        builder.element('FieldDelimiter', nest: fieldDelimiter);
+        builder.element('QuoteCharacter', nest: quoteCharacter);
+        builder.element('QuoteEscapeCharacter', nest: quoteEscapeCharacter);
+        builder.element('QuoteFields', nest: quoteFields);
+        builder.element('RecordDelimiter', nest: recordDelimiter);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -766,18 +849,21 @@ class DefaultRetention {
   );
 
   DefaultRetention.fromXml(XmlElement? xml) {
-    days = int.tryParse(getProp(xml, 'Days')!.text);
-    mode = getProp(xml, 'Mode')?.text;
-    years = int.tryParse(getProp(xml, 'Years')!.text);
+    days = int.tryParse(getProp(xml, 'Days')!.innerText);
+    mode = getProp(xml, 'Mode')?.innerText;
+    years = int.tryParse(getProp(xml, 'Years')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('DefaultRetention', nest: () {
-      builder.element('Days', nest: days.toString());
-      builder.element('Mode', nest: mode);
-      builder.element('Years', nest: years.toString());
-    });
+    builder.element(
+      'DefaultRetention',
+      nest: () {
+        builder.element('Days', nest: days.toString());
+        builder.element('Mode', nest: mode);
+        builder.element('Years', nest: years.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -805,12 +891,15 @@ class Delete {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Delete', nest: () {
-      for (var object in objects) {
-        builder.element('Object', nest: object.toXml().children);
-      }
-      builder.element('Quiet', nest: quiet ? 'TRUE' : 'FALSE');
-    });
+    builder.element(
+      'Delete',
+      nest: () {
+        for (final object in objects) {
+          builder.element('Object', nest: object.toXml().children);
+        }
+        builder.element('Quiet', nest: quiet ? 'TRUE' : 'FALSE');
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -831,20 +920,24 @@ class DeletedObject {
   );
 
   DeletedObject.fromXml(XmlElement xml) {
-    deleteMarker = getProp(xml, 'DeleteMarker')?.text.toUpperCase() == 'TRUE';
-    deleteMarkerVersionId = getProp(xml, 'DeleteMarkerVersionId')?.text;
-    key = getProp(xml, 'Key')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+    deleteMarker =
+        getProp(xml, 'DeleteMarker')?.innerText.toUpperCase() == 'TRUE';
+    deleteMarkerVersionId = getProp(xml, 'DeleteMarkerVersionId')?.innerText;
+    key = getProp(xml, 'Key')?.innerText;
+    versionId = getProp(xml, 'VersionId')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('DeletedObject', nest: () {
-      builder.element('DeleteMarker', nest: deleteMarker! ? 'TRUE' : 'FALSE');
-      builder.element('DeleteMarkerVersionId', nest: deleteMarkerVersionId);
-      builder.element('Key', nest: key);
-      builder.element('VersionId', nest: versionId);
-    });
+    builder.element(
+      'DeletedObject',
+      nest: () {
+        builder.element('DeleteMarker', nest: deleteMarker! ? 'TRUE' : 'FALSE');
+        builder.element('DeleteMarkerVersionId', nest: deleteMarkerVersionId);
+        builder.element('Key', nest: key);
+        builder.element('VersionId', nest: versionId);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -872,22 +965,25 @@ class DeleteMarkerEntry {
   );
 
   DeleteMarkerEntry.fromXml(XmlElement xml) {
-    isLatest = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
-    key = getProp(xml, 'Key')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+    isLatest = getProp(xml, 'IsLatest')?.innerText.toUpperCase() == 'TRUE';
+    key = getProp(xml, 'Key')?.innerText;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.innerText);
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    versionId = getProp(xml, 'VersionId')?.text;
+    versionId = getProp(xml, 'VersionId')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('DeleteMarkerEntry', nest: () {
-      builder.element('IsLatest', nest: isLatest! ? 'TRUE' : 'FALSE');
-      builder.element('Key', nest: key);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-      builder.element('Owner', nest: owner!.toXml());
-      builder.element('VersionId', nest: versionId);
-    });
+    builder.element(
+      'DeleteMarkerEntry',
+      nest: () {
+        builder.element('IsLatest', nest: isLatest! ? 'TRUE' : 'FALSE');
+        builder.element('Key', nest: key);
+        builder.element('LastModified', nest: lastModified!.toIso8601String());
+        builder.element('Owner', nest: owner!.toXml());
+        builder.element('VersionId', nest: versionId);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -914,14 +1010,17 @@ class DeleteMarkerReplication {
   );
 
   DeleteMarkerReplication.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('DeleteMarkerReplication', nest: () {
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'DeleteMarkerReplication',
+      nest: () {
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -943,29 +1042,38 @@ class Destination {
 
   Destination.fromXml(XmlElement? xml) {
     accessControlTranslation = AccessControlTranslation.fromXml(
-        getProp(xml, 'AccessControlTranslation'));
-    account = getProp(xml, 'Account')?.text;
-    bucket = getProp(xml, 'Bucket')?.text;
+      getProp(xml, 'AccessControlTranslation'),
+    );
+    account = getProp(xml, 'Account')?.innerText;
+    bucket = getProp(xml, 'Bucket')?.innerText;
     encryptionConfiguration = EncryptionConfiguration.fromXml(
-        getProp(xml, 'EncryptionConfiguration'));
+      getProp(xml, 'EncryptionConfiguration'),
+    );
     metrics = Metrics.fromXml(getProp(xml, 'Metrics'));
     replicationTime = ReplicationTime.fromXml(getProp(xml, 'ReplicationTime'));
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    storageClass = getProp(xml, 'StorageClass')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Destination', nest: () {
-      builder.element('AccessControlTranslation',
-          nest: accessControlTranslation!.toXml());
-      builder.element('Account', nest: account);
-      builder.element('Bucket', nest: bucket);
-      builder.element('EncryptionConfiguration',
-          nest: encryptionConfiguration!.toXml());
-      builder.element('Metrics', nest: metrics!.toXml());
-      builder.element('ReplicationTime', nest: replicationTime!.toXml());
-      builder.element('StorageClass', nest: storageClass);
-    });
+    builder.element(
+      'Destination',
+      nest: () {
+        builder.element(
+          'AccessControlTranslation',
+          nest: accessControlTranslation!.toXml(),
+        );
+        builder.element('Account', nest: account);
+        builder.element('Bucket', nest: bucket);
+        builder.element(
+          'EncryptionConfiguration',
+          nest: encryptionConfiguration!.toXml(),
+        );
+        builder.element('Metrics', nest: metrics!.toXml());
+        builder.element('ReplicationTime', nest: replicationTime!.toXml());
+        builder.element('StorageClass', nest: storageClass);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1000,18 +1108,21 @@ class Encryption {
   );
 
   Encryption.fromXml(XmlElement? xml) {
-    encryptionType = getProp(xml, 'EncryptionType')?.text;
-    kMSContext = getProp(xml, 'KMSContext')?.text;
-    kMSKeyId = getProp(xml, 'KMSKeyId')?.text;
+    encryptionType = getProp(xml, 'EncryptionType')?.innerText;
+    kMSContext = getProp(xml, 'KMSContext')?.innerText;
+    kMSKeyId = getProp(xml, 'KMSKeyId')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Encryption', nest: () {
-      builder.element('EncryptionType', nest: encryptionType);
-      builder.element('KMSContext', nest: kMSContext);
-      builder.element('KMSKeyId', nest: kMSKeyId);
-    });
+    builder.element(
+      'Encryption',
+      nest: () {
+        builder.element('EncryptionType', nest: encryptionType);
+        builder.element('KMSContext', nest: kMSContext);
+        builder.element('KMSKeyId', nest: kMSKeyId);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1032,14 +1143,17 @@ class EncryptionConfiguration {
   );
 
   EncryptionConfiguration.fromXml(XmlElement? xml) {
-    replicaKmsKeyID = getProp(xml, 'ReplicaKmsKeyID')?.text;
+    replicaKmsKeyID = getProp(xml, 'ReplicaKmsKeyID')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('EncryptionConfiguration', nest: () {
-      builder.element('ReplicaKmsKeyID', nest: replicaKmsKeyID);
-    });
+    builder.element(
+      'EncryptionConfiguration',
+      nest: () {
+        builder.element('ReplicaKmsKeyID', nest: replicaKmsKeyID);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1070,20 +1184,23 @@ class Error {
   );
 
   Error.fromXml(XmlElement xml) {
-    code = getProp(xml, 'Code')?.text;
-    key = getProp(xml, 'Key')?.text;
-    message = getProp(xml, 'Message')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+    code = getProp(xml, 'Code')?.innerText;
+    key = getProp(xml, 'Key')?.innerText;
+    message = getProp(xml, 'Message')?.innerText;
+    versionId = getProp(xml, 'VersionId')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Error', nest: () {
-      builder.element('Code', nest: code);
-      builder.element('Key', nest: key);
-      builder.element('Message', nest: message);
-      builder.element('VersionId', nest: versionId);
-    });
+    builder.element(
+      'Error',
+      nest: () {
+        builder.element('Code', nest: code);
+        builder.element('Key', nest: key);
+        builder.element('Message', nest: message);
+        builder.element('VersionId', nest: versionId);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1112,14 +1229,17 @@ class ErrorDocument {
   );
 
   ErrorDocument.fromXml(XmlElement? xml) {
-    key = getProp(xml, 'Key')?.text;
+    key = getProp(xml, 'Key')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ErrorDocument', nest: () {
-      builder.element('Key', nest: key);
-    });
+    builder.element(
+      'ErrorDocument',
+      nest: () {
+        builder.element('Key', nest: key);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1134,14 +1254,17 @@ class ExistingObjectReplication {
   );
 
   ExistingObjectReplication.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ExistingObjectReplication', nest: () {
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'ExistingObjectReplication',
+      nest: () {
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1157,16 +1280,19 @@ class FilterRule {
   );
 
   FilterRule.fromXml(XmlElement? xml) {
-    name = getProp(xml, 'Name')?.text;
-    value = getProp(xml, 'Value')?.text;
+    name = getProp(xml, 'Name')?.innerText;
+    value = getProp(xml, 'Value')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('FilterRule', nest: () {
-      builder.element('Name', nest: name);
-      builder.element('Value', nest: value);
-    });
+    builder.element(
+      'FilterRule',
+      nest: () {
+        builder.element('Name', nest: name);
+        builder.element('Value', nest: value);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1184,14 +1310,17 @@ class GlacierJobParameters {
   );
 
   GlacierJobParameters.fromXml(XmlElement? xml) {
-    tier = getProp(xml, 'Tier')?.text;
+    tier = getProp(xml, 'Tier')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('GlacierJobParameters', nest: () {
-      builder.element('Tier', nest: tier);
-    });
+    builder.element(
+      'GlacierJobParameters',
+      nest: () {
+        builder.element('Tier', nest: tier);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1208,15 +1337,18 @@ class Grant {
 
   Grant.fromXml(XmlElement? xml) {
     grantee = Grantee.fromXml(getProp(xml, 'Grantee'));
-    permission = getProp(xml, 'Permission')?.text;
+    permission = getProp(xml, 'Permission')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Grant', nest: () {
-      builder.element('Grantee', nest: grantee!.toXml());
-      builder.element('Permission', nest: permission);
-    });
+    builder.element(
+      'Grant',
+      nest: () {
+        builder.element('Grantee', nest: grantee!.toXml());
+        builder.element('Permission', nest: permission);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1238,22 +1370,25 @@ class Grantee {
   );
 
   Grantee.fromXml(XmlElement? xml) {
-    displayName = getProp(xml, 'DisplayName')?.text;
-    emailAddress = getProp(xml, 'EmailAddress')?.text;
-    iD = getProp(xml, 'ID')?.text;
-    type = getProp(xml, 'Type')?.text;
-    uRI = getProp(xml, 'URI')?.text;
+    displayName = getProp(xml, 'DisplayName')?.innerText;
+    emailAddress = getProp(xml, 'EmailAddress')?.innerText;
+    iD = getProp(xml, 'ID')?.innerText;
+    type = getProp(xml, 'Type')?.innerText;
+    uRI = getProp(xml, 'URI')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Grantee', nest: () {
-      builder.element('DisplayName', nest: displayName);
-      builder.element('EmailAddress', nest: emailAddress);
-      builder.element('ID', nest: iD);
-      builder.element('Type', nest: type);
-      builder.element('URI', nest: uRI);
-    });
+    builder.element(
+      'Grantee',
+      nest: () {
+        builder.element('DisplayName', nest: displayName);
+        builder.element('EmailAddress', nest: emailAddress);
+        builder.element('ID', nest: iD);
+        builder.element('Type', nest: type);
+        builder.element('URI', nest: uRI);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1280,14 +1415,17 @@ class IndexDocument {
   );
 
   IndexDocument.fromXml(XmlElement? xml) {
-    suffix = getProp(xml, 'Suffix')?.text;
+    suffix = getProp(xml, 'Suffix')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('IndexDocument', nest: () {
-      builder.element('Suffix', nest: suffix);
-    });
+    builder.element(
+      'IndexDocument',
+      nest: () {
+        builder.element('Suffix', nest: suffix);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1303,16 +1441,19 @@ class Initiator {
   );
 
   Initiator.fromXml(XmlElement? xml) {
-    displayName = getProp(xml, 'DisplayName')?.text;
-    iD = getProp(xml, 'ID')?.text;
+    displayName = getProp(xml, 'DisplayName')?.innerText;
+    iD = getProp(xml, 'ID')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Initiator', nest: () {
-      builder.element('DisplayName', nest: displayName);
-      builder.element('ID', nest: iD);
-    });
+    builder.element(
+      'Initiator',
+      nest: () {
+        builder.element('DisplayName', nest: displayName);
+        builder.element('ID', nest: iD);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1333,7 +1474,7 @@ class InputSerialization {
   );
 
   InputSerialization.fromXml(XmlElement? xml) {
-    compressionType = getProp(xml, 'CompressionType')?.text;
+    compressionType = getProp(xml, 'CompressionType')?.innerText;
     cSV = CSVInput.fromXml(getProp(xml, 'CSV'));
     jSON = JSONInput.fromXml(getProp(xml, 'JSON'));
     parquet = ParquetInput.fromXml(getProp(xml, 'Parquet'));
@@ -1341,12 +1482,15 @@ class InputSerialization {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('InputSerialization', nest: () {
-      builder.element('CompressionType', nest: compressionType);
-      builder.element('CSV', nest: cSV!.toXml());
-      builder.element('JSON', nest: jSON!.toXml());
-      builder.element('Parquet', nest: parquet!.toXml());
-    });
+    builder.element(
+      'InputSerialization',
+      nest: () {
+        builder.element('CompressionType', nest: compressionType);
+        builder.element('CSV', nest: cSV!.toXml());
+        builder.element('JSON', nest: jSON!.toXml());
+        builder.element('Parquet', nest: parquet!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1378,24 +1522,27 @@ class InventoryConfiguration {
   InventoryConfiguration.fromXml(XmlElement xml) {
     destination = InventoryDestination.fromXml(getProp(xml, 'Destination'));
     filter = InventoryFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    includedObjectVersions = getProp(xml, 'IncludedObjectVersions')?.text;
-    isEnabled = getProp(xml, 'IsEnabled')?.text.toUpperCase() == 'TRUE';
-    optionalFields = getProp(xml, 'OptionalFields')?.text;
+    id = getProp(xml, 'Id')?.innerText;
+    includedObjectVersions = getProp(xml, 'IncludedObjectVersions')?.innerText;
+    isEnabled = getProp(xml, 'IsEnabled')?.innerText.toUpperCase() == 'TRUE';
+    optionalFields = getProp(xml, 'OptionalFields')?.innerText;
     schedule = InventorySchedule.fromXml(getProp(xml, 'Schedule'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('InventoryConfiguration', nest: () {
-      builder.element('Destination', nest: destination!.toXml());
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
-      builder.element('IncludedObjectVersions', nest: includedObjectVersions);
-      builder.element('IsEnabled', nest: isEnabled! ? 'TRUE' : 'FALSE');
-      builder.element('OptionalFields', nest: optionalFields);
-      builder.element('Schedule', nest: schedule!.toXml());
-    });
+    builder.element(
+      'InventoryConfiguration',
+      nest: () {
+        builder.element('Destination', nest: destination!.toXml());
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('Id', nest: id);
+        builder.element('IncludedObjectVersions', nest: includedObjectVersions);
+        builder.element('IsEnabled', nest: isEnabled! ? 'TRUE' : 'FALSE');
+        builder.element('OptionalFields', nest: optionalFields);
+        builder.element('Schedule', nest: schedule!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1429,15 +1576,21 @@ class InventoryDestination {
 
   InventoryDestination.fromXml(XmlElement? xml) {
     s3BucketDestination = InventoryS3BucketDestination.fromXml(
-        getProp(xml, 'S3BucketDestination'));
+      getProp(xml, 'S3BucketDestination'),
+    );
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('InventoryDestination', nest: () {
-      builder.element('S3BucketDestination',
-          nest: s3BucketDestination!.toXml());
-    });
+    builder.element(
+      'InventoryDestination',
+      nest: () {
+        builder.element(
+          'S3BucketDestination',
+          nest: s3BucketDestination!.toXml(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1459,10 +1612,13 @@ class InventoryEncryption {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('InventoryEncryption', nest: () {
-      builder.element('SSEKMS', nest: sSEKMS!.toXml());
-      builder.element('SSES3', nest: sSES3!.toXml());
-    });
+    builder.element(
+      'InventoryEncryption',
+      nest: () {
+        builder.element('SSEKMS', nest: sSEKMS!.toXml());
+        builder.element('SSES3', nest: sSES3!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1480,14 +1636,17 @@ class InventoryFilter {
   );
 
   InventoryFilter.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('InventoryFilter', nest: () {
-      builder.element('Prefix', nest: prefix);
-    });
+    builder.element(
+      'InventoryFilter',
+      nest: () {
+        builder.element('Prefix', nest: prefix);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1506,22 +1665,25 @@ class InventoryS3BucketDestination {
   );
 
   InventoryS3BucketDestination.fromXml(XmlElement? xml) {
-    accountId = getProp(xml, 'AccountId')?.text;
-    bucket = getProp(xml, 'Bucket')?.text;
+    accountId = getProp(xml, 'AccountId')?.innerText;
+    bucket = getProp(xml, 'Bucket')?.innerText;
     encryption = InventoryEncryption.fromXml(getProp(xml, 'Encryption'));
-    format = getProp(xml, 'Format')?.text;
-    prefix = getProp(xml, 'Prefix')?.text;
+    format = getProp(xml, 'Format')?.innerText;
+    prefix = getProp(xml, 'Prefix')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('InventoryS3BucketDestination', nest: () {
-      builder.element('AccountId', nest: accountId);
-      builder.element('Bucket', nest: bucket);
-      builder.element('Encryption', nest: encryption!.toXml());
-      builder.element('Format', nest: format);
-      builder.element('Prefix', nest: prefix);
-    });
+    builder.element(
+      'InventoryS3BucketDestination',
+      nest: () {
+        builder.element('AccountId', nest: accountId);
+        builder.element('Bucket', nest: bucket);
+        builder.element('Encryption', nest: encryption!.toXml());
+        builder.element('Format', nest: format);
+        builder.element('Prefix', nest: prefix);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1548,14 +1710,17 @@ class InventorySchedule {
   );
 
   InventorySchedule.fromXml(XmlElement? xml) {
-    frequency = getProp(xml, 'Frequency')?.text;
+    frequency = getProp(xml, 'Frequency')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('InventorySchedule', nest: () {
-      builder.element('Frequency', nest: frequency);
-    });
+    builder.element(
+      'InventorySchedule',
+      nest: () {
+        builder.element('Frequency', nest: frequency);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1570,14 +1735,17 @@ class JSONInput {
   );
 
   JSONInput.fromXml(XmlElement? xml) {
-    type = getProp(xml, 'Type')?.text;
+    type = getProp(xml, 'Type')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('JSONInput', nest: () {
-      builder.element('Type', nest: type);
-    });
+    builder.element(
+      'JSONInput',
+      nest: () {
+        builder.element('Type', nest: type);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1592,14 +1760,17 @@ class JSONOutput {
   );
 
   JSONOutput.fromXml(XmlElement? xml) {
-    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
+    recordDelimiter = getProp(xml, 'RecordDelimiter')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('JSONOutput', nest: () {
-      builder.element('RecordDelimiter', nest: recordDelimiter);
-    });
+    builder.element(
+      'JSONOutput',
+      nest: () {
+        builder.element('RecordDelimiter', nest: recordDelimiter);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1617,20 +1788,23 @@ class LambdaFunctionConfiguration {
   );
 
   LambdaFunctionConfiguration.fromXml(XmlElement? xml) {
-    events = getProp(xml, 'Events')?.text;
+    events = getProp(xml, 'Events')?.innerText;
     filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    lambdaFunctionArn = getProp(xml, 'LambdaFunctionArn')?.text;
+    id = getProp(xml, 'Id')?.innerText;
+    lambdaFunctionArn = getProp(xml, 'LambdaFunctionArn')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('LambdaFunctionConfiguration', nest: () {
-      builder.element('Events', nest: events);
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
-      builder.element('LambdaFunctionArn', nest: lambdaFunctionArn);
-    });
+    builder.element(
+      'LambdaFunctionConfiguration',
+      nest: () {
+        builder.element('Events', nest: events);
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('Id', nest: id);
+        builder.element('LambdaFunctionArn', nest: lambdaFunctionArn);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1659,9 +1833,12 @@ class LifecycleConfiguration {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('LifecycleConfiguration', nest: () {
-      builder.element('Rules', nest: rules!.toXml());
-    });
+    builder.element(
+      'LifecycleConfiguration',
+      nest: () {
+        builder.element('Rules', nest: rules!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1678,20 +1855,26 @@ class LifecycleExpiration {
   );
 
   LifecycleExpiration.fromXml(XmlElement? xml) {
-    date = DateTime.parse(getProp(xml, 'Date')!.text);
-    days = int.tryParse(getProp(xml, 'Days')!.text);
+    date = DateTime.parse(getProp(xml, 'Date')!.innerText);
+    days = int.tryParse(getProp(xml, 'Days')!.innerText);
     expiredObjectDeleteMarker =
-        getProp(xml, 'ExpiredObjectDeleteMarker')?.text.toUpperCase() == 'TRUE';
+        getProp(xml, 'ExpiredObjectDeleteMarker')?.innerText.toUpperCase() ==
+            'TRUE';
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('LifecycleExpiration', nest: () {
-      builder.element('Date', nest: date!.toIso8601String());
-      builder.element('Days', nest: days.toString());
-      builder.element('ExpiredObjectDeleteMarker',
-          nest: expiredObjectDeleteMarker! ? 'TRUE' : 'FALSE');
-    });
+    builder.element(
+      'LifecycleExpiration',
+      nest: () {
+        builder.element('Date', nest: date!.toIso8601String());
+        builder.element('Days', nest: days.toString());
+        builder.element(
+          'ExpiredObjectDeleteMarker',
+          nest: expiredObjectDeleteMarker! ? 'TRUE' : 'FALSE',
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1721,35 +1904,47 @@ class LifecycleRule {
 
   LifecycleRule.fromXml(XmlElement? xml) {
     abortIncompleteMultipartUpload = AbortIncompleteMultipartUpload.fromXml(
-        getProp(xml, 'AbortIncompleteMultipartUpload'));
+      getProp(xml, 'AbortIncompleteMultipartUpload'),
+    );
     expiration = LifecycleExpiration.fromXml(getProp(xml, 'Expiration'));
     filter = LifecycleRuleFilter.fromXml(getProp(xml, 'Filter'));
-    iD = getProp(xml, 'ID')?.text;
+    iD = getProp(xml, 'ID')?.innerText;
     noncurrentVersionExpiration = NoncurrentVersionExpiration.fromXml(
-        getProp(xml, 'NoncurrentVersionExpiration'));
+      getProp(xml, 'NoncurrentVersionExpiration'),
+    );
     noncurrentVersionTransitions = NoncurrentVersionTransition.fromXml(
-        getProp(xml, 'NoncurrentVersionTransitions'));
-    prefix = getProp(xml, 'Prefix')?.text;
-    status = getProp(xml, 'Status')?.text;
+      getProp(xml, 'NoncurrentVersionTransitions'),
+    );
+    prefix = getProp(xml, 'Prefix')?.innerText;
+    status = getProp(xml, 'Status')?.innerText;
     transitions = Transition.fromXml(getProp(xml, 'Transitions'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('LifecycleRule', nest: () {
-      builder.element('AbortIncompleteMultipartUpload',
-          nest: abortIncompleteMultipartUpload!.toXml());
-      builder.element('Expiration', nest: expiration!.toXml());
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('ID', nest: iD);
-      builder.element('NoncurrentVersionExpiration',
-          nest: noncurrentVersionExpiration!.toXml());
-      builder.element('NoncurrentVersionTransitions',
-          nest: noncurrentVersionTransitions!.toXml());
-      builder.element('Prefix', nest: prefix);
-      builder.element('Status', nest: status);
-      builder.element('Transitions', nest: transitions!.toXml());
-    });
+    builder.element(
+      'LifecycleRule',
+      nest: () {
+        builder.element(
+          'AbortIncompleteMultipartUpload',
+          nest: abortIncompleteMultipartUpload!.toXml(),
+        );
+        builder.element('Expiration', nest: expiration!.toXml());
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('ID', nest: iD);
+        builder.element(
+          'NoncurrentVersionExpiration',
+          nest: noncurrentVersionExpiration!.toXml(),
+        );
+        builder.element(
+          'NoncurrentVersionTransitions',
+          nest: noncurrentVersionTransitions!.toXml(),
+        );
+        builder.element('Prefix', nest: prefix);
+        builder.element('Status', nest: status);
+        builder.element('Transitions', nest: transitions!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1789,16 +1984,19 @@ class LifecycleRuleAndOperator {
   );
 
   LifecycleRuleAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('LifecycleRuleAndOperator', nest: () {
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
-    });
+    builder.element(
+      'LifecycleRuleAndOperator',
+      nest: () {
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tags', nest: tags!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1819,17 +2017,20 @@ class LifecycleRuleFilter {
 
   LifecycleRuleFilter.fromXml(XmlElement? xml) {
     and = LifecycleRuleAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('LifecycleRuleFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
-    });
+    builder.element(
+      'LifecycleRuleFilter',
+      nest: () {
+        builder.element('And', nest: and!.toXml());
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tag', nest: tag!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1852,18 +2053,21 @@ class LoggingEnabled {
   );
 
   LoggingEnabled.fromXml(XmlElement? xml) {
-    targetBucket = getProp(xml, 'TargetBucket')?.text;
+    targetBucket = getProp(xml, 'TargetBucket')?.innerText;
     targetGrants = TargetGrant.fromXml(getProp(xml, 'TargetGrants'));
-    targetPrefix = getProp(xml, 'TargetPrefix')?.text;
+    targetPrefix = getProp(xml, 'TargetPrefix')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('LoggingEnabled', nest: () {
-      builder.element('TargetBucket', nest: targetBucket);
-      builder.element('TargetGrants', nest: targetGrants!.toXml());
-      builder.element('TargetPrefix', nest: targetPrefix);
-    });
+    builder.element(
+      'LoggingEnabled',
+      nest: () {
+        builder.element('TargetBucket', nest: targetBucket);
+        builder.element('TargetGrants', nest: targetGrants!.toXml());
+        builder.element('TargetPrefix', nest: targetPrefix);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1885,16 +2089,19 @@ class MetadataEntry {
   );
 
   MetadataEntry.fromXml(XmlElement? xml) {
-    name = getProp(xml, 'Name')?.text;
-    value = getProp(xml, 'Value')?.text;
+    name = getProp(xml, 'Name')?.innerText;
+    value = getProp(xml, 'Value')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('MetadataEntry', nest: () {
-      builder.element('Name', nest: name);
-      builder.element('Value', nest: value);
-    });
+    builder.element(
+      'MetadataEntry',
+      nest: () {
+        builder.element('Name', nest: name);
+        builder.element('Value', nest: value);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1915,15 +2122,18 @@ class Metrics {
   Metrics.fromXml(XmlElement? xml) {
     eventThreshold =
         ReplicationTimeValue.fromXml(getProp(xml, 'EventThreshold'));
-    status = getProp(xml, 'Status')?.text;
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Metrics', nest: () {
-      builder.element('EventThreshold', nest: eventThreshold!.toXml());
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'Metrics',
+      nest: () {
+        builder.element('EventThreshold', nest: eventThreshold!.toXml());
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1942,16 +2152,19 @@ class MetricsAndOperator {
   );
 
   MetricsAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('MetricsAndOperator', nest: () {
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
-    });
+    builder.element(
+      'MetricsAndOperator',
+      nest: () {
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tags', nest: tags!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -1971,15 +2184,18 @@ class MetricsConfiguration {
 
   MetricsConfiguration.fromXml(XmlElement xml) {
     filter = MetricsFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
+    id = getProp(xml, 'Id')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('MetricsConfiguration', nest: () {
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
-    });
+    builder.element(
+      'MetricsConfiguration',
+      nest: () {
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('Id', nest: id);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2000,17 +2216,20 @@ class MetricsFilter {
 
   MetricsFilter.fromXml(XmlElement? xml) {
     and = MetricsAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('MetricsFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
-    });
+    builder.element(
+      'MetricsFilter',
+      nest: () {
+        builder.element('And', nest: and!.toXml());
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tag', nest: tag!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2036,24 +2255,27 @@ class MultipartUpload {
   );
 
   MultipartUpload.fromXml(XmlElement xml) {
-    initiated = DateTime.parse(getProp(xml, 'Initiated')!.text);
+    initiated = DateTime.parse(getProp(xml, 'Initiated')!.innerText);
     initiator = Initiator.fromXml(getProp(xml, 'Initiator'));
-    key = getProp(xml, 'Key')?.text;
+    key = getProp(xml, 'Key')?.innerText;
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    storageClass = getProp(xml, 'StorageClass')?.text;
-    uploadId = getProp(xml, 'UploadId')?.text;
+    storageClass = getProp(xml, 'StorageClass')?.innerText;
+    uploadId = getProp(xml, 'UploadId')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('MultipartUpload', nest: () {
-      builder.element('Initiated', nest: initiated!.toIso8601String());
-      builder.element('Initiator', nest: initiator!.toXml());
-      builder.element('Key', nest: key);
-      builder.element('Owner', nest: owner!.toXml());
-      builder.element('StorageClass', nest: storageClass);
-      builder.element('UploadId', nest: uploadId);
-    });
+    builder.element(
+      'MultipartUpload',
+      nest: () {
+        builder.element('Initiated', nest: initiated!.toIso8601String());
+        builder.element('Initiator', nest: initiator!.toXml());
+        builder.element('Key', nest: key);
+        builder.element('Owner', nest: owner!.toXml());
+        builder.element('StorageClass', nest: storageClass);
+        builder.element('UploadId', nest: uploadId);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2083,14 +2305,17 @@ class NoncurrentVersionExpiration {
   );
 
   NoncurrentVersionExpiration.fromXml(XmlElement? xml) {
-    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')!.text);
+    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('NoncurrentVersionExpiration', nest: () {
-      builder.element('NoncurrentDays', nest: noncurrentDays.toString());
-    });
+    builder.element(
+      'NoncurrentVersionExpiration',
+      nest: () {
+        builder.element('NoncurrentDays', nest: noncurrentDays.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2106,16 +2331,19 @@ class NoncurrentVersionTransition {
   );
 
   NoncurrentVersionTransition.fromXml(XmlElement? xml) {
-    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')!.innerText);
+    storageClass = getProp(xml, 'StorageClass')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('NoncurrentVersionTransition', nest: () {
-      builder.element('NoncurrentDays', nest: noncurrentDays.toString());
-      builder.element('StorageClass', nest: storageClass);
-    });
+    builder.element(
+      'NoncurrentVersionTransition',
+      nest: () {
+        builder.element('NoncurrentDays', nest: noncurrentDays.toString());
+        builder.element('StorageClass', nest: storageClass);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2136,7 +2364,8 @@ class NotificationConfiguration {
 
   NotificationConfiguration.fromXml(XmlElement xml) {
     lambdaFunctionConfigurations = LambdaFunctionConfiguration.fromXml(
-        getProp(xml, 'LambdaFunctionConfigurations'));
+      getProp(xml, 'LambdaFunctionConfigurations'),
+    );
     queueConfigurations =
         QueueConfiguration.fromXml(getProp(xml, 'QueueConfigurations'));
     topicConfigurations =
@@ -2145,20 +2374,29 @@ class NotificationConfiguration {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('NotificationConfiguration', nest: () {
-      if (lambdaFunctionConfigurations != null) {
-        builder.element('LambdaFunctionConfigurations',
-            nest: lambdaFunctionConfigurations!.toXml());
-      }
-      if (queueConfigurations != null) {
-        builder.element('QueueConfigurations',
-            nest: queueConfigurations!.toXml());
-      }
-      if (topicConfigurations != null) {
-        builder.element('TopicConfigurations',
-            nest: topicConfigurations!.toXml());
-      }
-    });
+    builder.element(
+      'NotificationConfiguration',
+      nest: () {
+        if (lambdaFunctionConfigurations != null) {
+          builder.element(
+            'LambdaFunctionConfigurations',
+            nest: lambdaFunctionConfigurations!.toXml(),
+          );
+        }
+        if (queueConfigurations != null) {
+          builder.element(
+            'QueueConfigurations',
+            nest: queueConfigurations!.toXml(),
+          );
+        }
+        if (topicConfigurations != null) {
+          builder.element(
+            'TopicConfigurations',
+            nest: topicConfigurations!.toXml(),
+          );
+        }
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2182,21 +2420,35 @@ class NotificationConfigurationDeprecated {
 
   NotificationConfigurationDeprecated.fromXml(XmlElement xml) {
     cloudFunctionConfiguration = CloudFunctionConfiguration.fromXml(
-        getProp(xml, 'CloudFunctionConfiguration'));
+      getProp(xml, 'CloudFunctionConfiguration'),
+    );
     queueConfiguration = QueueConfigurationDeprecated.fromXml(
-        getProp(xml, 'QueueConfiguration'));
+      getProp(xml, 'QueueConfiguration'),
+    );
     topicConfiguration = TopicConfigurationDeprecated.fromXml(
-        getProp(xml, 'TopicConfiguration'));
+      getProp(xml, 'TopicConfiguration'),
+    );
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('NotificationConfigurationDeprecated', nest: () {
-      builder.element('CloudFunctionConfiguration',
-          nest: cloudFunctionConfiguration!.toXml());
-      builder.element('QueueConfiguration', nest: queueConfiguration!.toXml());
-      builder.element('TopicConfiguration', nest: topicConfiguration!.toXml());
-    });
+    builder.element(
+      'NotificationConfigurationDeprecated',
+      nest: () {
+        builder.element(
+          'CloudFunctionConfiguration',
+          nest: cloudFunctionConfiguration!.toXml(),
+        );
+        builder.element(
+          'QueueConfiguration',
+          nest: queueConfiguration!.toXml(),
+        );
+        builder.element(
+          'TopicConfiguration',
+          nest: topicConfiguration!.toXml(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2222,9 +2474,12 @@ class NotificationConfigurationFilter {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('NotificationConfigurationFilter', nest: () {
-      builder.element('Key', nest: key!.toXml());
-    });
+    builder.element(
+      'NotificationConfigurationFilter',
+      nest: () {
+        builder.element('Key', nest: key!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2244,24 +2499,27 @@ class Object {
   );
 
   Object.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    key = getProp(xml, 'Key')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+    eTag = getProp(xml, 'ETag')?.innerText;
+    key = getProp(xml, 'Key')?.innerText;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.innerText);
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    size = int.tryParse(getProp(xml, 'Size')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    size = int.tryParse(getProp(xml, 'Size')!.innerText);
+    storageClass = getProp(xml, 'StorageClass')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Object', nest: () {
-      builder.element('ETag', nest: eTag);
-      builder.element('Key', nest: key);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-      builder.element('Owner', nest: owner!.toXml());
-      builder.element('Size', nest: size.toString());
-      builder.element('StorageClass', nest: storageClass);
-    });
+    builder.element(
+      'Object',
+      nest: () {
+        builder.element('ETag', nest: eTag);
+        builder.element('Key', nest: key);
+        builder.element('LastModified', nest: lastModified!.toIso8601String());
+        builder.element('Owner', nest: owner!.toXml());
+        builder.element('Size', nest: size.toString());
+        builder.element('StorageClass', nest: storageClass);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2297,19 +2555,22 @@ class ObjectIdentifier {
   );
 
   ObjectIdentifier.fromXml(XmlElement xml) {
-    key = getProp(xml, 'Key')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+    key = getProp(xml, 'Key')?.innerText;
+    versionId = getProp(xml, 'VersionId')?.innerText;
   }
 
   XmlElement toXml() {
     final builder = XmlBuilder();
-    builder.element('Object', nest: () {
-      builder.element('Key', nest: key);
-      if (versionId != null) {
-        builder.element('VersionId', nest: versionId);
-      }
-    });
-    return (builder.buildDocument()).rootElement;
+    builder.element(
+      'Object',
+      nest: () {
+        builder.element('Key', nest: key);
+        if (versionId != null) {
+          builder.element('VersionId', nest: versionId);
+        }
+      },
+    );
+    return builder.buildDocument().rootElement;
   }
 
   /// Key name of the object to delete.
@@ -2327,16 +2588,19 @@ class ObjectLockConfiguration {
   );
 
   ObjectLockConfiguration.fromXml(XmlElement xml) {
-    objectLockEnabled = getProp(xml, 'ObjectLockEnabled')?.text;
+    objectLockEnabled = getProp(xml, 'ObjectLockEnabled')?.innerText;
     rule = ObjectLockRule.fromXml(getProp(xml, 'Rule'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ObjectLockConfiguration', nest: () {
-      builder.element('ObjectLockEnabled', nest: objectLockEnabled);
-      builder.element('Rule', nest: rule!.toXml());
-    });
+    builder.element(
+      'ObjectLockConfiguration',
+      nest: () {
+        builder.element('ObjectLockEnabled', nest: objectLockEnabled);
+        builder.element('Rule', nest: rule!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2354,14 +2618,17 @@ class ObjectLockLegalHold {
   );
 
   ObjectLockLegalHold.fromXml(XmlElement xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ObjectLockLegalHold', nest: () {
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'ObjectLockLegalHold',
+      nest: () {
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2377,17 +2644,23 @@ class ObjectLockRetention {
   );
 
   ObjectLockRetention.fromXml(XmlElement xml) {
-    mode = getProp(xml, 'Mode')?.text;
-    retainUntilDate = DateTime.parse(getProp(xml, 'RetainUntilDate')!.text);
+    mode = getProp(xml, 'Mode')?.innerText;
+    retainUntilDate =
+        DateTime.parse(getProp(xml, 'RetainUntilDate')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ObjectLockRetention', nest: () {
-      builder.element('Mode', nest: mode);
-      builder.element('RetainUntilDate',
-          nest: retainUntilDate!.toIso8601String());
-    });
+    builder.element(
+      'ObjectLockRetention',
+      nest: () {
+        builder.element('Mode', nest: mode);
+        builder.element(
+          'RetainUntilDate',
+          nest: retainUntilDate!.toIso8601String(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2411,9 +2684,12 @@ class ObjectLockRule {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ObjectLockRule', nest: () {
-      builder.element('DefaultRetention', nest: defaultRetention!.toXml());
-    });
+    builder.element(
+      'ObjectLockRule',
+      nest: () {
+        builder.element('DefaultRetention', nest: defaultRetention!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2435,28 +2711,31 @@ class ObjectVersion {
   );
 
   ObjectVersion.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    isLatest = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
-    key = getProp(xml, 'Key')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+    eTag = getProp(xml, 'ETag')?.innerText;
+    isLatest = getProp(xml, 'IsLatest')?.innerText.toUpperCase() == 'TRUE';
+    key = getProp(xml, 'Key')?.innerText;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.innerText);
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    size = int.tryParse(getProp(xml, 'Size')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+    size = int.tryParse(getProp(xml, 'Size')!.innerText);
+    storageClass = getProp(xml, 'StorageClass')?.innerText;
+    versionId = getProp(xml, 'VersionId')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ObjectVersion', nest: () {
-      builder.element('ETag', nest: eTag);
-      builder.element('IsLatest', nest: isLatest! ? 'TRUE' : 'FALSE');
-      builder.element('Key', nest: key);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-      builder.element('Owner', nest: owner!.toXml());
-      builder.element('Size', nest: size.toString());
-      builder.element('StorageClass', nest: storageClass);
-      builder.element('VersionId', nest: versionId);
-    });
+    builder.element(
+      'ObjectVersion',
+      nest: () {
+        builder.element('ETag', nest: eTag);
+        builder.element('IsLatest', nest: isLatest! ? 'TRUE' : 'FALSE');
+        builder.element('Key', nest: key);
+        builder.element('LastModified', nest: lastModified!.toIso8601String());
+        builder.element('Owner', nest: owner!.toXml());
+        builder.element('Size', nest: size.toString());
+        builder.element('StorageClass', nest: storageClass);
+        builder.element('VersionId', nest: versionId);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2497,9 +2776,12 @@ class OutputLocation {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('OutputLocation', nest: () {
-      builder.element('S3', nest: s3!.toXml());
-    });
+    builder.element(
+      'OutputLocation',
+      nest: () {
+        builder.element('S3', nest: s3!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2521,10 +2803,13 @@ class OutputSerialization {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('OutputSerialization', nest: () {
-      builder.element('CSV', nest: cSV!.toXml());
-      builder.element('JSON', nest: jSON!.toXml());
-    });
+    builder.element(
+      'OutputSerialization',
+      nest: () {
+        builder.element('CSV', nest: cSV!.toXml());
+        builder.element('JSON', nest: jSON!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2543,16 +2828,19 @@ class Owner {
   );
 
   Owner.fromXml(XmlElement? xml) {
-    displayName = getProp(xml, 'DisplayName')?.text;
-    iD = getProp(xml, 'ID')?.text;
+    displayName = getProp(xml, 'DisplayName')?.innerText;
+    iD = getProp(xml, 'ID')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Owner', nest: () {
-      builder.element('DisplayName', nest: displayName);
-      builder.element('ID', nest: iD);
-    });
+    builder.element(
+      'Owner',
+      nest: () {
+        builder.element('DisplayName', nest: displayName);
+        builder.element('ID', nest: iD);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2586,20 +2874,23 @@ class Part {
   );
 
   Part.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
-    partNumber = int.tryParse(getProp(xml, 'PartNumber')!.text);
-    size = int.tryParse(getProp(xml, 'Size')!.text);
+    eTag = getProp(xml, 'ETag')?.innerText;
+    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.innerText);
+    partNumber = int.tryParse(getProp(xml, 'PartNumber')!.innerText);
+    size = int.tryParse(getProp(xml, 'Size')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Part', nest: () {
-      builder.element('ETag', nest: eTag);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-      builder.element('PartNumber', nest: partNumber.toString());
-      builder.element('Size', nest: size.toString());
-    });
+    builder.element(
+      'Part',
+      nest: () {
+        builder.element('ETag', nest: eTag);
+        builder.element('LastModified', nest: lastModified!.toIso8601String());
+        builder.element('PartNumber', nest: partNumber.toString());
+        builder.element('Size', nest: size.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2623,14 +2914,17 @@ class PolicyStatus {
   );
 
   PolicyStatus.fromXml(XmlElement xml) {
-    isPublic = getProp(xml, 'IsPublic')?.text.toUpperCase() == 'TRUE';
+    isPublic = getProp(xml, 'IsPublic')?.innerText.toUpperCase() == 'TRUE';
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('PolicyStatus', nest: () {
-      builder.element('IsPublic', nest: isPublic! ? 'TRUE' : 'FALSE');
-    });
+    builder.element(
+      'PolicyStatus',
+      nest: () {
+        builder.element('IsPublic', nest: isPublic! ? 'TRUE' : 'FALSE');
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2647,18 +2941,21 @@ class Progress {
   );
 
   Progress.fromXml(XmlElement? xml) {
-    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')!.text);
-    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')!.text);
-    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')!.text);
+    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')!.innerText);
+    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')!.innerText);
+    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Progress', nest: () {
-      builder.element('BytesProcessed', nest: bytesProcessed.toString());
-      builder.element('BytesReturned', nest: bytesReturned.toString());
-      builder.element('BytesScanned', nest: bytesScanned.toString());
-    });
+    builder.element(
+      'Progress',
+      nest: () {
+        builder.element('BytesProcessed', nest: bytesProcessed.toString());
+        builder.element('BytesReturned', nest: bytesReturned.toString());
+        builder.element('BytesScanned', nest: bytesScanned.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2684,9 +2981,12 @@ class ProgressEvent {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ProgressEvent', nest: () {
-      builder.element('Details', nest: details!.toXml());
-    });
+    builder.element(
+      'ProgressEvent',
+      nest: () {
+        builder.element('Details', nest: details!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2705,27 +3005,39 @@ class PublicAccessBlockConfiguration {
 
   PublicAccessBlockConfiguration.fromXml(XmlElement xml) {
     blockPublicAcls =
-        getProp(xml, 'BlockPublicAcls')?.text.toUpperCase() == 'TRUE';
+        getProp(xml, 'BlockPublicAcls')?.innerText.toUpperCase() == 'TRUE';
     blockPublicPolicy =
-        getProp(xml, 'BlockPublicPolicy')?.text.toUpperCase() == 'TRUE';
+        getProp(xml, 'BlockPublicPolicy')?.innerText.toUpperCase() == 'TRUE';
     ignorePublicAcls =
-        getProp(xml, 'IgnorePublicAcls')?.text.toUpperCase() == 'TRUE';
+        getProp(xml, 'IgnorePublicAcls')?.innerText.toUpperCase() == 'TRUE';
     restrictPublicBuckets =
-        getProp(xml, 'RestrictPublicBuckets')?.text.toUpperCase() == 'TRUE';
+        getProp(xml, 'RestrictPublicBuckets')?.innerText.toUpperCase() ==
+            'TRUE';
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('PublicAccessBlockConfiguration', nest: () {
-      builder.element('BlockPublicAcls',
-          nest: blockPublicAcls! ? 'TRUE' : 'FALSE');
-      builder.element('BlockPublicPolicy',
-          nest: blockPublicPolicy! ? 'TRUE' : 'FALSE');
-      builder.element('IgnorePublicAcls',
-          nest: ignorePublicAcls! ? 'TRUE' : 'FALSE');
-      builder.element('RestrictPublicBuckets',
-          nest: restrictPublicBuckets! ? 'TRUE' : 'FALSE');
-    });
+    builder.element(
+      'PublicAccessBlockConfiguration',
+      nest: () {
+        builder.element(
+          'BlockPublicAcls',
+          nest: blockPublicAcls! ? 'TRUE' : 'FALSE',
+        );
+        builder.element(
+          'BlockPublicPolicy',
+          nest: blockPublicPolicy! ? 'TRUE' : 'FALSE',
+        );
+        builder.element(
+          'IgnorePublicAcls',
+          nest: ignorePublicAcls! ? 'TRUE' : 'FALSE',
+        );
+        builder.element(
+          'RestrictPublicBuckets',
+          nest: restrictPublicBuckets! ? 'TRUE' : 'FALSE',
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2752,20 +3064,23 @@ class QueueConfiguration {
   );
 
   QueueConfiguration.fromXml(XmlElement? xml) {
-    events = getProp(xml, 'Events')?.text;
+    events = getProp(xml, 'Events')?.innerText;
     filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    queueArn = getProp(xml, 'QueueArn')?.text;
+    id = getProp(xml, 'Id')?.innerText;
+    queueArn = getProp(xml, 'QueueArn')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('QueueConfiguration', nest: () {
-      builder.element('Events', nest: events);
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
-      builder.element('QueueArn', nest: queueArn);
-    });
+    builder.element(
+      'QueueConfiguration',
+      nest: () {
+        builder.element('Events', nest: events);
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('Id', nest: id);
+        builder.element('QueueArn', nest: queueArn);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2792,20 +3107,23 @@ class QueueConfigurationDeprecated {
   );
 
   QueueConfigurationDeprecated.fromXml(XmlElement? xml) {
-    event = getProp(xml, 'Event')?.text;
-    events = getProp(xml, 'Events')?.text;
-    id = getProp(xml, 'Id')?.text;
-    queue = getProp(xml, 'Queue')?.text;
+    event = getProp(xml, 'Event')?.innerText;
+    events = getProp(xml, 'Events')?.innerText;
+    id = getProp(xml, 'Id')?.innerText;
+    queue = getProp(xml, 'Queue')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('QueueConfigurationDeprecated', nest: () {
-      builder.element('Event', nest: event);
-      builder.element('Events', nest: events);
-      builder.element('Id', nest: id);
-      builder.element('Queue', nest: queue);
-    });
+    builder.element(
+      'QueueConfigurationDeprecated',
+      nest: () {
+        builder.element('Event', nest: event);
+        builder.element('Events', nest: events);
+        builder.element('Id', nest: id);
+        builder.element('Queue', nest: queue);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2829,14 +3147,17 @@ class RecordsEvent {
   );
 
   RecordsEvent.fromXml(XmlElement? xml) {
-    payload = getProp(xml, 'Payload')?.text;
+    payload = getProp(xml, 'Payload')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('RecordsEvent', nest: () {
-      builder.element('Payload', nest: payload);
-    });
+    builder.element(
+      'RecordsEvent',
+      nest: () {
+        builder.element('Payload', nest: payload);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2855,22 +3176,25 @@ class Redirect {
   );
 
   Redirect.fromXml(XmlElement? xml) {
-    hostName = getProp(xml, 'HostName')?.text;
-    httpRedirectCode = getProp(xml, 'HttpRedirectCode')?.text;
-    protocol = getProp(xml, 'Protocol')?.text;
-    replaceKeyPrefixWith = getProp(xml, 'ReplaceKeyPrefixWith')?.text;
-    replaceKeyWith = getProp(xml, 'ReplaceKeyWith')?.text;
+    hostName = getProp(xml, 'HostName')?.innerText;
+    httpRedirectCode = getProp(xml, 'HttpRedirectCode')?.innerText;
+    protocol = getProp(xml, 'Protocol')?.innerText;
+    replaceKeyPrefixWith = getProp(xml, 'ReplaceKeyPrefixWith')?.innerText;
+    replaceKeyWith = getProp(xml, 'ReplaceKeyWith')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Redirect', nest: () {
-      builder.element('HostName', nest: hostName);
-      builder.element('HttpRedirectCode', nest: httpRedirectCode);
-      builder.element('Protocol', nest: protocol);
-      builder.element('ReplaceKeyPrefixWith', nest: replaceKeyPrefixWith);
-      builder.element('ReplaceKeyWith', nest: replaceKeyWith);
-    });
+    builder.element(
+      'Redirect',
+      nest: () {
+        builder.element('HostName', nest: hostName);
+        builder.element('HttpRedirectCode', nest: httpRedirectCode);
+        builder.element('Protocol', nest: protocol);
+        builder.element('ReplaceKeyPrefixWith', nest: replaceKeyPrefixWith);
+        builder.element('ReplaceKeyWith', nest: replaceKeyWith);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2898,16 +3222,19 @@ class RedirectAllRequestsTo {
   );
 
   RedirectAllRequestsTo.fromXml(XmlElement? xml) {
-    hostName = getProp(xml, 'HostName')?.text;
-    protocol = getProp(xml, 'Protocol')?.text;
+    hostName = getProp(xml, 'HostName')?.innerText;
+    protocol = getProp(xml, 'Protocol')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('RedirectAllRequestsTo', nest: () {
-      builder.element('HostName', nest: hostName);
-      builder.element('Protocol', nest: protocol);
-    });
+    builder.element(
+      'RedirectAllRequestsTo',
+      nest: () {
+        builder.element('HostName', nest: hostName);
+        builder.element('Protocol', nest: protocol);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2926,16 +3253,19 @@ class ReplicationConfiguration {
   );
 
   ReplicationConfiguration.fromXml(XmlElement xml) {
-    role = getProp(xml, 'Role')?.text;
+    role = getProp(xml, 'Role')?.innerText;
     rules = ReplicationRule.fromXml(getProp(xml, 'Rules'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ReplicationConfiguration', nest: () {
-      builder.element('Role', nest: role);
-      builder.element('Rules', nest: rules!.toXml());
-    });
+    builder.element(
+      'ReplicationConfiguration',
+      nest: () {
+        builder.element('Role', nest: role);
+        builder.element('Rules', nest: rules!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -2962,35 +3292,47 @@ class ReplicationRule {
 
   ReplicationRule.fromXml(XmlElement? xml) {
     deleteMarkerReplication = DeleteMarkerReplication.fromXml(
-        getProp(xml, 'DeleteMarkerReplication'));
+      getProp(xml, 'DeleteMarkerReplication'),
+    );
     destination = Destination.fromXml(getProp(xml, 'Destination'));
     existingObjectReplication = ExistingObjectReplication.fromXml(
-        getProp(xml, 'ExistingObjectReplication'));
+      getProp(xml, 'ExistingObjectReplication'),
+    );
     filter = ReplicationRuleFilter.fromXml(getProp(xml, 'Filter'));
-    iD = getProp(xml, 'ID')?.text;
-    prefix = getProp(xml, 'Prefix')?.text;
-    priority = int.tryParse(getProp(xml, 'Priority')!.text);
+    iD = getProp(xml, 'ID')?.innerText;
+    prefix = getProp(xml, 'Prefix')?.innerText;
+    priority = int.tryParse(getProp(xml, 'Priority')!.innerText);
     sourceSelectionCriteria = SourceSelectionCriteria.fromXml(
-        getProp(xml, 'SourceSelectionCriteria'));
-    status = getProp(xml, 'Status')?.text;
+      getProp(xml, 'SourceSelectionCriteria'),
+    );
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ReplicationRule', nest: () {
-      builder.element('DeleteMarkerReplication',
-          nest: deleteMarkerReplication!.toXml());
-      builder.element('Destination', nest: destination!.toXml());
-      builder.element('ExistingObjectReplication',
-          nest: existingObjectReplication!.toXml());
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('ID', nest: iD);
-      builder.element('Prefix', nest: prefix);
-      builder.element('Priority', nest: priority.toString());
-      builder.element('SourceSelectionCriteria',
-          nest: sourceSelectionCriteria!.toXml());
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'ReplicationRule',
+      nest: () {
+        builder.element(
+          'DeleteMarkerReplication',
+          nest: deleteMarkerReplication!.toXml(),
+        );
+        builder.element('Destination', nest: destination!.toXml());
+        builder.element(
+          'ExistingObjectReplication',
+          nest: existingObjectReplication!.toXml(),
+        );
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('ID', nest: iD);
+        builder.element('Prefix', nest: prefix);
+        builder.element('Priority', nest: priority.toString());
+        builder.element(
+          'SourceSelectionCriteria',
+          nest: sourceSelectionCriteria!.toXml(),
+        );
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3030,16 +3372,19 @@ class ReplicationRuleAndOperator {
   );
 
   ReplicationRuleAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tags = Tag.fromXml(getProp(xml, 'Tags'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ReplicationRuleAndOperator', nest: () {
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
-    });
+    builder.element(
+      'ReplicationRuleAndOperator',
+      nest: () {
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tags', nest: tags!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3060,17 +3405,20 @@ class ReplicationRuleFilter {
 
   ReplicationRuleFilter.fromXml(XmlElement? xml) {
     and = ReplicationRuleAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ReplicationRuleFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
-      builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
-    });
+    builder.element(
+      'ReplicationRuleFilter',
+      nest: () {
+        builder.element('And', nest: and!.toXml());
+        builder.element('Prefix', nest: prefix);
+        builder.element('Tag', nest: tag!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3092,16 +3440,19 @@ class ReplicationTime {
   );
 
   ReplicationTime.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getProp(xml, 'Status')?.innerText;
     time = ReplicationTimeValue.fromXml(getProp(xml, 'Time'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ReplicationTime', nest: () {
-      builder.element('Status', nest: status);
-      builder.element('Time', nest: time!.toXml());
-    });
+    builder.element(
+      'ReplicationTime',
+      nest: () {
+        builder.element('Status', nest: status);
+        builder.element('Time', nest: time!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3119,14 +3470,17 @@ class ReplicationTimeValue {
   );
 
   ReplicationTimeValue.fromXml(XmlElement? xml) {
-    minutes = int.tryParse(getProp(xml, 'Minutes')!.text);
+    minutes = int.tryParse(getProp(xml, 'Minutes')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ReplicationTimeValue', nest: () {
-      builder.element('Minutes', nest: minutes.toString());
-    });
+    builder.element(
+      'ReplicationTimeValue',
+      nest: () {
+        builder.element('Minutes', nest: minutes.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3141,14 +3495,17 @@ class RequestPaymentConfiguration {
   );
 
   RequestPaymentConfiguration.fromXml(XmlElement xml) {
-    payer = getProp(xml, 'Payer')?.text;
+    payer = getProp(xml, 'Payer')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('RequestPaymentConfiguration', nest: () {
-      builder.element('Payer', nest: payer);
-    });
+    builder.element(
+      'RequestPaymentConfiguration',
+      nest: () {
+        builder.element('Payer', nest: payer);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3163,14 +3520,17 @@ class RequestProgress {
   );
 
   RequestProgress.fromXml(XmlElement xml) {
-    enabled = getProp(xml, 'Enabled')?.text.toUpperCase() == 'TRUE';
+    enabled = getProp(xml, 'Enabled')?.innerText.toUpperCase() == 'TRUE';
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('RequestProgress', nest: () {
-      builder.element('Enabled', nest: enabled! ? 'TRUE' : 'FALSE');
-    });
+    builder.element(
+      'RequestProgress',
+      nest: () {
+        builder.element('Enabled', nest: enabled! ? 'TRUE' : 'FALSE');
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3191,29 +3551,34 @@ class RestoreRequest {
   );
 
   RestoreRequest.fromXml(XmlElement xml) {
-    days = int.tryParse(getProp(xml, 'Days')!.text);
-    description = getProp(xml, 'Description')?.text;
+    days = int.tryParse(getProp(xml, 'Days')!.innerText);
+    description = getProp(xml, 'Description')?.innerText;
     glacierJobParameters =
         GlacierJobParameters.fromXml(getProp(xml, 'GlacierJobParameters'));
     outputLocation = OutputLocation.fromXml(getProp(xml, 'OutputLocation'));
     selectParameters =
         SelectParameters.fromXml(getProp(xml, 'SelectParameters'));
-    tier = getProp(xml, 'Tier')?.text;
-    type = getProp(xml, 'Type')?.text;
+    tier = getProp(xml, 'Tier')?.innerText;
+    type = getProp(xml, 'Type')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('RestoreRequest', nest: () {
-      builder.element('Days', nest: days.toString());
-      builder.element('Description', nest: description);
-      builder.element('GlacierJobParameters',
-          nest: glacierJobParameters!.toXml());
-      builder.element('OutputLocation', nest: outputLocation!.toXml());
-      builder.element('SelectParameters', nest: selectParameters!.toXml());
-      builder.element('Tier', nest: tier);
-      builder.element('Type', nest: type);
-    });
+    builder.element(
+      'RestoreRequest',
+      nest: () {
+        builder.element('Days', nest: days.toString());
+        builder.element('Description', nest: description);
+        builder.element(
+          'GlacierJobParameters',
+          nest: glacierJobParameters!.toXml(),
+        );
+        builder.element('OutputLocation', nest: outputLocation!.toXml());
+        builder.element('SelectParameters', nest: selectParameters!.toXml());
+        builder.element('Tier', nest: tier);
+        builder.element('Type', nest: type);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3253,10 +3618,13 @@ class RoutingRule {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('RoutingRule', nest: () {
-      builder.element('Condition', nest: condition!.toXml());
-      builder.element('Redirect', nest: redirect!.toXml());
-    });
+    builder.element(
+      'RoutingRule',
+      nest: () {
+        builder.element('Condition', nest: condition!.toXml());
+        builder.element('Redirect', nest: redirect!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3282,33 +3650,45 @@ class Rule {
 
   Rule.fromXml(XmlElement? xml) {
     abortIncompleteMultipartUpload = AbortIncompleteMultipartUpload.fromXml(
-        getProp(xml, 'AbortIncompleteMultipartUpload'));
+      getProp(xml, 'AbortIncompleteMultipartUpload'),
+    );
     expiration = LifecycleExpiration.fromXml(getProp(xml, 'Expiration'));
-    iD = getProp(xml, 'ID')?.text;
+    iD = getProp(xml, 'ID')?.innerText;
     noncurrentVersionExpiration = NoncurrentVersionExpiration.fromXml(
-        getProp(xml, 'NoncurrentVersionExpiration'));
+      getProp(xml, 'NoncurrentVersionExpiration'),
+    );
     noncurrentVersionTransition = NoncurrentVersionTransition.fromXml(
-        getProp(xml, 'NoncurrentVersionTransition'));
-    prefix = getProp(xml, 'Prefix')?.text;
-    status = getProp(xml, 'Status')?.text;
+      getProp(xml, 'NoncurrentVersionTransition'),
+    );
+    prefix = getProp(xml, 'Prefix')?.innerText;
+    status = getProp(xml, 'Status')?.innerText;
     transition = Transition.fromXml(getProp(xml, 'Transition'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Rule', nest: () {
-      builder.element('AbortIncompleteMultipartUpload',
-          nest: abortIncompleteMultipartUpload!.toXml());
-      builder.element('Expiration', nest: expiration!.toXml());
-      builder.element('ID', nest: iD);
-      builder.element('NoncurrentVersionExpiration',
-          nest: noncurrentVersionExpiration!.toXml());
-      builder.element('NoncurrentVersionTransition',
-          nest: noncurrentVersionTransition!.toXml());
-      builder.element('Prefix', nest: prefix);
-      builder.element('Status', nest: status);
-      builder.element('Transition', nest: transition!.toXml());
-    });
+    builder.element(
+      'Rule',
+      nest: () {
+        builder.element(
+          'AbortIncompleteMultipartUpload',
+          nest: abortIncompleteMultipartUpload!.toXml(),
+        );
+        builder.element('Expiration', nest: expiration!.toXml());
+        builder.element('ID', nest: iD);
+        builder.element(
+          'NoncurrentVersionExpiration',
+          nest: noncurrentVersionExpiration!.toXml(),
+        );
+        builder.element(
+          'NoncurrentVersionTransition',
+          nest: noncurrentVersionTransition!.toXml(),
+        );
+        builder.element('Prefix', nest: prefix);
+        builder.element('Status', nest: status);
+        builder.element('Transition', nest: transition!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3349,9 +3729,12 @@ class S3KeyFilter {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('S3KeyFilter', nest: () {
-      builder.element('FilterRules', nest: filterRules!.toXml());
-    });
+    builder.element(
+      'S3KeyFilter',
+      nest: () {
+        builder.element('FilterRules', nest: filterRules!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3374,27 +3757,30 @@ class S3Location {
 
   S3Location.fromXml(XmlElement? xml) {
     accessControlList = Grant.fromXml(getProp(xml, 'AccessControlList'));
-    bucketName = getProp(xml, 'BucketName')?.text;
-    cannedACL = getProp(xml, 'CannedACL')?.text;
+    bucketName = getProp(xml, 'BucketName')?.innerText;
+    cannedACL = getProp(xml, 'CannedACL')?.innerText;
     encryption = Encryption.fromXml(getProp(xml, 'Encryption'));
-    prefix = getProp(xml, 'Prefix')?.text;
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    prefix = getProp(xml, 'Prefix')?.innerText;
+    storageClass = getProp(xml, 'StorageClass')?.innerText;
     tagging = Tagging.fromXml(getProp(xml, 'Tagging'));
     userMetadata = MetadataEntry.fromXml(getProp(xml, 'UserMetadata'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('S3Location', nest: () {
-      builder.element('AccessControlList', nest: accessControlList!.toXml());
-      builder.element('BucketName', nest: bucketName);
-      builder.element('CannedACL', nest: cannedACL);
-      builder.element('Encryption', nest: encryption!.toXml());
-      builder.element('Prefix', nest: prefix);
-      builder.element('StorageClass', nest: storageClass);
-      builder.element('Tagging', nest: tagging!.toXml());
-      builder.element('UserMetadata', nest: userMetadata!.toXml());
-    });
+    builder.element(
+      'S3Location',
+      nest: () {
+        builder.element('AccessControlList', nest: accessControlList!.toXml());
+        builder.element('BucketName', nest: bucketName);
+        builder.element('CannedACL', nest: cannedACL);
+        builder.element('Encryption', nest: encryption!.toXml());
+        builder.element('Prefix', nest: prefix);
+        builder.element('StorageClass', nest: storageClass);
+        builder.element('Tagging', nest: tagging!.toXml());
+        builder.element('UserMetadata', nest: userMetadata!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3431,16 +3817,19 @@ class ScanRange {
   );
 
   ScanRange.fromXml(XmlElement xml) {
-    end = int.tryParse(getProp(xml, 'End')!.text);
-    start = int.tryParse(getProp(xml, 'Start')!.text);
+    end = int.tryParse(getProp(xml, 'End')!.innerText);
+    start = int.tryParse(getProp(xml, 'Start')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ScanRange', nest: () {
-      builder.element('End', nest: end.toString());
-      builder.element('Start', nest: start.toString());
-    });
+    builder.element(
+      'ScanRange',
+      nest: () {
+        builder.element('End', nest: end.toString());
+        builder.element('Start', nest: start.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3471,13 +3860,16 @@ class SelectObjectContentEventStream {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('SelectObjectContentEventStream', nest: () {
-      builder.element('Cont', nest: cont!.toXml());
-      builder.element('End', nest: end!.toXml());
-      builder.element('Progress', nest: progress!.toXml());
-      builder.element('Records', nest: records!.toXml());
-      builder.element('Stats', nest: stats!.toXml());
-    });
+    builder.element(
+      'SelectObjectContentEventStream',
+      nest: () {
+        builder.element('Cont', nest: cont!.toXml());
+        builder.element('End', nest: end!.toXml());
+        builder.element('Progress', nest: progress!.toXml());
+        builder.element('Records', nest: records!.toXml());
+        builder.element('Stats', nest: stats!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3507,8 +3899,8 @@ class SelectParameters {
   );
 
   SelectParameters.fromXml(XmlElement? xml) {
-    expression = getProp(xml, 'Expression')?.text;
-    expressionType = getProp(xml, 'ExpressionType')?.text;
+    expression = getProp(xml, 'Expression')?.innerText;
+    expressionType = getProp(xml, 'ExpressionType')?.innerText;
     inputSerialization =
         InputSerialization.fromXml(getProp(xml, 'InputSerialization'));
     outputSerialization =
@@ -3517,13 +3909,21 @@ class SelectParameters {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('SelectParameters', nest: () {
-      builder.element('Expression', nest: expression);
-      builder.element('ExpressionType', nest: expressionType);
-      builder.element('InputSerialization', nest: inputSerialization!.toXml());
-      builder.element('OutputSerialization',
-          nest: outputSerialization!.toXml());
-    });
+    builder.element(
+      'SelectParameters',
+      nest: () {
+        builder.element('Expression', nest: expression);
+        builder.element('ExpressionType', nest: expressionType);
+        builder.element(
+          'InputSerialization',
+          nest: inputSerialization!.toXml(),
+        );
+        builder.element(
+          'OutputSerialization',
+          nest: outputSerialization!.toXml(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3548,16 +3948,19 @@ class ServerSideEncryptionByDefault {
   );
 
   ServerSideEncryptionByDefault.fromXml(XmlElement? xml) {
-    kMSMasterKeyID = getProp(xml, 'KMSMasterKeyID')?.text;
-    sSEAlgorithm = getProp(xml, 'SSEAlgorithm')?.text;
+    kMSMasterKeyID = getProp(xml, 'KMSMasterKeyID')?.innerText;
+    sSEAlgorithm = getProp(xml, 'SSEAlgorithm')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ServerSideEncryptionByDefault', nest: () {
-      builder.element('KMSMasterKeyID', nest: kMSMasterKeyID);
-      builder.element('SSEAlgorithm', nest: sSEAlgorithm);
-    });
+    builder.element(
+      'ServerSideEncryptionByDefault',
+      nest: () {
+        builder.element('KMSMasterKeyID', nest: kMSMasterKeyID);
+        builder.element('SSEAlgorithm', nest: sSEAlgorithm);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3580,9 +3983,12 @@ class ServerSideEncryptionConfiguration {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ServerSideEncryptionConfiguration', nest: () {
-      builder.element('Rules', nest: rules!.toXml());
-    });
+    builder.element(
+      'ServerSideEncryptionConfiguration',
+      nest: () {
+        builder.element('Rules', nest: rules!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3598,15 +4004,21 @@ class ServerSideEncryptionRule {
 
   ServerSideEncryptionRule.fromXml(XmlElement? xml) {
     applyServerSideEncryptionByDefault = ServerSideEncryptionByDefault.fromXml(
-        getProp(xml, 'ApplyServerSideEncryptionByDefault'));
+      getProp(xml, 'ApplyServerSideEncryptionByDefault'),
+    );
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('ServerSideEncryptionRule', nest: () {
-      builder.element('ApplyServerSideEncryptionByDefault',
-          nest: applyServerSideEncryptionByDefault!.toXml());
-    });
+    builder.element(
+      'ServerSideEncryptionRule',
+      nest: () {
+        builder.element(
+          'ApplyServerSideEncryptionByDefault',
+          nest: applyServerSideEncryptionByDefault!.toXml(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3627,10 +4039,15 @@ class SourceSelectionCriteria {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('SourceSelectionCriteria', nest: () {
-      builder.element('SseKmsEncryptedObjects',
-          nest: sseKmsEncryptedObjects!.toXml());
-    });
+    builder.element(
+      'SourceSelectionCriteria',
+      nest: () {
+        builder.element(
+          'SseKmsEncryptedObjects',
+          nest: sseKmsEncryptedObjects!.toXml(),
+        );
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3645,14 +4062,17 @@ class SSEKMS {
   );
 
   SSEKMS.fromXml(XmlElement? xml) {
-    keyId = getProp(xml, 'KeyId')?.text;
+    keyId = getProp(xml, 'KeyId')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('SSEKMS', nest: () {
-      builder.element('KeyId', nest: keyId);
-    });
+    builder.element(
+      'SSEKMS',
+      nest: () {
+        builder.element('KeyId', nest: keyId);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3667,14 +4087,17 @@ class SseKmsEncryptedObjects {
   );
 
   SseKmsEncryptedObjects.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('SseKmsEncryptedObjects', nest: () {
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'SseKmsEncryptedObjects',
+      nest: () {
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3704,18 +4127,21 @@ class Stats {
   );
 
   Stats.fromXml(XmlElement? xml) {
-    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')!.text);
-    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')!.text);
-    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')!.text);
+    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')!.innerText);
+    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')!.innerText);
+    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')!.innerText);
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Stats', nest: () {
-      builder.element('BytesProcessed', nest: bytesProcessed.toString());
-      builder.element('BytesReturned', nest: bytesReturned.toString());
-      builder.element('BytesScanned', nest: bytesScanned.toString());
-    });
+    builder.element(
+      'Stats',
+      nest: () {
+        builder.element('BytesProcessed', nest: bytesProcessed.toString());
+        builder.element('BytesReturned', nest: bytesReturned.toString());
+        builder.element('BytesScanned', nest: bytesScanned.toString());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3741,9 +4167,12 @@ class StatsEvent {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('StatsEvent', nest: () {
-      builder.element('Details', nest: details!.toXml());
-    });
+    builder.element(
+      'StatsEvent',
+      nest: () {
+        builder.element('Details', nest: details!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3764,9 +4193,12 @@ class StorageClassAnalysis {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('StorageClassAnalysis', nest: () {
-      builder.element('DataExport', nest: dataExport!.toXml());
-    });
+    builder.element(
+      'StorageClassAnalysis',
+      nest: () {
+        builder.element('DataExport', nest: dataExport!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3784,15 +4216,18 @@ class StorageClassAnalysisDataExport {
   StorageClassAnalysisDataExport.fromXml(XmlElement? xml) {
     destination =
         AnalyticsExportDestination.fromXml(getProp(xml, 'Destination'));
-    outputSchemaVersion = getProp(xml, 'OutputSchemaVersion')?.text;
+    outputSchemaVersion = getProp(xml, 'OutputSchemaVersion')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('StorageClassAnalysisDataExport', nest: () {
-      builder.element('Destination', nest: destination!.toXml());
-      builder.element('OutputSchemaVersion', nest: outputSchemaVersion);
-    });
+    builder.element(
+      'StorageClassAnalysisDataExport',
+      nest: () {
+        builder.element('Destination', nest: destination!.toXml());
+        builder.element('OutputSchemaVersion', nest: outputSchemaVersion);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3811,16 +4246,19 @@ class Tag {
   );
 
   Tag.fromXml(XmlElement? xml) {
-    key = getProp(xml, 'Key')?.text;
-    value = getProp(xml, 'Value')?.text;
+    key = getProp(xml, 'Key')?.innerText;
+    value = getProp(xml, 'Value')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Tag', nest: () {
-      builder.element('Key', nest: key);
-      builder.element('Value', nest: value);
-    });
+    builder.element(
+      'Tag',
+      nest: () {
+        builder.element('Key', nest: key);
+        builder.element('Value', nest: value);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3843,9 +4281,12 @@ class Tagging {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Tagging', nest: () {
-      builder.element('TagSet', nest: tagSet!.toXml());
-    });
+    builder.element(
+      'Tagging',
+      nest: () {
+        builder.element('TagSet', nest: tagSet!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3862,15 +4303,18 @@ class TargetGrant {
 
   TargetGrant.fromXml(XmlElement? xml) {
     grantee = Grantee.fromXml(getProp(xml, 'Grantee'));
-    permission = getProp(xml, 'Permission')?.text;
+    permission = getProp(xml, 'Permission')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('TargetGrant', nest: () {
-      builder.element('Grantee', nest: grantee!.toXml());
-      builder.element('Permission', nest: permission);
-    });
+    builder.element(
+      'TargetGrant',
+      nest: () {
+        builder.element('Grantee', nest: grantee!.toXml());
+        builder.element('Permission', nest: permission);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3891,20 +4335,23 @@ class TopicConfiguration {
   );
 
   TopicConfiguration.fromXml(XmlElement? xml) {
-    events = getProp(xml, 'Events')?.text;
+    events = getProp(xml, 'Events')?.innerText;
     filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    topicArn = getProp(xml, 'TopicArn')?.text;
+    id = getProp(xml, 'Id')?.innerText;
+    topicArn = getProp(xml, 'TopicArn')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('TopicConfiguration', nest: () {
-      builder.element('Events', nest: events);
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
-      builder.element('TopicArn', nest: topicArn);
-    });
+    builder.element(
+      'TopicConfiguration',
+      nest: () {
+        builder.element('Events', nest: events);
+        builder.element('Filter', nest: filter!.toXml());
+        builder.element('Id', nest: id);
+        builder.element('TopicArn', nest: topicArn);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3931,20 +4378,23 @@ class TopicConfigurationDeprecated {
   );
 
   TopicConfigurationDeprecated.fromXml(XmlElement? xml) {
-    event = getProp(xml, 'Event')?.text;
-    events = getProp(xml, 'Events')?.text;
-    id = getProp(xml, 'Id')?.text;
-    topic = getProp(xml, 'Topic')?.text;
+    event = getProp(xml, 'Event')?.innerText;
+    events = getProp(xml, 'Events')?.innerText;
+    id = getProp(xml, 'Id')?.innerText;
+    topic = getProp(xml, 'Topic')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('TopicConfigurationDeprecated', nest: () {
-      builder.element('Event', nest: event);
-      builder.element('Events', nest: events);
-      builder.element('Id', nest: id);
-      builder.element('Topic', nest: topic);
-    });
+    builder.element(
+      'TopicConfigurationDeprecated',
+      nest: () {
+        builder.element('Event', nest: event);
+        builder.element('Events', nest: events);
+        builder.element('Id', nest: id);
+        builder.element('Topic', nest: topic);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -3970,18 +4420,21 @@ class Transition {
   );
 
   Transition.fromXml(XmlElement? xml) {
-    date = DateTime.parse(getProp(xml, 'Date')!.text);
-    days = int.tryParse(getProp(xml, 'Days')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    date = DateTime.parse(getProp(xml, 'Date')!.innerText);
+    days = int.tryParse(getProp(xml, 'Days')!.innerText);
+    storageClass = getProp(xml, 'StorageClass')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Transition', nest: () {
-      builder.element('Date', nest: date!.toIso8601String());
-      builder.element('Days', nest: days.toString());
-      builder.element('StorageClass', nest: storageClass);
-    });
+    builder.element(
+      'Transition',
+      nest: () {
+        builder.element('Date', nest: date!.toIso8601String());
+        builder.element('Days', nest: days.toString());
+        builder.element('StorageClass', nest: storageClass);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -4003,16 +4456,19 @@ class VersioningConfiguration {
   );
 
   VersioningConfiguration.fromXml(XmlElement xml) {
-    mFADelete = getProp(xml, 'MFADelete')?.text;
-    status = getProp(xml, 'Status')?.text;
+    mFADelete = getProp(xml, 'MFADelete')?.innerText;
+    status = getProp(xml, 'Status')?.innerText;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('VersioningConfiguration', nest: () {
-      builder.element('MFADelete', nest: mFADelete);
-      builder.element('Status', nest: status);
-    });
+    builder.element(
+      'VersioningConfiguration',
+      nest: () {
+        builder.element('MFADelete', nest: mFADelete);
+        builder.element('Status', nest: status);
+      },
+    );
     return builder.buildDocument();
   }
 
@@ -4042,13 +4498,18 @@ class WebsiteConfiguration {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('WebsiteConfiguration', nest: () {
-      builder.element('ErrorDocument', nest: errorDocument!.toXml());
-      builder.element('IndexDocument', nest: indexDocument!.toXml());
-      builder.element('RedirectAllRequestsTo',
-          nest: redirectAllRequestsTo!.toXml());
-      builder.element('RoutingRules', nest: routingRules!.toXml());
-    });
+    builder.element(
+      'WebsiteConfiguration',
+      nest: () {
+        builder.element('ErrorDocument', nest: errorDocument!.toXml());
+        builder.element('IndexDocument', nest: indexDocument!.toXml());
+        builder.element(
+          'RedirectAllRequestsTo',
+          nest: redirectAllRequestsTo!.toXml(),
+        );
+        builder.element('RoutingRules', nest: routingRules!.toXml());
+      },
+    );
     return builder.buildDocument();
   }
 

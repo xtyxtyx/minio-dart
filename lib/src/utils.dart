@@ -71,7 +71,7 @@ class MaxChunkSize extends StreamTransformerBase<Uint8List, Uint8List> {
 
   @override
   Stream<Uint8List> bind(Stream<Uint8List> stream) async* {
-    await for (var chunk in stream) {
+    await for (final chunk in stream) {
       if (chunk.length < size) {
         yield chunk;
         continue;
@@ -99,9 +99,9 @@ class MinChunkSize extends StreamTransformerBase<Uint8List, Uint8List> {
 
   @override
   Stream<Uint8List> bind(Stream<Uint8List> stream) async* {
-    var buffer = BytesBuilder(copy: false);
+    final buffer = BytesBuilder(copy: false);
 
-    await for (var chunk in stream) {
+    await for (final chunk in stream) {
       buffer.add(chunk);
 
       if (buffer.length < size) {
@@ -131,7 +131,7 @@ DateTime parseRfc7231Time(String time) {
 String toRfc7231Time(DateTime time) {
   final format = DateFormat('EEE, dd MMM yyyy HH:mm:ss');
   final result = format.format(time);
-  return time.isUtc ? result + ' GMT' : result;
+  return time.isUtc ? '$result GMT' : result;
 }
 
 List<List<T>> groupList<T>(List<T> list, int maxMembers) {

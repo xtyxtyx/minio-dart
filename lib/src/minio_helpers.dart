@@ -82,7 +82,7 @@ bool isValidDomain(String? host) {
   }
 
   final alphaNumerics = '`~!@#\$%^&*()+={}[]|\\"\';:><?/'.split('');
-  for (var char in alphaNumerics) {
+  for (final char in alphaNumerics) {
     if (host.contains(char)) return false;
   }
 
@@ -105,12 +105,7 @@ String makeDateLong(DateTime date) {
   final isoDate = date.toIso8601String();
 
   // 'YYYYMMDDTHHmmss' + Z
-  return isoDate.substring(0, 4) +
-      isoDate.substring(5, 7) +
-      isoDate.substring(8, 13) +
-      isoDate.substring(14, 16) +
-      isoDate.substring(17, 19) +
-      'Z';
+  return '${isoDate.substring(0, 4)}${isoDate.substring(5, 7)}${isoDate.substring(8, 13)}${isoDate.substring(14, 16)}${isoDate.substring(17, 19)}Z';
 }
 
 String makeDateShort(DateTime date) {
@@ -143,7 +138,7 @@ bool isAmzHeader(String key) {
       loweredKey == 'x-amz-server-side-encryption';
 }
 
-bool isSupportedHeader(key) {
+bool isSupportedHeader(String key) {
   const supportedHeaders = {
     'content-type',
     'cache-control',
@@ -152,16 +147,16 @@ bool isSupportedHeader(key) {
     'content-language',
     'x-amz-website-redirect-location',
   };
-  return (supportedHeaders.contains(key.toLowerCase()));
+  return supportedHeaders.contains(key.toLowerCase());
 }
 
-bool isStorageclassHeader(key) {
+bool isStorageclassHeader(String key) {
   return key.toLowerCase() == 'x-amz-storage-class';
 }
 
 Map<String, String> extractMetadata(Map<String, String> metaData) {
-  var newMetadata = <String, String>{};
-  for (var key in metaData.keys) {
+  final newMetadata = <String, String>{};
+  for (final key in metaData.keys) {
     if (isSupportedHeader(key) ||
         isStorageclassHeader(key) ||
         isAmzHeader(key)) {
@@ -184,7 +179,7 @@ Map<String, String> insertContentType(
   Map<String, String> metaData,
   String filePath,
 ) {
-  for (var key in metaData.keys) {
+  for (final key in metaData.keys) {
     if (key.toLowerCase() == 'content-type') {
       return metaData;
     }
@@ -209,7 +204,10 @@ Future<void> validateStreamed(
   if (expect != null && streamedResponse.statusCode != expect) {
     final response = await MinioResponse.fromStream(streamedResponse);
     throw MinioS3Error(
-        '$expect expected, got ${streamedResponse.statusCode}', null, response);
+      '$expect expected, got ${streamedResponse.statusCode}',
+      null,
+      response,
+    );
   }
 }
 
@@ -230,7 +228,10 @@ void validate(MinioResponse response, {int? expect}) {
 
   if (expect != null && response.statusCode != expect) {
     throw MinioS3Error(
-        '$expect expected, got ${response.statusCode}', null, response);
+      '$expect expected, got ${response.statusCode}',
+      null,
+      response,
+    );
   }
 }
 
@@ -253,7 +254,7 @@ final _pathIgnoredChars = {
 /// encode [uri].path to HTML hex escape sequence
 String encodePath(Uri uri) {
   final result = StringBuffer();
-  for (var char in uri.path.codeUnits) {
+  for (final char in uri.path.codeUnits) {
     if (_A <= char && char <= _Z ||
         _a <= char && char <= _z ||
         _0 <= char && char <= _9) {

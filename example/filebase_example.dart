@@ -5,7 +5,6 @@ void main() async {
     endPoint: 's3.filebase.com',
     accessKey: '<YOUR_ACCESS_KEY>',
     secretKey: '<YOUR_SECRET_KEY>',
-    useSSL: true,
   );
 
   final buckets = await minio.listBuckets();

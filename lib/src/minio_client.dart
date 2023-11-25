@@ -64,7 +64,7 @@ class MinioRequest extends BaseRequest {
     String? method,
     Uri? url,
     Map<String, String>? headers,
-    body,
+    dynamic body,
   }) {
     final result = MinioRequest(method ?? this.method, url ?? this.url);
     result.body = body ?? this.body;
@@ -75,12 +75,6 @@ class MinioRequest extends BaseRequest {
 
 /// An HTTP response where the entire response body is known in advance.
 class MinioResponse extends BaseResponse {
-  /// The bytes comprising the body of this response.
-  final Uint8List bodyBytes;
-
-  /// Body of s3 response is always encoded as UTF-8.
-  String get body => utf8.decode(bodyBytes);
-
   /// Create a new HTTP response with a byte array body.
   MinioResponse.bytes(
     this.bodyBytes,
@@ -90,22 +84,33 @@ class MinioResponse extends BaseResponse {
     bool isRedirect = false,
     bool persistentConnection = true,
     String? reasonPhrase,
-  }) : super(statusCode,
-            contentLength: bodyBytes.length,
-            request: request,
-            headers: headers,
-            isRedirect: isRedirect,
-            persistentConnection: persistentConnection,
-            reasonPhrase: reasonPhrase);
+  }) : super(
+          statusCode,
+          contentLength: bodyBytes.length,
+          request: request,
+          headers: headers,
+          isRedirect: isRedirect,
+          persistentConnection: persistentConnection,
+          reasonPhrase: reasonPhrase,
+        );
+
+  /// The bytes comprising the body of this response.
+  final Uint8List bodyBytes;
+
+  /// Body of s3 response is always encoded as UTF-8.
+  String get body => utf8.decode(bodyBytes);
 
   static Future<MinioResponse> fromStream(StreamedResponse response) async {
     final body = await response.stream.toBytes();
-    return MinioResponse.bytes(body, response.statusCode,
-        request: response.request,
-        headers: response.headers,
-        isRedirect: response.isRedirect,
-        persistentConnection: response.persistentConnection,
-        reasonPhrase: response.reasonPhrase);
+    return MinioResponse.bytes(
+      body,
+      response.statusCode,
+      request: response.request,
+      headers: response.headers,
+      isRedirect: response.isRedirect,
+      persistentConnection: response.persistentConnection,
+      reasonPhrase: response.reasonPhrase,
+    );
   }
 }
 
@@ -141,7 +146,15 @@ class MinioClient {
     region ??= 'us-east-1';
 
     final request = getBaseRequest(
-        method, bucket, object, region, resource, queries, headers, onProgress);
+      method,
+      bucket,
+      object,
+      region,
+      resource,
+      queries,
+      headers,
+      onProgress,
+    );
     request.body = payload;
 
     final date = DateTime.now().toUtc();
@@ -279,7 +292,7 @@ class MinioClient {
 
     final buffer = StringBuffer();
     buffer.writeln('REQUEST: ${request.method} ${request.url}');
-    for (var header in request.headers.entries) {
+    for (final header in request.headers.entries) {
       buffer.writeln('${header.key}: ${header.value}');
     }
 
@@ -289,7 +302,7 @@ class MinioClient {
       buffer.writeln(request.body);
     }
 
-    print(buffer.toString());
+    print(buffer);
   }
 
   void logResponse(BaseResponse response) {
@@ -297,7 +310,7 @@ class MinioClient {
 
     final buffer = StringBuffer();
     buffer.writeln('RESPONSE: ${response.statusCode} ${response.reasonPhrase}');
-    for (var header in response.headers.entries) {
+    for (final header in response.headers.entries) {
       buffer.writeln('${header.key}: ${header.value}');
     }
 
@@ -307,6 +320,6 @@ class MinioClient {
       buffer.writeln('STREAMED BODY');
     }
 
-    print(buffer.toString());
+    print(buffer);
   }
 }

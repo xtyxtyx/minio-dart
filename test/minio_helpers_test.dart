@@ -30,5 +30,4 @@ void main() {
       expect(makeDateLong(date), '20170811T172634Z');
     });
   });
-  ;
 }

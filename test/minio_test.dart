@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_await_in_return
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -36,7 +38,7 @@ void testConstruct() {
   });
 
   test('Minio() implies https port', () {
-    final client = getMinioClient(port: null, useSSL: true);
+    final client = getMinioClient(port: null);
     expect(client.port, equals(443));
   });
 
@@ -46,7 +48,7 @@ void testConstruct() {
   });
 
   test('Minio() overrides port with https', () {
-    final client = getMinioClient(port: 1234, useSSL: true);
+    final client = getMinioClient(port: 1234);
     expect(client.port, equals(1234));
   });
 
@@ -74,7 +76,7 @@ void testListBuckets() {
   test('listBuckets() succeeds', () async {
     final minio = getMinioClient();
 
-    expect(() async => await minio.listBuckets(), returnsNormally);
+    expect(() async => minio.listBuckets(), returnsNormally);
   });
 
   test('listBuckets() can list buckets', () async {
@@ -97,7 +99,7 @@ void testListBuckets() {
     final minio = getMinioClient(accessKey: 'incorrect-access-key');
 
     expect(
-      () async => await minio.listBuckets(),
+      () async => minio.listBuckets(),
       throwsA(
         isA<MinioS3Error>().having(
           (e) => e.error!.code,
@@ -112,7 +114,7 @@ void testListBuckets() {
     final minio = getMinioClient(secretKey: 'incorrect-secret-key');
 
     expect(
-      () async => await minio.listBuckets(),
+      () async => minio.listBuckets(),
       throwsA(
         isA<MinioS3Error>().having(
           (e) => e.error!.code,
@@ -146,13 +148,15 @@ void testBucketExists() {
     test('bucketExists() returns false for a non-existent bucket', () async {
       final minio = getMinioClient();
       expect(
-          await minio.bucketExists('non-existing-bucket-name'), equals(false));
+        await minio.bucketExists('non-existing-bucket-name'),
+        equals(false),
+      );
     });
 
     test('bucketExists() fails due to wrong access key', () async {
       final minio = getMinioClient(accessKey: 'incorrect-access-key');
       expect(
-        () async => await minio.bucketExists(bucketName),
+        () async => minio.bucketExists(bucketName),
         throwsA(
           isA<MinioError>().having(
             (e) => e.message,
@@ -184,7 +188,7 @@ void testFPutObject() {
     final bucketName = uniqueName();
     late Directory tempDir;
     late File testFile;
-    final objectName = 'a.jpg';
+    const objectName = 'a.jpg';
 
     setUpAll(() async {
       tempDir = await Directory.systemTemp.createTemp();
@@ -210,9 +214,9 @@ void testFPutObject() {
     });
 
     test('fPutObject() adds user-defined object metadata w/ prefix', () async {
-      final prefix = 'x-amz-meta-';
-      final userDefinedMetadataKey = '${prefix}user-defined-metadata-key-1';
-      final userDefinedMetadataValue = 'custom value 1';
+      const prefix = 'x-amz-meta-';
+      const userDefinedMetadataKey = '${prefix}user-defined-metadata-key-1';
+      const userDefinedMetadataValue = 'custom value 1';
       final metadata = {
         userDefinedMetadataKey: userDefinedMetadataValue,
       };
@@ -228,8 +232,8 @@ void testFPutObject() {
     });
 
     test('fPutObject() adds user-defined object metadata w/o prefix', () async {
-      final userDefinedMetadataKey = 'user-defined-metadata-key-2';
-      final userDefinedMetadataValue = 'custom value 2';
+      const userDefinedMetadataKey = 'user-defined-metadata-key-2';
+      const userDefinedMetadataValue = 'custom value 2';
       final metadata = {
         userDefinedMetadataKey: userDefinedMetadataValue,
       };
@@ -238,12 +242,14 @@ void testFPutObject() {
       await minio.fPutObject(bucketName, objectName, testFile.path, metadata);
 
       final stat = await minio.statObject(bucketName, objectName);
-      expect(stat.metaData![userDefinedMetadataKey],
-          equals(userDefinedMetadataValue));
+      expect(
+        stat.metaData![userDefinedMetadataKey],
+        equals(userDefinedMetadataValue),
+      );
     });
 
     test('fPutObject() with empty file', () async {
-      final objectName = 'empty.txt';
+      const objectName = 'empty.txt';
       final emptyFile = await File('${tempDir.path}/$objectName').create();
       await emptyFile.writeAsString('');
 
@@ -261,7 +267,7 @@ void testSetObjectACL() {
     late String bucketName;
     late Directory tempDir;
     File testFile;
-    final objectName = 'a.jpg';
+    const objectName = 'a.jpg';
 
     setUpAll(() async {
       bucketName = uniqueName();
@@ -292,7 +298,7 @@ void testGetObjectACL() {
     late String bucketName;
     late Directory tempDir;
     File testFile;
-    final objectName = 'a.jpg';
+    const objectName = 'a.jpg';
 
     setUpAll(() async {
       bucketName = uniqueName();
@@ -313,7 +319,7 @@ void testGetObjectACL() {
 
     test('getObjectACL() fetch objects acl', () async {
       final minio = getMinioClient();
-      var acl = await minio.getObjectACL(bucketName, objectName);
+      final acl = await minio.getObjectACL(bucketName, objectName);
       expect(acl.grants!.permission, equals(null));
     });
   });
@@ -324,7 +330,7 @@ void testGetObject() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final object = uniqueName();
-    final objectUtf8 = uniqueName() + '/あるところ/某个文件.🦐';
+    final objectUtf8 = '${uniqueName()}/あるところ/某个文件.🦐';
     final objectData = Uint8List.fromList([1, 2, 3]);
 
     setUpAll(() async {
@@ -342,7 +348,7 @@ void testGetObject() {
     test('succeeds', () async {
       final stream = await minio.getObject(bucketName, object);
       final buffer = BytesBuilder();
-      await stream.forEach((data) => buffer.add(data));
+      await stream.forEach(buffer.add);
       expect(stream.contentLength, equals(objectData.length));
       expect(buffer.takeBytes(), equals(objectData));
     });
@@ -350,7 +356,7 @@ void testGetObject() {
     test('succeeds with utf8 object name', () async {
       final stream = await minio.getObject(bucketName, object);
       final buffer = BytesBuilder();
-      await stream.forEach((data) => buffer.add(data));
+      await stream.forEach(buffer.add);
       expect(stream.contentLength, equals(objectData.length));
       expect(buffer.takeBytes(), equals(objectData));
     });
@@ -416,7 +422,7 @@ void testPutObject() {
 
     test('medium size file upload works', () async {
       final objectName = uniqueName();
-      final dataLength = 1024 * 1024;
+      const dataLength = 1024 * 1024;
       final data = Uint8List.fromList(List<int>.generate(dataLength, (i) => i));
       await minio.putObject(bucketName, objectName, Stream.value(data));
       final stat = await minio.statObject(bucketName, objectName);
@@ -426,7 +432,7 @@ void testPutObject() {
 
     test('stream upload works', () async {
       final objectName = uniqueName();
-      final dataLength = 1024 * 1024;
+      const dataLength = 1024 * 1024;
       final data = Uint8List.fromList(List<int>.generate(dataLength, (i) => i));
       await minio.putObject(
         bucketName,
@@ -440,7 +446,7 @@ void testPutObject() {
 
     test('empty stream upload works', () async {
       final objectName = uniqueName();
-      await minio.putObject(bucketName, objectName, Stream.empty());
+      await minio.putObject(bucketName, objectName, const Stream.empty());
       final stat = await minio.statObject(bucketName, objectName);
       await minio.removeObject(bucketName, objectName);
       expect(stat.size, equals(0));
@@ -456,7 +462,7 @@ void testPutObject() {
 
     test('multipart file upload works', () async {
       final objectName = uniqueName();
-      final dataLength = 12 * 1024 * 1024;
+      const dataLength = 12 * 1024 * 1024;
       final data = Uint8List.fromList(List<int>.generate(dataLength, (i) => i));
       await minio.putObject(
         bucketName,
@@ -577,7 +583,7 @@ void testStatObject() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final object = uniqueName();
-    final objectUtf8 = uniqueName() + 'オブジェクト。📦';
+    final objectUtf8 = '${uniqueName()}オブジェクト。📦';
     final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
@@ -683,7 +689,7 @@ void testRemoveObject() {
       await minio.putObject(bucketName, objectName, Stream.value(data));
       await minio.removeObject(bucketName, objectName);
 
-      await for (var chunk in minio.listObjects(bucketName)) {
+      await for (final chunk in minio.listObjects(bucketName)) {
         expect(chunk.objects.contains(objectName), isFalse);
       }
     });
@@ -706,7 +712,7 @@ void testListObjects() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final objectName = uniqueName();
-    final objectNameUtf8 = uniqueName() + '文件ファイル。ㄴㅁㄴ';
+    final objectNameUtf8 = '${uniqueName()}文件ファイル。ㄴㅁㄴ';
     final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
@@ -739,7 +745,7 @@ void testListObjects() {
   group('listAllObjects() works when prefix contains spaces', () {
     final minio = getMinioClient();
     final bucket = uniqueName();
-    final object = 'new  folder/new file.txt';
+    const object = 'new  folder/new file.txt';
     final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
@@ -761,8 +767,8 @@ void testListObjects() {
   group('listAllObjects() works when prefix contains utf-8 characters', () {
     final minio = getMinioClient();
     final bucket = uniqueName();
-    final prefix = '🍎🌰🍌🍓/文件夹　1 2/';
-    final object = '${prefix}new file.txt';
+    const prefix = '🍎🌰🍌🍓/文件夹　1 2/';
+    const object = '${prefix}new file.txt';
     final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
