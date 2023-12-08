@@ -59,7 +59,7 @@ bool isValidEndpoint(endpoint) {
 
 bool isValidIPv4(String? ip) {
   if (ip == null) return false;
-  return RegExp(r'^(\d{1,3}\.){3,3}\d{1,3}$').hasMatch(ip);
+  return RegExp(r'^(\d{1,3}\.){3}\d{1,3}$').hasMatch(ip);
 }
 
 bool isValidDomain(String? host) {
