@@ -179,3 +179,4 @@ MIT
 
 [getBucketPolicy]: https://pub.dev/documentation/minio/latest/minio/Minio/getBucketPolicy.html
 [setBucketPolicy]: https://pub.dev/documentation/minio/latest/minio/Minio/setBucketPolicy.html
+# minio-dart
