@@ -1,3 +1,7 @@
+# 3.5.2
+
+- Downgrade `meta` package to `1.12.0` to fix compatibility issues with Flutter.
+
 # 3.5.1
 
 - Updates minimum supported SDK version to Dart 3.0.
