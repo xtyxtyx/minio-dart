@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:convert/convert.dart';
 import 'package:http/http.dart';
 import 'package:mime/mime.dart' show lookupMimeType;
@@ -105,12 +107,11 @@ String makeDateLong(DateTime date) {
   final isoDate = date.toIso8601String();
 
   // 'YYYYMMDDTHHmmss' + Z
-  return isoDate.substring(0, 4) +
-      isoDate.substring(5, 7) +
-      isoDate.substring(8, 13) +
-      isoDate.substring(14, 16) +
-      isoDate.substring(17, 19) +
-      'Z';
+  return '${isoDate.substring(0, 4)}'
+      '${isoDate.substring(5, 7)}'
+      '${isoDate.substring(8, 13)}'
+      '${isoDate.substring(14, 16)}'
+      '${isoDate.substring(17, 19)}Z';
 }
 
 String makeDateShort(DateTime date) {
@@ -128,7 +129,7 @@ Map<String, String> prependXAMZMeta(Map<String, String?> metadata) {
     if (!isAmzHeader(key) &&
         !isSupportedHeader(key) &&
         !isStorageclassHeader(key)) {
-      newMetadata['x-amz-meta-' + key] = newMetadata[key]!;
+      newMetadata['x-amz-meta-$key'] = newMetadata[key]!;
       newMetadata.remove(key);
     }
   }
@@ -144,7 +145,7 @@ bool isAmzHeader(key) {
 }
 
 bool isSupportedHeader(key) {
-  var supported_headers = {
+  var supportedHeaders = {
     'content-type',
     'cache-control',
     'content-encoding',
@@ -152,7 +153,7 @@ bool isSupportedHeader(key) {
     'content-language',
     'x-amz-website-redirect-location',
   };
-  return (supported_headers.contains(key.toLowerCase()));
+  return (supportedHeaders.contains(key.toLowerCase()));
 }
 
 bool isStorageclassHeader(key) {
@@ -209,20 +210,29 @@ Future<void> validateStreamed(
   if (expect != null && streamedResponse.statusCode != expect) {
     final response = await MinioResponse.fromStream(streamedResponse);
     throw MinioS3Error(
-        '$expect expected, got ${streamedResponse.statusCode}', null, response);
+      '$expect expected, got ${streamedResponse.statusCode}',
+      null,
+      response,
+    );
   }
 }
 
 void validate(MinioResponse response, {int? expect}) {
   if (response.statusCode >= 400) {
-    var error;
+    dynamic error;
 
     // Parse HTTP response body as XML only when not empty
     if (response.body.isEmpty) {
       error = Error(response.reasonPhrase, null, response.reasonPhrase, null);
     } else {
-      final body = xml.XmlDocument.parse(response.body);
-      error = Error.fromXml(body.rootElement);
+      // check valid xml
+      if (response.body.startWith('<?xml')) {
+        final body = xml.XmlDocument.parse(response.body);
+        error = Error.fromXml(body.rootElement);
+      } else {
+        // not valid xml
+        error = Error(response.reasonPhrase, null, response.reasonPhrase, null);
+      }
     }
 
     throw MinioS3Error(error?.message, error, response);
@@ -230,7 +240,10 @@ void validate(MinioResponse response, {int? expect}) {
 
   if (expect != null && response.statusCode != expect) {
     throw MinioS3Error(
-        '$expect expected, got ${response.statusCode}', null, response);
+      '$expect expected, got ${response.statusCode}',
+      null,
+      response,
+    );
   }
 }
 

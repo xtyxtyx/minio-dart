@@ -1,9 +1,9 @@
-import 'package:minio/models.dart';
+// ignore_for_file: deprecated_member_use
+
 import 'package:minio/src/minio_errors.dart';
+import 'package:minio/src/minio_models_generated.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart';
-
-import '../models.dart';
 
 class ListObjectsResult {
   ListObjectsResult({
@@ -44,8 +44,10 @@ class CompleteMultipartUpload {
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('CompleteMultipartUpload',
-        nest: parts.map((p) => p.toXml()));
+    builder.element(
+      'CompleteMultipartUpload',
+      nest: parts.map((p) => p.toXml()),
+    );
     return builder.buildDocument();
   }
 

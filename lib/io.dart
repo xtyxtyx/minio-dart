@@ -56,13 +56,13 @@ extension MinioX on Minio {
     IOSink partFileStream;
     var offset = 0;
 
-    final rename = () {
-      partFile.rename(filePath);
-    };
+    Future<void> rename() async {
+      await partFile.rename(filePath);
+    }
 
     if (await partFile.exists()) {
       final localStat = await partFile.stat();
-      if (stat.size == localStat.size) return rename();
+      if (stat.size == localStat.size) return await rename();
       offset = localStat.size;
       partFileStream = partFile.openWrite(mode: FileMode.append);
     } else {

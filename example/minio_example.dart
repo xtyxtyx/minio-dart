@@ -22,9 +22,12 @@ void main() async {
     print('bucket $bucket already exists');
   }
 
-  final poller = minio.listenBucketNotification(bucket, events: [
-    's3:ObjectCreated:*',
-  ]);
+  final poller = minio.listenBucketNotification(
+    bucket,
+    events: [
+      's3:ObjectCreated:*',
+    ],
+  );
   poller.stream.listen((event) {
     print('--- event: ${event['eventName']}');
   });
@@ -53,12 +56,16 @@ void main() async {
 
   await minio.listObjects(bucket).forEach((chunk) {
     print('--- objects:');
-    chunk.objects.forEach((o) => print(o.key));
+    for (var o in chunk.objects) {
+      print(o.key);
+    }
   });
 
   await minio.listObjectsV2(bucket).forEach((chunk) {
     print('--- objects(v2):');
-    chunk.objects.forEach((o) => print(o.key));
+    for (var o in chunk.objects) {
+      print(o.key);
+    }
   });
 
   final stat = await minio.statObject(bucket, object);

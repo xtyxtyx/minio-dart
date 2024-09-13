@@ -1,11 +1,14 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:minio/models.dart';
 import 'package:minio/src/minio_client.dart';
 import 'package:minio/src/minio_errors.dart';
 import 'package:minio/src/minio_helpers.dart';
+import 'package:minio/src/minio_models.dart';
+import 'package:minio/src/minio_models_generated.dart';
 import 'package:minio/src/minio_poller.dart';
 import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/minio_stream.dart';
@@ -13,9 +16,6 @@ import 'package:minio/src/minio_uploader.dart';
 import 'package:minio/src/utils.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:xml/xml.dart' show XmlElement;
-
-import '../models.dart';
-import 'minio_helpers.dart';
 
 class Minio {
   /// Initializes a new client object.
@@ -812,7 +812,7 @@ class Minio {
       // 'expiration' is mandatory field for S3.
       // Set default expiration date of 7 days.
       var expires = DateTime.now().toUtc();
-      expires.add(Duration(days: 7));
+      expires.add(const Duration(days: 7));
       postPolicy.setExpires(expires);
     }
 
@@ -824,9 +824,11 @@ class Minio {
     postPolicy.formData['x-amz-algorithm'] = 'AWS4-HMAC-SHA256';
 
     postPolicy.policy['conditions'].add(
-        ['eq', r'$x-amz-credential', accessKey + '/' + getScope(region, date)]);
+      ['eq', r'$x-amz-credential', '$accessKey/${getScope(region, date)}'],
+    );
+
     postPolicy.formData['x-amz-credential'] =
-        accessKey + '/' + getScope(region, date);
+        '$accessKey/${getScope(region, date)}';
 
     if (sessionToken != null) {
       postPolicy.policy['conditions']
@@ -841,8 +843,16 @@ class Minio {
 
     postPolicy.formData['x-amz-signature'] = signature;
     final url = _client
-        .getBaseRequest('POST', postPolicy.formData['bucket'], null, region,
-            null, null, null, null)
+        .getBaseRequest(
+          'POST',
+          postPolicy.formData['bucket'],
+          null,
+          region,
+          null,
+          null,
+          null,
+          null,
+        )
         .url;
     var portStr = (port == 80 || port == 443) ? '' : ':$port';
     var urlStr = '${url.scheme}://${url.host}$portStr${url.path}';

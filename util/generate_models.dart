@@ -27,7 +27,7 @@ const baseUrl = 'https://docs.aws.amazon.com/AmazonS3/latest/API';
 
 Future<List<String>> getAllModelUrls() async {
   print('Getting Index.');
-  final url = '$baseUrl/API_Types_Amazon_Simple_Storage_Service.html';
+  const url = '$baseUrl/API_Types_Amazon_Simple_Storage_Service.html';
   final page = await http.get(Uri.parse(url));
   final document = parse(page.body);
   final urls = document.querySelectorAll('.listitem a');
@@ -71,23 +71,28 @@ Future<String> getModel(String url) async {
     switch (field.type.name) {
       case 'String':
         buffer.writeln(
-            "      ${field.dartName} = getProp(xml, '${field.name}')?.text;");
+          "      ${field.dartName} = getProp(xml, '${field.name}')?.text;",
+        );
         break;
       case 'int':
         buffer.writeln(
-            "      ${field.dartName} = int.tryParse(getProp(xml, '${field.name}')?.text);");
+          "      ${field.dartName} = int.tryParse(getProp(xml, '${field.name}')?.text);",
+        );
         break;
       case 'bool':
         buffer.writeln(
-            "      ${field.dartName} = getProp(xml, '${field.name}')?.text?.toUpperCase() == 'TRUE';");
+          "      ${field.dartName} = getProp(xml, '${field.name}')?.text?.toUpperCase() == 'TRUE';",
+        );
         break;
       case 'DateTime':
         buffer.writeln(
-            "      ${field.dartName} = DateTime.parse(getProp(xml, '${field.name}')?.text);");
+          "      ${field.dartName} = DateTime.parse(getProp(xml, '${field.name}')?.text);",
+        );
         break;
       default:
         buffer.writeln(
-            "      ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));");
+          "      ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));",
+        );
     }
   }
   buffer.writeln('  }');
@@ -100,24 +105,29 @@ Future<String> getModel(String url) async {
     switch (field.type.name) {
       case 'String':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName});");
+          "      builder.element('${field.name}', nest: ${field.dartName});",
+        );
         break;
       case 'int':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName}.toString());");
+          "      builder.element('${field.name}', nest: ${field.dartName}.toString());",
+        );
         break;
       case 'bool':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName} ? 'TRUE' : 'FALSE');");
+          "      builder.element('${field.name}', nest: ${field.dartName} ? 'TRUE' : 'FALSE');",
+        );
 
         break;
       case 'DateTime':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName}.toIso8601String());");
+          "      builder.element('${field.name}', nest: ${field.dartName}.toIso8601String());",
+        );
         break;
       default:
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName}.toXml());");
+          "      builder.element('${field.name}', nest: ${field.dartName}.toXml());",
+        );
     }
   }
   buffer.writeln('    });');

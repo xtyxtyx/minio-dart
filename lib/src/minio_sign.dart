@@ -31,7 +31,7 @@ List<String> getSignedHeaders(Iterable<String> headers) {
     'authorization',
     'content-length',
     'content-type',
-    'user-agent'
+    'user-agent',
   };
   final result = headers.where((header) => !ignored.contains(header)).toList();
   result.sort();
@@ -53,15 +53,15 @@ String getCanonicalRequest(
   final requestQuery = queryKeys.map((key) {
     final value = request.url.queryParameters[key];
     final hasValue = value != null;
-    final valuePart = hasValue ? encodeCanonicalQuery(value!) : '';
-    return encodeCanonicalQuery(key) + '=' + valuePart;
+    final valuePart = hasValue ? encodeCanonicalQuery(value) : '';
+    return '${encodeCanonicalQuery(key)}=$valuePart';
   }).join('&');
 
   final canonical = [];
   canonical.add(request.method.toUpperCase());
   canonical.add(requestResource);
   canonical.add(requestQuery);
-  canonical.add(headers.join('\n') + '\n');
+  canonical.add('${headers.join('\n')}\n');
   canonical.add(signedHeaders.join(';').toLowerCase());
   canonical.add(hashedPayload);
   return canonical.join('\n');
@@ -88,7 +88,7 @@ String getScope(String region, DateTime date) {
 
 List<int> getSigningKey(DateTime date, String region, String secretKey) {
   final dateLine = makeDateShort(date);
-  final key1 = ('AWS4' + secretKey).codeUnits;
+  final key1 = ('AWS4$secretKey').codeUnits;
   final hmac1 = Hmac(sha256, key1).convert(dateLine.codeUnits).bytes;
   final hmac2 = Hmac(sha256, hmac1).convert(region.codeUnits).bytes;
   final hmac3 = Hmac(sha256, hmac2).convert('s3'.codeUnits).bytes;
@@ -129,10 +129,12 @@ String presignSignatureV4(
   }
 
   request = request.replace(
-    url: request.url.replace(queryParameters: {
-      ...request.url.queryParameters,
-      ...requestQuery,
-    }),
+    url: request.url.replace(
+      queryParameters: {
+        ...request.url.queryParameters,
+        ...requestQuery,
+      },
+    ),
   );
 
   final canonicalRequest =
@@ -141,7 +143,7 @@ String presignSignatureV4(
   final stringToSign = getStringToSign(canonicalRequest, requestDate, region);
   final signingKey = getSigningKey(requestDate, region, minio.secretKey);
   final signature = sha256HmacHex(stringToSign, signingKey);
-  final presignedUrl = request.url.toString() + '&X-Amz-Signature=$signature';
+  final presignedUrl = '${request.url}&X-Amz-Signature=$signature';
 
   return presignedUrl;
 }
