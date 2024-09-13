@@ -56,9 +56,9 @@ extension MinioX on Minio {
     IOSink partFileStream;
     var offset = 0;
 
-    final rename = () {
+    void rename() {
       partFile.rename(filePath);
-    };
+    }
 
     if (await partFile.exists()) {
       final localStat = await partFile.stat();

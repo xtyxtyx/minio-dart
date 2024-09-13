@@ -146,7 +146,9 @@ void testBucketExists() {
     test('bucketExists() returns false for a non-existent bucket', () async {
       final minio = getMinioClient();
       expect(
-          await minio.bucketExists('non-existing-bucket-name'), equals(false));
+        await minio.bucketExists('non-existing-bucket-name'),
+        equals(false),
+      );
     });
 
     test('bucketExists() fails due to wrong access key', () async {
@@ -238,8 +240,10 @@ void testFPutObject() {
       await minio.fPutObject(bucketName, objectName, testFile.path, metadata);
 
       final stat = await minio.statObject(bucketName, objectName);
-      expect(stat.metaData![userDefinedMetadataKey],
-          equals(userDefinedMetadataValue));
+      expect(
+        stat.metaData![userDefinedMetadataKey],
+        equals(userDefinedMetadataValue),
+      );
     });
 
     test('fPutObject() with empty file', () async {
@@ -324,7 +328,7 @@ void testGetObject() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final object = uniqueName();
-    final objectUtf8 = uniqueName() + '/あるところ/某个文件.🦐';
+    final objectUtf8 = '${uniqueName()}/あるところ/某个文件.🦐';
     final objectData = Uint8List.fromList([1, 2, 3]);
 
     setUpAll(() async {
@@ -440,7 +444,7 @@ void testPutObject() {
 
     test('empty stream upload works', () async {
       final objectName = uniqueName();
-      await minio.putObject(bucketName, objectName, Stream.empty());
+      await minio.putObject(bucketName, objectName, const Stream.empty());
       final stat = await minio.statObject(bucketName, objectName);
       await minio.removeObject(bucketName, objectName);
       expect(stat.size, equals(0));
@@ -577,7 +581,7 @@ void testStatObject() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final object = uniqueName();
-    final objectUtf8 = uniqueName() + 'オブジェクト。📦';
+    final objectUtf8 = '${uniqueName()}オブジェクト。📦';
     final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {
@@ -684,7 +688,7 @@ void testRemoveObject() {
       await minio.removeObject(bucketName, objectName);
 
       await for (var chunk in minio.listObjects(bucketName)) {
-        expect(chunk.objects.contains(objectName), isFalse);
+        expect(chunk.objects.map((e) => e.key).contains(objectName), isFalse);
       }
     });
 
@@ -706,7 +710,7 @@ void testListObjects() {
     final minio = getMinioClient();
     final bucketName = uniqueName();
     final objectName = uniqueName();
-    final objectNameUtf8 = uniqueName() + '文件ファイル。ㄴㅁㄴ';
+    final objectNameUtf8 = '${uniqueName()}文件ファイル。ㄴㅁㄴ';
     final data = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {

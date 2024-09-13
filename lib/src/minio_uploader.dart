@@ -1,3 +1,5 @@
+// ignore_for_file: flutter_style_todos
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -93,7 +95,11 @@ class MinioUploader implements StreamConsumer<Uint8List> {
   Future<String?> close() async {
     if (_uploadId == null) return _etag;
     return minio.completeMultipartUpload(
-        bucket, object, _uploadId!, _parts.keys.toList());
+      bucket,
+      object,
+      _uploadId!,
+      _parts.keys.toList(),
+    );
   }
 
   Map<String, String> getHeaders(List<int> chunk) {
@@ -131,9 +137,9 @@ class MinioUploader implements StreamConsumer<Uint8List> {
   }
 
   Future<void> _initMultipartUpload() async {
-    //FIXME: this code still causes Signature Error
-    //FIXME: https://github.com/xtyxtyx/minio-dart/issues/7
-    //TODO: uncomment when fixed
+    // FIXME: this code still causes Signature Error
+    // FIXME: https://github.com/xtyxtyx/minio-dart/issues/7
+    // TODO: uncomment when fixed
     // uploadId = await minio.findUploadId(bucket, object);
 
     if (_uploadId == null) {

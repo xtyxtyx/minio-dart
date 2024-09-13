@@ -10,7 +10,7 @@ import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/utils.dart';
 
 class MinioRequest extends BaseRequest {
-  MinioRequest(String method, Uri url, {this.onProgress}) : super(method, url);
+  MinioRequest(super.method, super.url, {this.onProgress});
 
   dynamic body;
 
@@ -29,7 +29,7 @@ class MinioRequest extends BaseRequest {
     if (body is Stream<Uint8List>) {
       stream = body;
     } else if (body is String) {
-      final data = Utf8Encoder().convert(body);
+      final data = const Utf8Encoder().convert(body);
       headers['content-length'] = data.length.toString();
       stream = Stream<Uint8List>.value(data);
     } else if (body is Uint8List) {
@@ -75,12 +75,6 @@ class MinioRequest extends BaseRequest {
 
 /// An HTTP response where the entire response body is known in advance.
 class MinioResponse extends BaseResponse {
-  /// The bytes comprising the body of this response.
-  final Uint8List bodyBytes;
-
-  /// Body of s3 response is always encoded as UTF-8.
-  String get body => utf8.decode(bodyBytes);
-
   /// Create a new HTTP response with a byte array body.
   MinioResponse.bytes(
     this.bodyBytes,
@@ -90,22 +84,33 @@ class MinioResponse extends BaseResponse {
     bool isRedirect = false,
     bool persistentConnection = true,
     String? reasonPhrase,
-  }) : super(statusCode,
-            contentLength: bodyBytes.length,
-            request: request,
-            headers: headers,
-            isRedirect: isRedirect,
-            persistentConnection: persistentConnection,
-            reasonPhrase: reasonPhrase);
+  }) : super(
+          statusCode,
+          contentLength: bodyBytes.length,
+          request: request,
+          headers: headers,
+          isRedirect: isRedirect,
+          persistentConnection: persistentConnection,
+          reasonPhrase: reasonPhrase,
+        );
+
+  /// The bytes comprising the body of this response.
+  final Uint8List bodyBytes;
+
+  /// Body of s3 response is always encoded as UTF-8.
+  String get body => utf8.decode(bodyBytes);
 
   static Future<MinioResponse> fromStream(StreamedResponse response) async {
     final body = await response.stream.toBytes();
-    return MinioResponse.bytes(body, response.statusCode,
-        request: response.request,
-        headers: response.headers,
-        isRedirect: response.isRedirect,
-        persistentConnection: response.persistentConnection,
-        reasonPhrase: response.reasonPhrase);
+    return MinioResponse.bytes(
+      body,
+      response.statusCode,
+      request: response.request,
+      headers: response.headers,
+      isRedirect: response.isRedirect,
+      persistentConnection: response.persistentConnection,
+      reasonPhrase: response.reasonPhrase,
+    );
   }
 }
 
@@ -141,7 +146,15 @@ class MinioClient {
     region ??= 'us-east-1';
 
     final request = getBaseRequest(
-        method, bucket, object, region, resource, queries, headers, onProgress);
+      method,
+      bucket,
+      object,
+      region,
+      resource,
+      queries,
+      headers,
+      onProgress,
+    );
     request.body = payload;
 
     final date = DateTime.now().toUtc();

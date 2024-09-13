@@ -28,7 +28,7 @@ class NotificationPoller {
   }
 
   /// Starts the polling.
-  void start() async {
+  Future<void> start() async {
     _stop = false;
     while (!_stop) {
       await _checkForChanges();

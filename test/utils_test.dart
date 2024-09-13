@@ -82,7 +82,7 @@ void testBlockStream() {
   });
 
   test('MinChunkSize with empty stream', () async {
-    final stream = Stream<Uint8List>.empty().transform(MinChunkSize(5));
+    final stream = const Stream<Uint8List>.empty().transform(MinChunkSize(5));
     expect(await stream.toList(), equals([Uint8List.fromList([])]));
   });
 

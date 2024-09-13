@@ -1,1 +1,5 @@
 include: package:mostly_reasonable_lints/analysis_options.yaml
+analyzer:
+  errors:
+    avoid_print: ignore
+    prefer_const_declarations: ignore
