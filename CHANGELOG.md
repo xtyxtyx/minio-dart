@@ -1,37 +1,60 @@
+# 3.5.1
+
+- Updates minimum supported SDK version to Dart 3.0.
+- Fixes all lint warnings.
+- Added x-amz-security-token header support for session tokens.
+- Wait for rename to finish before in `fGetObject`.
+- Updated `MinioError` to implement the `Exception` interface.
+- Added XML validation before parsing response body.
+- Updated return type of `presignedPostPolicy` to `Future<PostPolicyResult>`.
+- Replaced `push` with `add` for adding conditions to the policy.
+
 # 3.5.0
+
 - Fix listObject with utf-8 prefix
 
 # 3.4.0-pre
+
 - Better upload progress on web
+
 # 3.3.3
+
 - Fix empty upload error
 - Update README.md
 
 # 3.3.3-pre
+
 - Update stream file upload
 
 # 3.3.2-pre
+
 - Add tests
 
 # 3.3.1-pre
+
 - Improve upload progress granularity
 - Fix broken test
 
 # 3.3.0-pre
+
 - Support listening upload progress
 
 # 3.2.0
+
 - Fix response body utf-8 encoding [#14]
 
 # 3.1.0
+
 - Add `listAllObjects` and `listAllObjectsV2`
 - Fix signing error in `listObjects` when prefix contains spaces [#34]
 - Improved compatibility with Filebase [#31]
 
 # 3.0.0
+
 - Fixes signing error in case object name contains symbols [#29]
 
 # 2.1.0-pre
+
 - `getObject` now returns `MinioByteStream` with an additional `contentLength` field.
 
 ## 2.0.0-pre
@@ -43,6 +66,7 @@
 - Object's ACL Query; Include object's ACL in stat [#23](https://github.com/xtyxtyx/minio-dart/pull/23), thanks [@rtgnx](https://github.com/rtgnx)
 
 ## 1.3.0
+
 - fix HTTP header for user-defined object metadata [#17](https://github.com/xtyxtyx/minio-dart/issues/17), thanks [@philenius](https://github.com/philenius)
 
 ## 1.2.0
@@ -54,7 +78,6 @@
 ## 1.1.0-pre
 
 - fix bucketExists is true when bucket doesn't exist #13
-
 
 ## 1.0.2-pre
 
