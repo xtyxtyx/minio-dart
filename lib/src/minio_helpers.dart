@@ -226,7 +226,7 @@ void validate(MinioResponse response, {int? expect}) {
       error = Error(response.reasonPhrase, null, response.reasonPhrase, null);
     } else {
       // check valid xml
-      if (response.body.startWith('<?xml')) {
+      if (response.body.startsWith('<?xml')) {
         final body = xml.XmlDocument.parse(response.body);
         error = Error.fromXml(body.rootElement);
       } else {
