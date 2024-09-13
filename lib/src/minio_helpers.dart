@@ -225,8 +225,14 @@ void validate(MinioResponse response, {int? expect}) {
     if (response.body.isEmpty) {
       error = Error(response.reasonPhrase, null, response.reasonPhrase, null);
     } else {
-      final body = xml.XmlDocument.parse(response.body);
-      error = Error.fromXml(body.rootElement);
+      // check valid xml
+      if (response.body.startWith('<?xml')) {
+        final body = xml.XmlDocument.parse(response.body);
+        error = Error.fromXml(body.rootElement);
+      } else {
+        // not valid xml
+        error = Error(response.reasonPhrase, null, response.reasonPhrase, null);
+      }
     }
 
     throw MinioS3Error(error?.message, error, response);
