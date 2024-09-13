@@ -5,8 +5,8 @@
 This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to access any Amazon S3 compatible object storage server.
 
 <p align="center">
-  <a href="https://github.com/xtyxtyx/minio-dart/actions/workflows/dart.yml">
-    <img src="https://github.com/xtyxtyx/minio-dart/workflows/Dart/badge.svg">
+  <a href="https://github.com/xtyxtyx/minio-dart/actions/workflows/test.yml">
+    <img src="https://github.com/xtyxtyx/minio-dart/workflows/test/badge.svg">
   </a>
   <a href="https://pub.dev/packages/minio">
     <img src="https://img.shields.io/pub/v/minio">
@@ -15,7 +15,6 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
     <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-F16061?style=flat&logo=buy-me-a-coffee&logoColor=white&labelColor=555555">
   </a>
 </p>
-
 
 ## API
 
@@ -31,7 +30,6 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 | [listAllObjects]        | [removeObject]           |                       |                                         |
 | [listAllObjectsV2]      | [removeObjects]          |                       |                                         |
 |                         | [removeIncompleteUpload] |                       |                                         |
-
 
 ## Usage
 
@@ -69,6 +67,7 @@ final minio = Minio(
 ```
 
 **File upload**
+
 ```dart
 import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
@@ -89,6 +88,7 @@ For complete example, see: [example]
 > To use `fPutObject()` and `fGetObject`, you have to `import 'package:minio/io.dart';`
 
 **Upload with progress**
+
 ```dart
 import 'package:minio/minio.dart';
 
@@ -100,8 +100,8 @@ void main() async {
   );
 
   await minio.putObject(
-    'mybucket', 
-    'myobject', 
+    'mybucket',
+    'myobject',
     Stream<Uint8List>.value(Uint8List(1024)),
     onProgress: (bytes) => print('$bytes uploaded'),
   );
@@ -139,11 +139,10 @@ Contributions to this repository are welcome.
 
 ## License
 
-MIT
+[MIT](./LICENSE)
 
 [tracker]: https://github.com/xtyxtyx/minio-dart/issues
-[example]: https://pub.dev/packages/minio#-example-tab-
-[link text itself]: http://www.reddit.com
+[example]: https://pub.dev/packages/minio/example
 
 [makeBucket]: https://pub.dev/documentation/minio/latest/minio/Minio/makeBucket.html
 [listBuckets]: https://pub.dev/documentation/minio/latest/minio/Minio/listBuckets.html
