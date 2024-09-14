@@ -754,7 +754,9 @@ class Minio {
     region ??= this.region ?? 'us-east-1';
     final payload = region == 'us-east-1'
         ? ''
-        : CreateBucketConfiguration(region).toXml().toString();
+        : CreateBucketConfiguration(locationConstraint: region)
+            .toXml()
+            .toString();
 
     final resp = await _client.request(
       method: 'PUT',
@@ -961,7 +963,7 @@ class Minio {
   Future<void> removeAllBucketNotification(String bucket) async {
     await setBucketNotification(
       bucket,
-      NotificationConfiguration(null, null, null),
+      NotificationConfiguration(null, null, null, null),
     );
   }
 

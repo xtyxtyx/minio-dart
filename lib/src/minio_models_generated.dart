@@ -1,4 +1,6 @@
-// ignore_for_file: require_trailing_commas, deprecated_member_use
+// ignore_for_file: require_trailing_commas
+// ignore_for_file: deprecated_member_use
+// ignore_for_file: empty_constructor_bodies
 
 import 'package:xml/xml.dart';
 
@@ -8,15 +10,37 @@ XmlElement? getProp(XmlElement? xml, String name) {
   return result.isNotEmpty ? result.first : null;
 }
 
-/// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
+T? getPropValueOrNull<T>(XmlElement? xml, String name) {
+  final propValue = getProp(xml, name)?.value;
+  if (propValue == null) return null;
+
+  switch (T) {
+    case const (String):
+      return propValue as T?;
+    case const (int):
+      return int.tryParse(propValue) as T?;
+    case const (bool):
+      return (propValue.toUpperCase() == 'TRUE') as T?;
+    case const (DateTime):
+      return DateTime.parse(propValue) as T;
+    default:
+      return propValue as T;
+  }
+}
+
+T getPropValue<T>(XmlElement? xml, String name) {
+  final propValue = getPropValueOrNull<T>(xml, name);
+  return propValue as T;
+}
+
+/// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Configuration in the Amazon S3 User Guide.
 class AbortIncompleteMultipartUpload {
   AbortIncompleteMultipartUpload(
     this.daysAfterInitiation,
   );
 
   AbortIncompleteMultipartUpload.fromXml(XmlElement? xml) {
-    daysAfterInitiation =
-        int.tryParse(getProp(xml, 'DaysAfterInitiation')!.text);
+    daysAfterInitiation = getPropValueOrNull<int>(xml, 'DaysAfterInitiation');
   }
 
   XmlNode toXml() {
@@ -32,14 +56,14 @@ class AbortIncompleteMultipartUpload {
   int? daysAfterInitiation;
 }
 
-/// Configures the transfer acceleration state for an Amazon S3 bucket. For more information, see Amazon S3 Transfer Acceleration in the Amazon Simple Storage Service Developer Guide.
+/// Configures the transfer acceleration state for an Amazon S3 bucket. For more information, see Amazon S3 Transfer Acceleration in the Amazon S3 User Guide.
 class AccelerateConfiguration {
   AccelerateConfiguration(
     this.status,
   );
 
-  AccelerateConfiguration.fromXml(XmlElement xml) {
-    status = getProp(xml, 'Status')?.text;
+  AccelerateConfiguration.fromXml(XmlElement? xml) {
+    status = getPropValueOrNull<String>(xml, 'Status');
   }
 
   XmlNode toXml() {
@@ -62,21 +86,24 @@ class AccessControlPolicy {
   );
 
   AccessControlPolicy.fromXml(XmlElement? xml) {
-    grants = Grant.fromXml(getProp(xml, 'Grants'));
+    grants = getProp(xml, 'Grants')
+        ?.children
+        .map((c) => Grant.fromXml(c as XmlElement))
+        .toList();
     owner = Owner.fromXml(getProp(xml, 'Owner'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('AccessControlPolicy', nest: () {
-      builder.element('Grants', nest: grants!.toXml());
-      builder.element('Owner', nest: owner!.toXml());
+      builder.element('Grants', nest: grants?.map((e) => e.toXml()));
+      builder.element('Owner', nest: owner?.toXml());
     });
     return builder.buildDocument();
   }
 
   /// A list of grants.
-  Grant? grants;
+  List<Grant>? grants;
 
   /// Container for the bucket owner's display name and ID.
   Owner? owner;
@@ -89,7 +116,7 @@ class AccessControlTranslation {
   );
 
   AccessControlTranslation.fromXml(XmlElement? xml) {
-    owner = getProp(xml, 'Owner')?.text;
+    owner = getPropValue<String>(xml, 'Owner');
   }
 
   XmlNode toXml() {
@@ -100,8 +127,8 @@ class AccessControlTranslation {
     return builder.buildDocument();
   }
 
-  /// Specifies the replica ownership. For default and valid values, see PUT bucket replication in the Amazon Simple Storage Service API Reference.
-  String? owner;
+  /// Specifies the replica ownership. For default and valid values, see PUT bucket replication in the Amazon S3 API Reference.
+  late String owner;
 }
 
 /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates in any combination, and an object must match all of the predicates for the filter to apply.
@@ -112,15 +139,18 @@ class AnalyticsAndOperator {
   );
 
   AnalyticsAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
-    tags = Tag.fromXml(getProp(xml, 'Tags'));
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    tags = getProp(xml, 'Tags')
+        ?.children
+        .map((c) => Tag.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('AnalyticsAndOperator', nest: () {
       builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
+      builder.element('Tags', nest: tags?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
@@ -129,43 +159,43 @@ class AnalyticsAndOperator {
   String? prefix;
 
   /// The list of tags to use when evaluating an AND predicate.
-  Tag? tags;
+  List<Tag>? tags;
 }
 
-///  Specifies the configuration and any analyses for the analytics filter of an Amazon S3 bucket.
+/// Specifies the configuration and any analyses for the analytics filter of an Amazon S3 bucket.
 class AnalyticsConfiguration {
   AnalyticsConfiguration(
-    this.filter,
     this.id,
     this.storageClassAnalysis,
+    this.filter,
   );
 
-  AnalyticsConfiguration.fromXml(XmlElement xml) {
-    filter = AnalyticsFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
+  AnalyticsConfiguration.fromXml(XmlElement? xml) {
+    id = getPropValue<String>(xml, 'Id');
     storageClassAnalysis =
         StorageClassAnalysis.fromXml(getProp(xml, 'StorageClassAnalysis'));
+    filter = AnalyticsFilter.fromXml(getProp(xml, 'Filter'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('AnalyticsConfiguration', nest: () {
-      builder.element('Filter', nest: filter!.toXml());
       builder.element('Id', nest: id);
       builder.element('StorageClassAnalysis',
-          nest: storageClassAnalysis!.toXml());
+          nest: storageClassAnalysis.toXml());
+      builder.element('Filter', nest: filter?.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// The filter used to describe a set of objects for analyses. A filter must have exactly one prefix, one tag, or one conjunction (AnalyticsAndOperator). If no filter is provided, all objects will be considered in any analysis.
-  AnalyticsFilter? filter;
-
   /// The ID that identifies the analytics configuration.
-  String? id;
+  late String id;
 
   ///  Contains data related to access patterns to be collected and made available to analyze the tradeoffs between different storage classes.
-  StorageClassAnalysis? storageClassAnalysis;
+  late StorageClassAnalysis storageClassAnalysis;
+
+  /// The filter used to describe a set of objects for analyses. A filter must have exactly one prefix, one tag, or one conjunction (AnalyticsAndOperator). If no filter is provided, all objects will be considered in any analysis.
+  AnalyticsFilter? filter;
 }
 
 /// Where to publish the analytics results.
@@ -182,14 +212,13 @@ class AnalyticsExportDestination {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('AnalyticsExportDestination', nest: () {
-      builder.element('S3BucketDestination',
-          nest: s3BucketDestination!.toXml());
+      builder.element('S3BucketDestination', nest: s3BucketDestination.toXml());
     });
     return builder.buildDocument();
   }
 
   /// A destination signifying output to an S3 bucket.
-  AnalyticsS3BucketDestination? s3BucketDestination;
+  late AnalyticsS3BucketDestination s3BucketDestination;
 }
 
 /// The filter used to describe a set of objects for analyses. A filter must have exactly one prefix, one tag, or one conjunction (AnalyticsAndOperator). If no filter is provided, all objects will be considered in any analysis.
@@ -202,16 +231,16 @@ class AnalyticsFilter {
 
   AnalyticsFilter.fromXml(XmlElement? xml) {
     and = AnalyticsAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('AnalyticsFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
+      builder.element('And', nest: and?.toXml());
       builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
+      builder.element('Tag', nest: tag?.toXml());
     });
     return builder.buildDocument();
   }
@@ -230,97 +259,121 @@ class AnalyticsFilter {
 class AnalyticsS3BucketDestination {
   AnalyticsS3BucketDestination(
     this.bucket,
-    this.bucketAccountId,
     this.format,
+    this.bucketAccountId,
     this.prefix,
   );
 
   AnalyticsS3BucketDestination.fromXml(XmlElement? xml) {
-    bucket = getProp(xml, 'Bucket')?.text;
-    bucketAccountId = getProp(xml, 'BucketAccountId')?.text;
-    format = getProp(xml, 'Format')?.text;
-    prefix = getProp(xml, 'Prefix')?.text;
+    bucket = getPropValue<String>(xml, 'Bucket');
+    format = getPropValue<String>(xml, 'Format');
+    bucketAccountId = getPropValueOrNull<String>(xml, 'BucketAccountId');
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('AnalyticsS3BucketDestination', nest: () {
       builder.element('Bucket', nest: bucket);
-      builder.element('BucketAccountId', nest: bucketAccountId);
       builder.element('Format', nest: format);
+      builder.element('BucketAccountId', nest: bucketAccountId);
       builder.element('Prefix', nest: prefix);
     });
     return builder.buildDocument();
   }
 
   /// The Amazon Resource Name (ARN) of the bucket to which data is exported.
-  String? bucket;
-
-  /// The account ID that owns the destination bucket. If no account ID is provided, the owner will not be validated prior to exporting data.
-  String? bucketAccountId;
+  late String bucket;
 
   /// Specifies the file format used when exporting data to Amazon S3.
-  String? format;
+  late String format;
+
+  /// The account ID that owns the destination S3 bucket. If no account ID is provided, the owner is not validated before exporting data.
+  String? bucketAccountId;
 
   /// The prefix to use when exporting data. The prefix is prepended to all results.
   String? prefix;
 }
 
-///  In terms of implementation, a Bucket is a resource. An Amazon S3 bucket name is globally unique, and the namespace is shared by all AWS accounts.
+///  In terms of implementation, a Bucket is a resource.
 class Bucket {
   Bucket(
     this.creationDate,
     this.name,
   );
 
-  factory Bucket.fromXml(XmlElement xml) {
-    return Bucket(
-      DateTime.parse(getProp(xml, 'CreationDate')!.text),
-      getProp(xml, 'Name')!.text,
-    );
+  Bucket.fromXml(XmlElement? xml) {
+    creationDate = getPropValueOrNull<DateTime>(xml, 'CreationDate');
+    name = getPropValueOrNull<String>(xml, 'Name');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Bucket', nest: () {
-      builder.element('CreationDate', nest: creationDate!.toIso8601String());
+      builder.element('CreationDate', nest: creationDate?.toIso8601String());
       builder.element('Name', nest: name);
     });
     return builder.buildDocument();
   }
 
-  /// Date the bucket was created.
+  /// Date the bucket was created. This date can change when making changes to your bucket, such as editing its bucket policy.
   DateTime? creationDate;
 
   /// The name of the bucket.
-  String name;
-
-  @override
-  String toString() {
-    return 'Bucket{creationDate: $creationDate, name: $name}';
-  }
+  String? name;
 }
 
-/// Specifies the lifecycle configuration for objects in an Amazon S3 bucket. For more information, see Object Lifecycle Management in the Amazon Simple Storage Service Developer Guide.
+/// Specifies the information about the bucket that will be created. For more information about directory buckets, see Directory buckets in the Amazon S3 User Guide.
+class BucketInfo {
+  BucketInfo(
+    this.dataRedundancy,
+    this.type,
+  );
+
+  BucketInfo.fromXml(XmlElement? xml) {
+    dataRedundancy = getPropValueOrNull<String>(xml, 'DataRedundancy');
+    type = getPropValueOrNull<String>(xml, 'Type');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('BucketInfo', nest: () {
+      builder.element('DataRedundancy', nest: dataRedundancy);
+      builder.element('Type', nest: type);
+    });
+    return builder.buildDocument();
+  }
+
+  /// The number of Availability Zone that's used for redundancy for the bucket.
+  String? dataRedundancy;
+
+  /// The type of bucket.
+  String? type;
+}
+
+/// Specifies the lifecycle configuration for objects in an Amazon S3 bucket. For more information, see Object Lifecycle Management in the Amazon S3 User Guide.
 class BucketLifecycleConfiguration {
   BucketLifecycleConfiguration(
     this.rules,
   );
 
-  BucketLifecycleConfiguration.fromXml(XmlElement xml) {
-    rules = LifecycleRule.fromXml(getProp(xml, 'Rules'));
+  BucketLifecycleConfiguration.fromXml(XmlElement? xml) {
+    rules = getProp(xml, 'Rules')!
+        .children
+        .map((c) => LifecycleRule.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('BucketLifecycleConfiguration', nest: () {
-      builder.element('Rules', nest: rules!.toXml());
+      builder.element('Rules', nest: rules.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
   /// A lifecycle rule for individual objects in an Amazon S3 bucket.
-  LifecycleRule? rules;
+  late List<LifecycleRule> rules;
 }
 
 /// Container for logging status information.
@@ -329,20 +382,60 @@ class BucketLoggingStatus {
     this.loggingEnabled,
   );
 
-  BucketLoggingStatus.fromXml(XmlElement xml) {
+  BucketLoggingStatus.fromXml(XmlElement? xml) {
     loggingEnabled = LoggingEnabled.fromXml(getProp(xml, 'LoggingEnabled'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('BucketLoggingStatus', nest: () {
-      builder.element('LoggingEnabled', nest: loggingEnabled!.toXml());
+      builder.element('LoggingEnabled', nest: loggingEnabled?.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket. For more information, see PUT Bucket logging in the Amazon Simple Storage Service API Reference.
+  /// Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket. For more information, see PUT Bucket logging in the Amazon S3 API Reference.
   LoggingEnabled? loggingEnabled;
+}
+
+/// Contains all the possible checksum or digest values for an object.
+class Checksum {
+  Checksum(
+    this.checksumCRC32,
+    this.checksumCRC32C,
+    this.checksumSHA1,
+    this.checksumSHA256,
+  );
+
+  Checksum.fromXml(XmlElement? xml) {
+    checksumCRC32 = getPropValueOrNull<String>(xml, 'ChecksumCRC32');
+    checksumCRC32C = getPropValueOrNull<String>(xml, 'ChecksumCRC32C');
+    checksumSHA1 = getPropValueOrNull<String>(xml, 'ChecksumSHA1');
+    checksumSHA256 = getPropValueOrNull<String>(xml, 'ChecksumSHA256');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('Checksum', nest: () {
+      builder.element('ChecksumCRC32', nest: checksumCRC32);
+      builder.element('ChecksumCRC32C', nest: checksumCRC32C);
+      builder.element('ChecksumSHA1', nest: checksumSHA1);
+      builder.element('ChecksumSHA256', nest: checksumSHA256);
+    });
+    return builder.buildDocument();
+  }
+
+  /// The base64-encoded, 32-bit CRC-32 checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32;
+
+  /// The base64-encoded, 32-bit CRC-32C checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32C;
+
+  /// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be present if it was uploaded with the object. When you use the API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA1;
+
+  /// The base64-encoded, 256-bit SHA-256 digest of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA256;
 }
 
 /// Container for specifying the AWS Lambda notification configuration.
@@ -356,11 +449,11 @@ class CloudFunctionConfiguration {
   );
 
   CloudFunctionConfiguration.fromXml(XmlElement? xml) {
-    cloudFunction = getProp(xml, 'CloudFunction')?.text;
-    event = getProp(xml, 'Event')?.text;
-    events = getProp(xml, 'Events')?.text;
-    id = getProp(xml, 'Id')?.text;
-    invocationRole = getProp(xml, 'InvocationRole')?.text;
+    cloudFunction = getPropValueOrNull<String>(xml, 'CloudFunction');
+    event = getPropValueOrNull<String>(xml, 'Event');
+    events = getPropValueOrNull<List<String>>(xml, 'Events');
+    id = getPropValueOrNull<String>(xml, 'Id');
+    invocationRole = getPropValueOrNull<String>(xml, 'InvocationRole');
   }
 
   XmlNode toXml() {
@@ -382,7 +475,7 @@ class CloudFunctionConfiguration {
   String? event;
 
   /// Bucket events for which to send notifications.
-  String? events;
+  List<String>? events;
 
   /// An optional unique identifier for configurations in a notification configuration. If you don't provide one, Amazon S3 will assign an ID.
   String? id;
@@ -397,8 +490,8 @@ class CommonPrefix {
     this.prefix,
   );
 
-  CommonPrefix.fromXml(XmlElement xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+  CommonPrefix.fromXml(XmlElement? xml) {
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
   }
 
   XmlNode toXml() {
@@ -419,42 +512,69 @@ class CompletedMultipartUpload {
     this.parts,
   );
 
-  CompletedMultipartUpload.fromXml(XmlElement xml) {
-    parts = CompletedPart.fromXml(getProp(xml, 'Parts'));
+  CompletedMultipartUpload.fromXml(XmlElement? xml) {
+    parts = getProp(xml, 'Parts')
+        ?.children
+        .map((c) => CompletedPart.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('CompletedMultipartUpload', nest: () {
-      builder.element('Parts', nest: parts!.toXml());
+      builder.element('Parts', nest: parts?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
   /// Array of CompletedPart data types.
-  CompletedPart? parts;
+  List<CompletedPart>? parts;
 }
 
 /// Details of the parts that were uploaded.
 class CompletedPart {
   CompletedPart(
+    this.checksumCRC32,
+    this.checksumCRC32C,
+    this.checksumSHA1,
+    this.checksumSHA256,
     this.eTag,
     this.partNumber,
   );
 
   CompletedPart.fromXml(XmlElement? xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    partNumber = int.tryParse(getProp(xml, 'PartNumber')!.text);
+    checksumCRC32 = getPropValueOrNull<String>(xml, 'ChecksumCRC32');
+    checksumCRC32C = getPropValueOrNull<String>(xml, 'ChecksumCRC32C');
+    checksumSHA1 = getPropValueOrNull<String>(xml, 'ChecksumSHA1');
+    checksumSHA256 = getPropValueOrNull<String>(xml, 'ChecksumSHA256');
+    eTag = getPropValueOrNull<String>(xml, 'ETag');
+    partNumber = getPropValueOrNull<int>(xml, 'PartNumber');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Part', nest: () {
+    builder.element('CompletedPart', nest: () {
+      builder.element('ChecksumCRC32', nest: checksumCRC32);
+      builder.element('ChecksumCRC32C', nest: checksumCRC32C);
+      builder.element('ChecksumSHA1', nest: checksumSHA1);
+      builder.element('ChecksumSHA256', nest: checksumSHA256);
       builder.element('ETag', nest: eTag);
       builder.element('PartNumber', nest: partNumber.toString());
     });
-    return builder.buildDocument().rootElement;
+    return builder.buildDocument();
   }
+
+  /// The base64-encoded, 32-bit CRC-32 checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32;
+
+  /// The base64-encoded, 32-bit CRC-32C checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32C;
+
+  /// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be present if it was uploaded with the object. When you use the API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA1;
+
+  /// The base64-encoded, 256-bit SHA-256 digest of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA256;
 
   /// Entity tag returned when the part was uploaded.
   String? eTag;
@@ -472,8 +592,8 @@ class Condition {
 
   Condition.fromXml(XmlElement? xml) {
     httpErrorCodeReturnedEquals =
-        getProp(xml, 'HttpErrorCodeReturnedEquals')?.text;
-    keyPrefixEquals = getProp(xml, 'KeyPrefixEquals')?.text;
+        getPropValueOrNull<String>(xml, 'HttpErrorCodeReturnedEquals');
+    keyPrefixEquals = getPropValueOrNull<String>(xml, 'KeyPrefixEquals');
   }
 
   XmlNode toXml() {
@@ -493,11 +613,11 @@ class Condition {
   String? keyPrefixEquals;
 }
 
-/// The members of this structure are context-dependent.
+///
 class ContinuationEvent {
   ContinuationEvent();
 
-  ContinuationEvent.fromXml(XmlElement? xml);
+  ContinuationEvent.fromXml(XmlElement? xml) {}
 
   XmlNode toXml() {
     final builder = XmlBuilder();
@@ -509,51 +629,99 @@ class ContinuationEvent {
 /// Container for all response elements.
 class CopyObjectResult {
   CopyObjectResult(
+    this.checksumCRC32,
+    this.checksumCRC32C,
+    this.checksumSHA1,
+    this.checksumSHA256,
     this.eTag,
     this.lastModified,
   );
 
-  CopyObjectResult.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+  CopyObjectResult.fromXml(XmlElement? xml) {
+    checksumCRC32 = getPropValueOrNull<String>(xml, 'ChecksumCRC32');
+    checksumCRC32C = getPropValueOrNull<String>(xml, 'ChecksumCRC32C');
+    checksumSHA1 = getPropValueOrNull<String>(xml, 'ChecksumSHA1');
+    checksumSHA256 = getPropValueOrNull<String>(xml, 'ChecksumSHA256');
+    eTag = getPropValueOrNull<String>(xml, 'ETag');
+    lastModified = getPropValueOrNull<DateTime>(xml, 'LastModified');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('CopyObjectResult', nest: () {
+      builder.element('ChecksumCRC32', nest: checksumCRC32);
+      builder.element('ChecksumCRC32C', nest: checksumCRC32C);
+      builder.element('ChecksumSHA1', nest: checksumSHA1);
+      builder.element('ChecksumSHA256', nest: checksumSHA256);
       builder.element('ETag', nest: eTag);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
+      builder.element('LastModified', nest: lastModified?.toIso8601String());
     });
     return builder.buildDocument();
   }
 
-  /// Returns the ETag of the new object. The ETag reflects only changes to the contents of an object, not its metadata. The source and destination ETag is identical for a successfully copied object.
+  /// The base64-encoded, 32-bit CRC-32 checksum of the object. This will only be present if it was uploaded with the object. For more information, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32;
+
+  /// The base64-encoded, 32-bit CRC-32C checksum of the object. This will only be present if it was uploaded with the object. For more information, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32C;
+
+  /// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be present if it was uploaded with the object. For more information, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA1;
+
+  /// The base64-encoded, 256-bit SHA-256 digest of the object. This will only be present if it was uploaded with the object. For more information, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA256;
+
+  /// Returns the ETag of the new object. The ETag reflects only changes to the contents of an object, not its metadata.
   String? eTag;
 
-  /// Returns the date that the object was last modified.
+  /// Creation date of the object.
   DateTime? lastModified;
 }
 
 /// Container for all response elements.
 class CopyPartResult {
   CopyPartResult(
+    this.checksumCRC32,
+    this.checksumCRC32C,
+    this.checksumSHA1,
+    this.checksumSHA256,
     this.eTag,
     this.lastModified,
   );
 
-  CopyPartResult.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+  CopyPartResult.fromXml(XmlElement? xml) {
+    checksumCRC32 = getPropValueOrNull<String>(xml, 'ChecksumCRC32');
+    checksumCRC32C = getPropValueOrNull<String>(xml, 'ChecksumCRC32C');
+    checksumSHA1 = getPropValueOrNull<String>(xml, 'ChecksumSHA1');
+    checksumSHA256 = getPropValueOrNull<String>(xml, 'ChecksumSHA256');
+    eTag = getPropValueOrNull<String>(xml, 'ETag');
+    lastModified = getPropValueOrNull<DateTime>(xml, 'LastModified');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('CopyPartResult', nest: () {
+      builder.element('ChecksumCRC32', nest: checksumCRC32);
+      builder.element('ChecksumCRC32C', nest: checksumCRC32C);
+      builder.element('ChecksumSHA1', nest: checksumSHA1);
+      builder.element('ChecksumSHA256', nest: checksumSHA256);
       builder.element('ETag', nest: eTag);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
+      builder.element('LastModified', nest: lastModified?.toIso8601String());
     });
     return builder.buildDocument();
   }
+
+  /// The base64-encoded, 32-bit CRC-32 checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32;
+
+  /// The base64-encoded, 32-bit CRC-32C checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32C;
+
+  /// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be present if it was uploaded with the object. When you use the API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA1;
+
+  /// The base64-encoded, 256-bit SHA-256 digest of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA256;
 
   /// Entity tag of the object.
   String? eTag;
@@ -562,69 +730,78 @@ class CopyPartResult {
   DateTime? lastModified;
 }
 
-/// Describes the cross-origin access configuration for objects in an Amazon S3 bucket. For more information, see Enabling Cross-Origin Resource Sharing in the Amazon Simple Storage Service Developer Guide.
+/// Describes the cross-origin access configuration for objects in an Amazon S3 bucket. For more information, see Enabling Cross-Origin Resource Sharing in the Amazon S3 User Guide.
 class CORSConfiguration {
   CORSConfiguration(
     this.cORSRules,
   );
 
-  CORSConfiguration.fromXml(XmlElement xml) {
-    cORSRules = CORSRule.fromXml(getProp(xml, 'CORSRules'));
+  CORSConfiguration.fromXml(XmlElement? xml) {
+    cORSRules = getProp(xml, 'CORSRules')!
+        .children
+        .map((c) => CORSRule.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('CORSConfiguration', nest: () {
-      builder.element('CORSRules', nest: cORSRules!.toXml());
+      builder.element('CORSRules', nest: cORSRules.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
   /// A set of origins and methods (cross-origin access that you want to allow). You can add up to 100 rules to the configuration.
-  CORSRule? cORSRules;
+  late List<CORSRule> cORSRules;
 }
 
 /// Specifies a cross-origin access rule for an Amazon S3 bucket.
 class CORSRule {
   CORSRule(
-    this.allowedHeaders,
     this.allowedMethods,
     this.allowedOrigins,
+    this.allowedHeaders,
     this.exposeHeaders,
+    this.iD,
     this.maxAgeSeconds,
   );
 
   CORSRule.fromXml(XmlElement? xml) {
-    allowedHeaders = getProp(xml, 'AllowedHeaders')?.text;
-    allowedMethods = getProp(xml, 'AllowedMethods')?.text;
-    allowedOrigins = getProp(xml, 'AllowedOrigins')?.text;
-    exposeHeaders = getProp(xml, 'ExposeHeaders')?.text;
-    maxAgeSeconds = int.tryParse(getProp(xml, 'MaxAgeSeconds')!.text);
+    allowedMethods = getPropValue<List<String>>(xml, 'AllowedMethods');
+    allowedOrigins = getPropValue<List<String>>(xml, 'AllowedOrigins');
+    allowedHeaders = getPropValueOrNull<List<String>>(xml, 'AllowedHeaders');
+    exposeHeaders = getPropValueOrNull<List<String>>(xml, 'ExposeHeaders');
+    iD = getPropValueOrNull<String>(xml, 'ID');
+    maxAgeSeconds = getPropValueOrNull<int>(xml, 'MaxAgeSeconds');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('CORSRule', nest: () {
-      builder.element('AllowedHeaders', nest: allowedHeaders);
       builder.element('AllowedMethods', nest: allowedMethods);
       builder.element('AllowedOrigins', nest: allowedOrigins);
+      builder.element('AllowedHeaders', nest: allowedHeaders);
       builder.element('ExposeHeaders', nest: exposeHeaders);
+      builder.element('ID', nest: iD);
       builder.element('MaxAgeSeconds', nest: maxAgeSeconds.toString());
     });
     return builder.buildDocument();
   }
 
-  /// Headers that are specified in the Access-Control-Request-Headers header. These headers are allowed in a preflight OPTIONS request. In response to any preflight OPTIONS request, Amazon S3 returns any requested headers that are allowed.
-  String? allowedHeaders;
-
   /// An HTTP method that you allow the origin to execute. Valid values are GET, PUT, HEAD, POST, and DELETE.
-  String? allowedMethods;
+  late List<String> allowedMethods;
 
   /// One or more origins you want customers to be able to access the bucket from.
-  String? allowedOrigins;
+  late List<String> allowedOrigins;
+
+  /// Headers that are specified in the Access-Control-Request-Headers header. These headers are allowed in a preflight OPTIONS request. In response to any preflight OPTIONS request, Amazon S3 returns any requested headers that are allowed.
+  List<String>? allowedHeaders;
 
   /// One or more headers in the response that you want customers to be able to access from their applications (for example, from a JavaScript XMLHttpRequest object).
-  String? exposeHeaders;
+  List<String>? exposeHeaders;
+
+  /// Unique identifier for the rule. The value cannot be longer than 255 characters.
+  String? iD;
 
   /// The time in seconds that your browser is to cache the preflight response for the specified resource.
   int? maxAgeSeconds;
@@ -633,22 +810,34 @@ class CORSRule {
 /// The configuration information for the bucket.
 class CreateBucketConfiguration {
   CreateBucketConfiguration(
+    this.bucket,
+    this.location,
     this.locationConstraint,
   );
 
-  CreateBucketConfiguration.fromXml(XmlElement xml) {
-    locationConstraint = getProp(xml, 'LocationConstraint')?.text;
+  CreateBucketConfiguration.fromXml(XmlElement? xml) {
+    bucket = BucketInfo.fromXml(getProp(xml, 'Bucket'));
+    location = LocationInfo.fromXml(getProp(xml, 'Location'));
+    locationConstraint = getPropValueOrNull<String>(xml, 'LocationConstraint');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('CreateBucketConfiguration', nest: () {
+      builder.element('Bucket', nest: bucket?.toXml());
+      builder.element('Location', nest: location?.toXml());
       builder.element('LocationConstraint', nest: locationConstraint);
     });
     return builder.buildDocument();
   }
 
-  /// Specifies the Region where the bucket will be created. If you don't specify a Region, the bucket is created in the US East (N. Virginia) Region (us-east-1).
+  /// Specifies the information about the bucket that will be created.
+  BucketInfo? bucket;
+
+  /// Specifies the location where the bucket will be created.
+  LocationInfo? location;
+
+  /// Specifies the Region where the bucket will be created. You might choose a Region to optimize latency, minimize costs, or address regulatory requirements. For example, if you reside in Europe, you will probably find it advantageous to create buckets in the Europe (Ireland) Region. For more information, see Accessing a bucket in the Amazon S3 User Guide.
   String? locationConstraint;
 }
 
@@ -666,21 +855,21 @@ class CSVInput {
 
   CSVInput.fromXml(XmlElement? xml) {
     allowQuotedRecordDelimiter =
-        getProp(xml, 'AllowQuotedRecordDelimiter')?.text.toUpperCase() ==
-            'TRUE';
-    comments = getProp(xml, 'Comments')?.text;
-    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.text;
-    fileHeaderInfo = getProp(xml, 'FileHeaderInfo')?.text;
-    quoteCharacter = getProp(xml, 'QuoteCharacter')?.text;
-    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.text;
-    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
+        getPropValueOrNull<bool>(xml, 'AllowQuotedRecordDelimiter');
+    comments = getPropValueOrNull<String>(xml, 'Comments');
+    fieldDelimiter = getPropValueOrNull<String>(xml, 'FieldDelimiter');
+    fileHeaderInfo = getPropValueOrNull<String>(xml, 'FileHeaderInfo');
+    quoteCharacter = getPropValueOrNull<String>(xml, 'QuoteCharacter');
+    quoteEscapeCharacter =
+        getPropValueOrNull<String>(xml, 'QuoteEscapeCharacter');
+    recordDelimiter = getPropValueOrNull<String>(xml, 'RecordDelimiter');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('CSVInput', nest: () {
       builder.element('AllowQuotedRecordDelimiter',
-          nest: allowQuotedRecordDelimiter! ? 'TRUE' : 'FALSE');
+          nest: allowQuotedRecordDelimiter == true ? 'TRUE' : 'FALSE');
       builder.element('Comments', nest: comments);
       builder.element('FieldDelimiter', nest: fieldDelimiter);
       builder.element('FileHeaderInfo', nest: fileHeaderInfo);
@@ -694,7 +883,7 @@ class CSVInput {
   /// Specifies that CSV field values may contain quoted record delimiters and such records should be allowed. Default value is FALSE. Setting this value to TRUE may lower performance.
   bool? allowQuotedRecordDelimiter;
 
-  /// A single character used to indicate that a row should be ignored when the character is present at the start of that row. You can specify any character to indicate a comment line.
+  /// A single character used to indicate that a row should be ignored when the character is present at the start of that row. You can specify any character to indicate a comment line. The default character is #.
   String? comments;
 
   /// A single character used to separate individual fields in a record. You can specify an arbitrary delimiter.
@@ -724,11 +913,12 @@ class CSVOutput {
   );
 
   CSVOutput.fromXml(XmlElement? xml) {
-    fieldDelimiter = getProp(xml, 'FieldDelimiter')?.text;
-    quoteCharacter = getProp(xml, 'QuoteCharacter')?.text;
-    quoteEscapeCharacter = getProp(xml, 'QuoteEscapeCharacter')?.text;
-    quoteFields = getProp(xml, 'QuoteFields')?.text;
-    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
+    fieldDelimiter = getPropValueOrNull<String>(xml, 'FieldDelimiter');
+    quoteCharacter = getPropValueOrNull<String>(xml, 'QuoteCharacter');
+    quoteEscapeCharacter =
+        getPropValueOrNull<String>(xml, 'QuoteEscapeCharacter');
+    quoteFields = getPropValueOrNull<String>(xml, 'QuoteFields');
+    recordDelimiter = getPropValueOrNull<String>(xml, 'RecordDelimiter');
   }
 
   XmlNode toXml() {
@@ -759,7 +949,7 @@ class CSVOutput {
   String? recordDelimiter;
 }
 
-/// The container element for specifying the default Object Lock retention settings for new objects placed in the specified bucket.
+/// The container element for optionally specifying the default Object Lock retention settings for new objects placed in the specified bucket.
 class DefaultRetention {
   DefaultRetention(
     this.days,
@@ -768,9 +958,9 @@ class DefaultRetention {
   );
 
   DefaultRetention.fromXml(XmlElement? xml) {
-    days = int.tryParse(getProp(xml, 'Days')!.text);
-    mode = getProp(xml, 'Mode')?.text;
-    years = int.tryParse(getProp(xml, 'Years')!.text);
+    days = getPropValueOrNull<int>(xml, 'Days');
+    mode = getPropValueOrNull<String>(xml, 'Mode');
+    years = getPropValueOrNull<int>(xml, 'Years');
   }
 
   XmlNode toXml() {
@@ -783,13 +973,13 @@ class DefaultRetention {
     return builder.buildDocument();
   }
 
-  /// The number of days that you want to specify for the default retention period.
+  /// The number of days that you want to specify for the default retention period. Must be used with Mode.
   int? days;
 
-  /// The default Object Lock retention mode you want to apply to new objects placed in the specified bucket.
+  /// The default Object Lock retention mode you want to apply to new objects placed in the specified bucket. Must be used with either Days or Years.
   String? mode;
 
-  /// The number of years that you want to specify for the default retention period.
+  /// The number of years that you want to specify for the default retention period. Must be used with Mode.
   int? years;
 }
 
@@ -800,27 +990,28 @@ class Delete {
     this.quiet,
   );
 
-  // Delete.fromXml(XmlElement xml) {
-  //   objects = ObjectIdentifier.fromXml(getProp(xml, 'Objects'));
-  //   quiet = getProp(xml, 'Quiet')?.text?.toUpperCase() == 'TRUE';
-  // }
+  Delete.fromXml(XmlElement? xml) {
+    objects = getProp(xml, 'Objects')!
+        .children
+        .map((c) => ObjectIdentifier.fromXml(c as XmlElement))
+        .toList();
+    quiet = getPropValueOrNull<bool>(xml, 'Quiet');
+  }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Delete', nest: () {
-      for (var object in objects) {
-        builder.element('Object', nest: object.toXml().children);
-      }
-      builder.element('Quiet', nest: quiet ? 'TRUE' : 'FALSE');
+      builder.element('Objects', nest: objects.map((e) => e.toXml()));
+      builder.element('Quiet', nest: quiet == true ? 'TRUE' : 'FALSE');
     });
     return builder.buildDocument();
   }
 
-  /// The objects to delete.
-  List<ObjectIdentifier> objects;
+  /// The object to delete.
+  late List<ObjectIdentifier> objects;
 
   /// Element to enable quiet mode for the request. When you add this element, you must set its value to true.
-  bool quiet;
+  bool? quiet;
 }
 
 /// Information about the deleted object.
@@ -832,17 +1023,19 @@ class DeletedObject {
     this.versionId,
   );
 
-  DeletedObject.fromXml(XmlElement xml) {
-    deleteMarker = getProp(xml, 'DeleteMarker')?.text.toUpperCase() == 'TRUE';
-    deleteMarkerVersionId = getProp(xml, 'DeleteMarkerVersionId')?.text;
-    key = getProp(xml, 'Key')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+  DeletedObject.fromXml(XmlElement? xml) {
+    deleteMarker = getPropValueOrNull<bool>(xml, 'DeleteMarker');
+    deleteMarkerVersionId =
+        getPropValueOrNull<String>(xml, 'DeleteMarkerVersionId');
+    key = getPropValueOrNull<String>(xml, 'Key');
+    versionId = getPropValueOrNull<String>(xml, 'VersionId');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('DeletedObject', nest: () {
-      builder.element('DeleteMarker', nest: deleteMarker! ? 'TRUE' : 'FALSE');
+      builder.element('DeleteMarker',
+          nest: deleteMarker == true ? 'TRUE' : 'FALSE');
       builder.element('DeleteMarkerVersionId', nest: deleteMarkerVersionId);
       builder.element('Key', nest: key);
       builder.element('VersionId', nest: versionId);
@@ -850,7 +1043,7 @@ class DeletedObject {
     return builder.buildDocument();
   }
 
-  /// Specifies whether the versioned object that was permanently deleted was (true) or was not (false) a delete marker. In a simple DELETE, this header indicates whether (true) or not (false) a delete marker was created.
+  /// Indicates whether the specified object version that was permanently deleted was (true) or was not (false) a delete marker before deletion. In a simple DELETE, this header indicates whether (true) or not (false) the current version of the object is a delete marker.
   bool? deleteMarker;
 
   /// The version ID of the delete marker created as a result of the DELETE operation. If you delete a specific object version, the value returned by this header is the version ID of the object version deleted.
@@ -873,21 +1066,21 @@ class DeleteMarkerEntry {
     this.versionId,
   );
 
-  DeleteMarkerEntry.fromXml(XmlElement xml) {
-    isLatest = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
-    key = getProp(xml, 'Key')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+  DeleteMarkerEntry.fromXml(XmlElement? xml) {
+    isLatest = getPropValueOrNull<bool>(xml, 'IsLatest');
+    key = getPropValueOrNull<String>(xml, 'Key');
+    lastModified = getPropValueOrNull<DateTime>(xml, 'LastModified');
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    versionId = getProp(xml, 'VersionId')?.text;
+    versionId = getPropValueOrNull<String>(xml, 'VersionId');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('DeleteMarkerEntry', nest: () {
-      builder.element('IsLatest', nest: isLatest! ? 'TRUE' : 'FALSE');
+      builder.element('IsLatest', nest: isLatest == true ? 'TRUE' : 'FALSE');
       builder.element('Key', nest: key);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-      builder.element('Owner', nest: owner!.toXml());
+      builder.element('LastModified', nest: lastModified?.toIso8601String());
+      builder.element('Owner', nest: owner?.toXml());
       builder.element('VersionId', nest: versionId);
     });
     return builder.buildDocument();
@@ -899,7 +1092,7 @@ class DeleteMarkerEntry {
   /// The object key.
   String? key;
 
-  /// Date and time the object was last modified.
+  /// Date and time when the object was last modified.
   DateTime? lastModified;
 
   /// The account that created the delete marker.>
@@ -909,14 +1102,14 @@ class DeleteMarkerEntry {
   String? versionId;
 }
 
-/// Specifies whether Amazon S3 replicates the delete markers. If you specify a Filter, you must specify this element. However, in the latest version of replication configuration (when Filter is specified), Amazon S3 doesn't replicate delete markers. Therefore, the DeleteMarkerReplication element can contain only <Status>Disabled</Status>. For an example configuration, see Basic Rule Configuration.
+/// Specifies whether Amazon S3 replicates delete markers. If you specify a Filter in your replication configuration, you must also include a DeleteMarkerReplication element. If your Filter includes a Tag element, the DeleteMarkerReplication Status must be set to Disabled, because Amazon S3 does not support replicating delete markers for tag-based rules. For an example configuration, see Basic Rule Configuration.
 class DeleteMarkerReplication {
   DeleteMarkerReplication(
     this.status,
   );
 
   DeleteMarkerReplication.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getPropValueOrNull<String>(xml, 'Status');
   }
 
   XmlNode toXml() {
@@ -934,9 +1127,9 @@ class DeleteMarkerReplication {
 /// Specifies information about where to publish analysis or configuration results for an Amazon S3 bucket and S3 Replication Time Control (S3 RTC).
 class Destination {
   Destination(
+    this.bucket,
     this.accessControlTranslation,
     this.account,
-    this.bucket,
     this.encryptionConfiguration,
     this.metrics,
     this.replicationTime,
@@ -944,46 +1137,46 @@ class Destination {
   );
 
   Destination.fromXml(XmlElement? xml) {
+    bucket = getPropValue<String>(xml, 'Bucket');
     accessControlTranslation = AccessControlTranslation.fromXml(
         getProp(xml, 'AccessControlTranslation'));
-    account = getProp(xml, 'Account')?.text;
-    bucket = getProp(xml, 'Bucket')?.text;
+    account = getPropValueOrNull<String>(xml, 'Account');
     encryptionConfiguration = EncryptionConfiguration.fromXml(
         getProp(xml, 'EncryptionConfiguration'));
     metrics = Metrics.fromXml(getProp(xml, 'Metrics'));
     replicationTime = ReplicationTime.fromXml(getProp(xml, 'ReplicationTime'));
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    storageClass = getPropValueOrNull<String>(xml, 'StorageClass');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Destination', nest: () {
-      builder.element('AccessControlTranslation',
-          nest: accessControlTranslation!.toXml());
-      builder.element('Account', nest: account);
       builder.element('Bucket', nest: bucket);
+      builder.element('AccessControlTranslation',
+          nest: accessControlTranslation?.toXml());
+      builder.element('Account', nest: account);
       builder.element('EncryptionConfiguration',
-          nest: encryptionConfiguration!.toXml());
-      builder.element('Metrics', nest: metrics!.toXml());
-      builder.element('ReplicationTime', nest: replicationTime!.toXml());
+          nest: encryptionConfiguration?.toXml());
+      builder.element('Metrics', nest: metrics?.toXml());
+      builder.element('ReplicationTime', nest: replicationTime?.toXml());
       builder.element('StorageClass', nest: storageClass);
     });
     return builder.buildDocument();
   }
 
+  ///  The Amazon Resource Name (ARN) of the bucket where you want Amazon S3 to store the results.
+  late String bucket;
+
   /// Specify this only in a cross-account scenario (where source and destination bucket owners are not the same), and you want to change replica ownership to the AWS account that owns the destination bucket. If this is not specified in the replication configuration, the replicas are owned by same AWS account that owns the source object.
   AccessControlTranslation? accessControlTranslation;
 
-  /// Destination bucket owner account ID. In a cross-account scenario, if you direct Amazon S3 to change replica ownership to the AWS account that owns the destination bucket by specifying the AccessControlTranslation property, this is the account ID of the destination bucket owner. For more information, see Replication Additional Configuration: Changing the Replica Owner in the Amazon Simple Storage Service Developer Guide.
+  /// Destination bucket owner account ID. In a cross-account scenario, if you direct Amazon S3 to change replica ownership to the AWS account that owns the destination bucket by specifying the AccessControlTranslation property, this is the account ID of the destination bucket owner. For more information, see Replication Additional Configuration: Changing the Replica Owner in the Amazon S3 User Guide.
   String? account;
-
-  ///  The Amazon Resource Name (ARN) of the bucket where you want Amazon S3 to store the results.
-  String? bucket;
 
   /// A container that provides information about encryption. If SourceSelectionCriteria is specified, you must specify this element.
   EncryptionConfiguration? encryptionConfiguration;
 
-  ///  A container specifying replication metrics-related settings enabling metrics and Amazon S3 events for S3 Replication Time Control (S3 RTC). Must be specified together with a ReplicationTime block.
+  ///  A container specifying replication metrics-related settings enabling replication metrics and events.
   Metrics? metrics;
 
   ///  A container specifying S3 Replication Time Control (S3 RTC), including whether S3 RTC is enabled and the time when all objects and operations on objects must be replicated. Must be specified together with a Metrics block.
@@ -1002,9 +1195,9 @@ class Encryption {
   );
 
   Encryption.fromXml(XmlElement? xml) {
-    encryptionType = getProp(xml, 'EncryptionType')?.text;
-    kMSContext = getProp(xml, 'KMSContext')?.text;
-    kMSKeyId = getProp(xml, 'KMSKeyId')?.text;
+    encryptionType = getPropValue<String>(xml, 'EncryptionType');
+    kMSContext = getPropValueOrNull<String>(xml, 'KMSContext');
+    kMSKeyId = getPropValueOrNull<String>(xml, 'KMSKeyId');
   }
 
   XmlNode toXml() {
@@ -1018,12 +1211,12 @@ class Encryption {
   }
 
   /// The server-side encryption algorithm used when storing job results in Amazon S3 (for example, AES256, aws:kms).
-  String? encryptionType;
+  late String encryptionType;
 
   /// If the encryption type is aws:kms, this optional value can be used to specify the encryption context for the restore results.
   String? kMSContext;
 
-  /// If the encryption type is aws:kms, this optional value specifies the ID of the symmetric customer managed AWS KMS CMK to use for encryption of job results. Amazon S3 only supports symmetric CMKs. For more information, see Using Symmetric and Asymmetric Keys in the AWS Key Management Service Developer Guide.
+  /// If the encryption type is aws:kms, this optional value specifies the ID of the symmetric encryption customer managed key to use for encryption of job results. Amazon S3 only supports symmetric encryption KMS keys. For more information, see Asymmetric keys in AWS KMS in the AWS Key Management Service Developer Guide.
   String? kMSKeyId;
 }
 
@@ -1034,7 +1227,7 @@ class EncryptionConfiguration {
   );
 
   EncryptionConfiguration.fromXml(XmlElement? xml) {
-    replicaKmsKeyID = getProp(xml, 'ReplicaKmsKeyID')?.text;
+    replicaKmsKeyID = getPropValueOrNull<String>(xml, 'ReplicaKmsKeyID');
   }
 
   XmlNode toXml() {
@@ -1045,7 +1238,7 @@ class EncryptionConfiguration {
     return builder.buildDocument();
   }
 
-  /// Specifies the ID (Key ARN or Alias ARN) of the customer managed customer master key (CMK) stored in AWS Key Management Service (KMS) for the destination bucket. Amazon S3 uses this key to encrypt replica objects. Amazon S3 only supports symmetric customer managed CMKs. For more information, see Using Symmetric and Asymmetric Keys in the AWS Key Management Service Developer Guide.
+  /// Specifies the ID (Key ARN or Alias ARN) of the customer managed AWS KMS key stored in AWS Key Management Service (KMS) for the destination bucket. Amazon S3 uses this key to encrypt replica objects. Amazon S3 only supports symmetric encryption KMS keys. For more information, see Asymmetric keys in AWS KMS in the AWS Key Management Service Developer Guide.
   String? replicaKmsKeyID;
 }
 
@@ -1053,7 +1246,7 @@ class EncryptionConfiguration {
 class EndEvent {
   EndEvent();
 
-  EndEvent.fromXml(XmlElement? xml);
+  EndEvent.fromXml(XmlElement? xml) {}
 
   XmlNode toXml() {
     final builder = XmlBuilder();
@@ -1071,11 +1264,11 @@ class Error {
     this.versionId,
   );
 
-  Error.fromXml(XmlElement xml) {
-    code = getProp(xml, 'Code')?.text;
-    key = getProp(xml, 'Key')?.text;
-    message = getProp(xml, 'Message')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+  Error.fromXml(XmlElement? xml) {
+    code = getPropValueOrNull<String>(xml, 'Code');
+    key = getPropValueOrNull<String>(xml, 'Key');
+    message = getPropValueOrNull<String>(xml, 'Message');
+    versionId = getPropValueOrNull<String>(xml, 'VersionId');
   }
 
   XmlNode toXml() {
@@ -1089,7 +1282,7 @@ class Error {
     return builder.buildDocument();
   }
 
-  /// The error code is a string that uniquely identifies an error condition. It is meant to be read and understood by programs that detect and handle errors by type.
+  /// The error code is a string that uniquely identifies an error condition. It is meant to be read and understood by programs that detect and handle errors by type. The following is a list of Amazon S3 error codes. For more information, see Error responses.
   String? code;
 
   /// The error key.
@@ -1100,11 +1293,6 @@ class Error {
 
   /// The version ID of the error.
   String? versionId;
-
-  @override
-  String toString() {
-    return 'Error{code: $code, key: $key, message: $message, versionId: $versionId}';
-  }
 }
 
 /// The error information.
@@ -1114,7 +1302,7 @@ class ErrorDocument {
   );
 
   ErrorDocument.fromXml(XmlElement? xml) {
-    key = getProp(xml, 'Key')?.text;
+    key = getPropValue<String>(xml, 'Key');
   }
 
   XmlNode toXml() {
@@ -1126,17 +1314,30 @@ class ErrorDocument {
   }
 
   /// The object key name to use when a 4XX class error occurs.
-  String? key;
+  late String key;
 }
 
-/// Optional configuration to replicate existing source bucket objects. For more information, see Replicating Existing Objects in the Amazon S3 Developer Guide.
+/// A container for specifying the configuration for Amazon EventBridge.
+class EventBridgeConfiguration {
+  EventBridgeConfiguration();
+
+  EventBridgeConfiguration.fromXml(XmlElement? xml) {}
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('EventBridgeConfiguration', nest: () {});
+    return builder.buildDocument();
+  }
+}
+
+/// Optional configuration to replicate existing source bucket objects.
 class ExistingObjectReplication {
   ExistingObjectReplication(
     this.status,
   );
 
   ExistingObjectReplication.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getPropValue<String>(xml, 'Status');
   }
 
   XmlNode toXml() {
@@ -1147,11 +1348,11 @@ class ExistingObjectReplication {
     return builder.buildDocument();
   }
 
-  /// Type: String
-  String? status;
+  /// Specifies whether Amazon S3 replicates existing source bucket objects.
+  late String status;
 }
 
-/// Specifies the Amazon S3 object key name to filter on and whether to filter on the suffix or prefix of the key name.
+/// Specifies the Amazon S3 object key name to filter on. An object key name is the name assigned to an object in your Amazon S3 bucket. You specify whether to filter on the suffix or prefix of the object key name. A prefix is a specific string of characters at the beginning of an object key name, which you can use to organize objects. For example, you can start the key names of related objects with a prefix, such as 2023- or engineering/. Then, you can use FilterRule to find objects in a bucket with key names that have the same prefix. A suffix is similar to a prefix, but it is at the end of the object key name instead of at the beginning.
 class FilterRule {
   FilterRule(
     this.name,
@@ -1159,8 +1360,8 @@ class FilterRule {
   );
 
   FilterRule.fromXml(XmlElement? xml) {
-    name = getProp(xml, 'Name')?.text;
-    value = getProp(xml, 'Value')?.text;
+    name = getPropValueOrNull<String>(xml, 'Name');
+    value = getPropValueOrNull<String>(xml, 'Value');
   }
 
   XmlNode toXml() {
@@ -1172,11 +1373,68 @@ class FilterRule {
     return builder.buildDocument();
   }
 
-  /// The object key name prefix or suffix identifying one or more objects to which the filtering rule applies. The maximum length is 1,024 characters. Overlapping prefixes and suffixes are not supported. For more information, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
+  /// The object key name prefix or suffix identifying one or more objects to which the filtering rule applies. The maximum length is 1,024 characters. Overlapping prefixes and suffixes are not supported. For more information, see Configuring Event Notifications in the Amazon S3 User Guide.
   String? name;
 
   /// The value that the filter searches for in object key names.
   String? value;
+}
+
+/// A collection of parts associated with a multipart upload.
+class GetObjectAttributesParts {
+  GetObjectAttributesParts(
+    this.isTruncated,
+    this.maxParts,
+    this.nextPartNumberMarker,
+    this.partNumberMarker,
+    this.parts,
+    this.totalPartsCount,
+  );
+
+  GetObjectAttributesParts.fromXml(XmlElement? xml) {
+    isTruncated = getPropValueOrNull<bool>(xml, 'IsTruncated');
+    maxParts = getPropValueOrNull<int>(xml, 'MaxParts');
+    nextPartNumberMarker = getPropValueOrNull<int>(xml, 'NextPartNumberMarker');
+    partNumberMarker = getPropValueOrNull<int>(xml, 'PartNumberMarker');
+    parts = getProp(xml, 'Parts')
+        ?.children
+        .map((c) => ObjectPart.fromXml(c as XmlElement))
+        .toList();
+    totalPartsCount = getPropValueOrNull<int>(xml, 'TotalPartsCount');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('GetObjectAttributesParts', nest: () {
+      builder.element('IsTruncated',
+          nest: isTruncated == true ? 'TRUE' : 'FALSE');
+      builder.element('MaxParts', nest: maxParts.toString());
+      builder.element('NextPartNumberMarker',
+          nest: nextPartNumberMarker.toString());
+      builder.element('PartNumberMarker', nest: partNumberMarker.toString());
+      builder.element('Parts', nest: parts?.map((e) => e.toXml()));
+      builder.element('TotalPartsCount', nest: totalPartsCount.toString());
+    });
+    return builder.buildDocument();
+  }
+
+  /// Indicates whether the returned list of parts is truncated. A value of true indicates that the list was truncated. A list can be truncated if the number of parts exceeds the limit returned in the MaxParts element.
+  bool? isTruncated;
+
+  /// The maximum number of parts allowed in the response.
+  int? maxParts;
+
+  /// When a list is truncated, this element specifies the last part in the list, as well as the value to use for the PartNumberMarker request parameter in a subsequent request.
+  int? nextPartNumberMarker;
+
+  /// The marker for the current part.
+  int? partNumberMarker;
+
+  /// A container for elements related to a particular part. A response can contain zero or more Parts elements.
+  List<ObjectPart>? parts;
+
+  /// The total number of parts.
+  int? totalPartsCount;
 }
 
 /// Container for S3 Glacier job parameters.
@@ -1186,7 +1444,7 @@ class GlacierJobParameters {
   );
 
   GlacierJobParameters.fromXml(XmlElement? xml) {
-    tier = getProp(xml, 'Tier')?.text;
+    tier = getPropValue<String>(xml, 'Tier');
   }
 
   XmlNode toXml() {
@@ -1197,8 +1455,8 @@ class GlacierJobParameters {
     return builder.buildDocument();
   }
 
-  /// S3 Glacier retrieval tier at which the restore will be processed.
-  String? tier;
+  /// Retrieval tier at which the restore will be processed.
+  late String tier;
 }
 
 /// Container for grant information.
@@ -1210,13 +1468,13 @@ class Grant {
 
   Grant.fromXml(XmlElement? xml) {
     grantee = Grantee.fromXml(getProp(xml, 'Grantee'));
-    permission = getProp(xml, 'Permission')?.text;
+    permission = getPropValueOrNull<String>(xml, 'Permission');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Grant', nest: () {
-      builder.element('Grantee', nest: grantee!.toXml());
+      builder.element('Grantee', nest: grantee?.toXml());
       builder.element('Permission', nest: permission);
     });
     return builder.buildDocument();
@@ -1232,32 +1490,35 @@ class Grant {
 /// Container for the person being granted permissions.
 class Grantee {
   Grantee(
+    this.type,
     this.displayName,
     this.emailAddress,
     this.iD,
-    this.type,
     this.uRI,
   );
 
   Grantee.fromXml(XmlElement? xml) {
-    displayName = getProp(xml, 'DisplayName')?.text;
-    emailAddress = getProp(xml, 'EmailAddress')?.text;
-    iD = getProp(xml, 'ID')?.text;
-    type = getProp(xml, 'Type')?.text;
-    uRI = getProp(xml, 'URI')?.text;
+    type = getPropValue<String>(xml, 'Type');
+    displayName = getPropValueOrNull<String>(xml, 'DisplayName');
+    emailAddress = getPropValueOrNull<String>(xml, 'EmailAddress');
+    iD = getPropValueOrNull<String>(xml, 'ID');
+    uRI = getPropValueOrNull<String>(xml, 'URI');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Grantee', nest: () {
+      builder.element('Type', nest: type);
       builder.element('DisplayName', nest: displayName);
       builder.element('EmailAddress', nest: emailAddress);
       builder.element('ID', nest: iD);
-      builder.element('Type', nest: type);
       builder.element('URI', nest: uRI);
     });
     return builder.buildDocument();
   }
+
+  /// Type of grantee
+  late String type;
 
   /// Screen name of the grantee.
   String? displayName;
@@ -1267,9 +1528,6 @@ class Grantee {
 
   /// The canonical user ID of the grantee.
   String? iD;
-
-  /// Type of grantee
-  String? type;
 
   /// URI of the grantee group.
   String? uRI;
@@ -1282,7 +1540,7 @@ class IndexDocument {
   );
 
   IndexDocument.fromXml(XmlElement? xml) {
-    suffix = getProp(xml, 'Suffix')?.text;
+    suffix = getPropValue<String>(xml, 'Suffix');
   }
 
   XmlNode toXml() {
@@ -1293,8 +1551,8 @@ class IndexDocument {
     return builder.buildDocument();
   }
 
-  /// A suffix that is appended to a request that is for a directory on the website endpoint (for example,if the suffix is index.html and you make a request to samplebucket/images/ the data that is returned will be for the object with the key name images/index.html) The suffix must not be empty and must not include a slash character.
-  String? suffix;
+  /// A suffix that is appended to a request that is for a directory on the website endpoint. (For example, if the suffix is index.html and you make a request to samplebucket/images/, the data that is returned will be for the object with the key name images/index.html.) The suffix must not be empty and must not include a slash character.
+  late String suffix;
 }
 
 /// Container element that identifies who initiated the multipart upload.
@@ -1305,8 +1563,8 @@ class Initiator {
   );
 
   Initiator.fromXml(XmlElement? xml) {
-    displayName = getProp(xml, 'DisplayName')?.text;
-    iD = getProp(xml, 'ID')?.text;
+    displayName = getPropValueOrNull<String>(xml, 'DisplayName');
+    iD = getPropValueOrNull<String>(xml, 'ID');
   }
 
   XmlNode toXml() {
@@ -1335,7 +1593,7 @@ class InputSerialization {
   );
 
   InputSerialization.fromXml(XmlElement? xml) {
-    compressionType = getProp(xml, 'CompressionType')?.text;
+    compressionType = getPropValueOrNull<String>(xml, 'CompressionType');
     cSV = CSVInput.fromXml(getProp(xml, 'CSV'));
     jSON = JSONInput.fromXml(getProp(xml, 'JSON'));
     parquet = ParquetInput.fromXml(getProp(xml, 'Parquet'));
@@ -1345,9 +1603,9 @@ class InputSerialization {
     final builder = XmlBuilder();
     builder.element('InputSerialization', nest: () {
       builder.element('CompressionType', nest: compressionType);
-      builder.element('CSV', nest: cSV!.toXml());
-      builder.element('JSON', nest: jSON!.toXml());
-      builder.element('Parquet', nest: parquet!.toXml());
+      builder.element('CSV', nest: cSV?.toXml());
+      builder.element('JSON', nest: jSON?.toXml());
+      builder.element('Parquet', nest: parquet?.toXml());
     });
     return builder.buildDocument();
   }
@@ -1365,62 +1623,171 @@ class InputSerialization {
   ParquetInput? parquet;
 }
 
-/// Specifies the inventory configuration for an Amazon S3 bucket. For more information, see GET Bucket inventory in the Amazon Simple Storage Service API Reference.
+/// A container for specifying S3 Intelligent-Tiering filters. The filters determine the subset of objects to which the rule applies.
+class IntelligentTieringAndOperator {
+  IntelligentTieringAndOperator(
+    this.prefix,
+    this.tags,
+  );
+
+  IntelligentTieringAndOperator.fromXml(XmlElement? xml) {
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    tags = getProp(xml, 'Tags')
+        ?.children
+        .map((c) => Tag.fromXml(c as XmlElement))
+        .toList();
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('IntelligentTieringAndOperator', nest: () {
+      builder.element('Prefix', nest: prefix);
+      builder.element('Tags', nest: tags?.map((e) => e.toXml()));
+    });
+    return builder.buildDocument();
+  }
+
+  /// An object key name prefix that identifies the subset of objects to which the configuration applies.
+  String? prefix;
+
+  /// All of these tags must exist in the object's tag set in order for the configuration to apply.
+  List<Tag>? tags;
+}
+
+/// Specifies the S3 Intelligent-Tiering configuration for an Amazon S3 bucket.
+class IntelligentTieringConfiguration {
+  IntelligentTieringConfiguration(
+    this.id,
+    this.status,
+    this.tierings,
+    this.filter,
+  );
+
+  IntelligentTieringConfiguration.fromXml(XmlElement? xml) {
+    id = getPropValue<String>(xml, 'Id');
+    status = getPropValue<String>(xml, 'Status');
+    tierings = getProp(xml, 'Tierings')!
+        .children
+        .map((c) => Tiering.fromXml(c as XmlElement))
+        .toList();
+    filter = IntelligentTieringFilter.fromXml(getProp(xml, 'Filter'));
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('IntelligentTieringConfiguration', nest: () {
+      builder.element('Id', nest: id);
+      builder.element('Status', nest: status);
+      builder.element('Tierings', nest: tierings.map((e) => e.toXml()));
+      builder.element('Filter', nest: filter?.toXml());
+    });
+    return builder.buildDocument();
+  }
+
+  /// The ID used to identify the S3 Intelligent-Tiering configuration.
+  late String id;
+
+  /// Specifies the status of the configuration.
+  late String status;
+
+  /// Specifies the S3 Intelligent-Tiering storage class tier of the configuration.
+  late List<Tiering> tierings;
+
+  /// Specifies a bucket filter. The configuration only includes objects that meet the filter's criteria.
+  IntelligentTieringFilter? filter;
+}
+
+/// The Filter is used to identify objects that the S3 Intelligent-Tiering configuration applies to.
+class IntelligentTieringFilter {
+  IntelligentTieringFilter(
+    this.and,
+    this.prefix,
+    this.tag,
+  );
+
+  IntelligentTieringFilter.fromXml(XmlElement? xml) {
+    and = IntelligentTieringAndOperator.fromXml(getProp(xml, 'And'));
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    tag = Tag.fromXml(getProp(xml, 'Tag'));
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('IntelligentTieringFilter', nest: () {
+      builder.element('And', nest: and?.toXml());
+      builder.element('Prefix', nest: prefix);
+      builder.element('Tag', nest: tag?.toXml());
+    });
+    return builder.buildDocument();
+  }
+
+  /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.
+  IntelligentTieringAndOperator? and;
+
+  /// An object key name prefix that identifies the subset of objects to which the rule applies.
+  String? prefix;
+
+  /// A container of a key value name pair.
+  Tag? tag;
+}
+
+/// Specifies the inventory configuration for an Amazon S3 bucket. For more information, see GET Bucket inventory in the Amazon S3 API Reference.
 class InventoryConfiguration {
   InventoryConfiguration(
     this.destination,
-    this.filter,
     this.id,
     this.includedObjectVersions,
     this.isEnabled,
-    this.optionalFields,
     this.schedule,
+    this.filter,
+    this.optionalFields,
   );
 
-  InventoryConfiguration.fromXml(XmlElement xml) {
+  InventoryConfiguration.fromXml(XmlElement? xml) {
     destination = InventoryDestination.fromXml(getProp(xml, 'Destination'));
-    filter = InventoryFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    includedObjectVersions = getProp(xml, 'IncludedObjectVersions')?.text;
-    isEnabled = getProp(xml, 'IsEnabled')?.text.toUpperCase() == 'TRUE';
-    optionalFields = getProp(xml, 'OptionalFields')?.text;
+    id = getPropValue<String>(xml, 'Id');
+    includedObjectVersions =
+        getPropValue<String>(xml, 'IncludedObjectVersions');
+    isEnabled = getPropValue<bool>(xml, 'IsEnabled');
     schedule = InventorySchedule.fromXml(getProp(xml, 'Schedule'));
+    filter = InventoryFilter.fromXml(getProp(xml, 'Filter'));
+    optionalFields = getPropValueOrNull<List<String>>(xml, 'OptionalFields');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('InventoryConfiguration', nest: () {
-      builder.element('Destination', nest: destination!.toXml());
-      builder.element('Filter', nest: filter!.toXml());
+      builder.element('Destination', nest: destination.toXml());
       builder.element('Id', nest: id);
       builder.element('IncludedObjectVersions', nest: includedObjectVersions);
-      builder.element('IsEnabled', nest: isEnabled! ? 'TRUE' : 'FALSE');
+      builder.element('IsEnabled', nest: isEnabled == true ? 'TRUE' : 'FALSE');
+      builder.element('Schedule', nest: schedule.toXml());
+      builder.element('Filter', nest: filter?.toXml());
       builder.element('OptionalFields', nest: optionalFields);
-      builder.element('Schedule', nest: schedule!.toXml());
     });
     return builder.buildDocument();
   }
 
   /// Contains information about where to publish the inventory results.
-  InventoryDestination? destination;
+  late InventoryDestination destination;
+
+  /// The ID used to identify the inventory configuration.
+  late String id;
+
+  /// Object versions to include in the inventory list. If set to All, the list includes all the object versions, which adds the version-related fields VersionId, IsLatest, and DeleteMarker to the list. If set to Current, the list does not contain these version-related fields.
+  late String includedObjectVersions;
+
+  /// Specifies whether the inventory is enabled or disabled. If set to True, an inventory list is generated. If set to False, no inventory list is generated.
+  late bool isEnabled;
+
+  /// Specifies the schedule for generating inventory results.
+  late InventorySchedule schedule;
 
   /// Specifies an inventory filter. The inventory only includes objects that meet the filter's criteria.
   InventoryFilter? filter;
 
-  /// The ID used to identify the inventory configuration.
-  String? id;
-
-  /// Object versions to include in the inventory list. If set to All, the list includes all the object versions, which adds the version-related fields VersionId, IsLatest, and DeleteMarker to the list. If set to Current, the list does not contain these version-related fields.
-  String? includedObjectVersions;
-
-  /// Specifies whether the inventory is enabled or disabled. If set to True, an inventory list is generated. If set to False, no inventory list is generated.
-  bool? isEnabled;
-
   /// Contains the optional fields that are included in the inventory results.
-  String? optionalFields;
-
-  /// Specifies the schedule for generating inventory results.
-  InventorySchedule? schedule;
+  List<String>? optionalFields;
 }
 
 /// Specifies the inventory configuration for an Amazon S3 bucket.
@@ -1437,14 +1804,13 @@ class InventoryDestination {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('InventoryDestination', nest: () {
-      builder.element('S3BucketDestination',
-          nest: s3BucketDestination!.toXml());
+      builder.element('S3BucketDestination', nest: s3BucketDestination.toXml());
     });
     return builder.buildDocument();
   }
 
   /// Contains the bucket name, file format, bucket owner (optional), and prefix (optional) where inventory results are published.
-  InventoryS3BucketDestination? s3BucketDestination;
+  late InventoryS3BucketDestination s3BucketDestination;
 }
 
 /// Contains the type of server-side encryption used to encrypt the inventory results.
@@ -1462,8 +1828,8 @@ class InventoryEncryption {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('InventoryEncryption', nest: () {
-      builder.element('SSEKMS', nest: sSEKMS!.toXml());
-      builder.element('SSES3', nest: sSES3!.toXml());
+      builder.element('SSEKMS', nest: sSEKMS?.toXml());
+      builder.element('SSES3', nest: sSES3?.toXml());
     });
     return builder.buildDocument();
   }
@@ -1482,7 +1848,7 @@ class InventoryFilter {
   );
 
   InventoryFilter.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getPropValue<String>(xml, 'Prefix');
   }
 
   XmlNode toXml() {
@@ -1494,50 +1860,50 @@ class InventoryFilter {
   }
 
   /// The prefix that an object must have to be included in the inventory results.
-  String? prefix;
+  late String prefix;
 }
 
 /// Contains the bucket name, file format, bucket owner (optional), and prefix (optional) where inventory results are published.
 class InventoryS3BucketDestination {
   InventoryS3BucketDestination(
-    this.accountId,
     this.bucket,
-    this.encryption,
     this.format,
+    this.accountId,
+    this.encryption,
     this.prefix,
   );
 
   InventoryS3BucketDestination.fromXml(XmlElement? xml) {
-    accountId = getProp(xml, 'AccountId')?.text;
-    bucket = getProp(xml, 'Bucket')?.text;
+    bucket = getPropValue<String>(xml, 'Bucket');
+    format = getPropValue<String>(xml, 'Format');
+    accountId = getPropValueOrNull<String>(xml, 'AccountId');
     encryption = InventoryEncryption.fromXml(getProp(xml, 'Encryption'));
-    format = getProp(xml, 'Format')?.text;
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('InventoryS3BucketDestination', nest: () {
-      builder.element('AccountId', nest: accountId);
       builder.element('Bucket', nest: bucket);
-      builder.element('Encryption', nest: encryption!.toXml());
       builder.element('Format', nest: format);
+      builder.element('AccountId', nest: accountId);
+      builder.element('Encryption', nest: encryption?.toXml());
       builder.element('Prefix', nest: prefix);
     });
     return builder.buildDocument();
   }
 
-  /// The ID of the account that owns the destination bucket. Although optional, we recommend that the value be set to prevent problems if the destination bucket ownership changes.
-  String? accountId;
-
   /// The Amazon Resource Name (ARN) of the bucket where inventory results will be published.
-  String? bucket;
+  late String bucket;
+
+  /// Specifies the output format of the inventory results.
+  late String format;
+
+  /// The account ID that owns the destination S3 bucket. If no account ID is provided, the owner is not validated before exporting data.
+  String? accountId;
 
   /// Contains the type of server-side encryption used to encrypt the inventory results.
   InventoryEncryption? encryption;
-
-  /// Specifies the output format of the inventory results.
-  String? format;
 
   /// The prefix that is prepended to all inventory results.
   String? prefix;
@@ -1550,7 +1916,7 @@ class InventorySchedule {
   );
 
   InventorySchedule.fromXml(XmlElement? xml) {
-    frequency = getProp(xml, 'Frequency')?.text;
+    frequency = getPropValue<String>(xml, 'Frequency');
   }
 
   XmlNode toXml() {
@@ -1562,7 +1928,7 @@ class InventorySchedule {
   }
 
   /// Specifies how frequently inventory results are produced.
-  String? frequency;
+  late String frequency;
 }
 
 /// Specifies JSON as object's input serialization format.
@@ -1572,7 +1938,7 @@ class JSONInput {
   );
 
   JSONInput.fromXml(XmlElement? xml) {
-    type = getProp(xml, 'Type')?.text;
+    type = getPropValueOrNull<String>(xml, 'Type');
   }
 
   XmlNode toXml() {
@@ -1594,7 +1960,7 @@ class JSONOutput {
   );
 
   JSONOutput.fromXml(XmlElement? xml) {
-    recordDelimiter = getProp(xml, 'RecordDelimiter')?.text;
+    recordDelimiter = getPropValueOrNull<String>(xml, 'RecordDelimiter');
   }
 
   XmlNode toXml() {
@@ -1605,7 +1971,7 @@ class JSONOutput {
     return builder.buildDocument();
   }
 
-  /// The value used to separate individual records in the output.
+  /// The value used to separate individual records in the output. If no value is specified, Amazon S3 uses a newline character ('\n').
   String? recordDelimiter;
 }
 
@@ -1613,40 +1979,40 @@ class JSONOutput {
 class LambdaFunctionConfiguration {
   LambdaFunctionConfiguration(
     this.events,
+    this.lambdaFunctionArn,
     this.filter,
     this.id,
-    this.lambdaFunctionArn,
   );
 
   LambdaFunctionConfiguration.fromXml(XmlElement? xml) {
-    events = getProp(xml, 'Events')?.text;
+    events = getPropValue<List<String>>(xml, 'Events');
+    lambdaFunctionArn = getPropValue<String>(xml, 'LambdaFunctionArn');
     filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    lambdaFunctionArn = getProp(xml, 'LambdaFunctionArn')?.text;
+    id = getPropValueOrNull<String>(xml, 'Id');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('LambdaFunctionConfiguration', nest: () {
       builder.element('Events', nest: events);
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
       builder.element('LambdaFunctionArn', nest: lambdaFunctionArn);
+      builder.element('Filter', nest: filter?.toXml());
+      builder.element('Id', nest: id);
     });
     return builder.buildDocument();
   }
 
-  /// The Amazon S3 bucket event for which to invoke the AWS Lambda function. For more information, see Supported Event Types in the Amazon Simple Storage Service Developer Guide.
-  String? events;
+  /// The Amazon S3 bucket event for which to invoke the AWS Lambda function. For more information, see Supported Event Types in the Amazon S3 User Guide.
+  late List<String> events;
 
-  /// Specifies object key name filtering rules. For information about key name filtering, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
+  /// The Amazon Resource Name (ARN) of the AWS Lambda function that Amazon S3 invokes when the specified event type occurs.
+  late String lambdaFunctionArn;
+
+  /// Specifies object key name filtering rules. For information about key name filtering, see Configuring event notifications using object key name filtering in the Amazon S3 User Guide.
   NotificationConfigurationFilter? filter;
 
   /// An optional unique identifier for configurations in a notification configuration. If you don't provide one, Amazon S3 will assign an ID.
   String? id;
-
-  /// The Amazon Resource Name (ARN) of the AWS Lambda function that Amazon S3 invokes when the specified event type occurs.
-  String? lambdaFunctionArn;
 }
 
 /// Container for lifecycle rules. You can add as many as 1000 rules.
@@ -1655,20 +2021,23 @@ class LifecycleConfiguration {
     this.rules,
   );
 
-  LifecycleConfiguration.fromXml(XmlElement xml) {
-    rules = Rule.fromXml(getProp(xml, 'Rules'));
+  LifecycleConfiguration.fromXml(XmlElement? xml) {
+    rules = getProp(xml, 'Rules')!
+        .children
+        .map((c) => Rule.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('LifecycleConfiguration', nest: () {
-      builder.element('Rules', nest: rules!.toXml());
+      builder.element('Rules', nest: rules.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
   /// Specifies lifecycle configuration rules for an Amazon S3 bucket.
-  Rule? rules;
+  late List<Rule> rules;
 }
 
 /// Container for the expiration for the lifecycle of the object.
@@ -1680,24 +2049,24 @@ class LifecycleExpiration {
   );
 
   LifecycleExpiration.fromXml(XmlElement? xml) {
-    date = DateTime.parse(getProp(xml, 'Date')!.text);
-    days = int.tryParse(getProp(xml, 'Days')!.text);
+    date = getPropValueOrNull<DateTime>(xml, 'Date');
+    days = getPropValueOrNull<int>(xml, 'Days');
     expiredObjectDeleteMarker =
-        getProp(xml, 'ExpiredObjectDeleteMarker')?.text.toUpperCase() == 'TRUE';
+        getPropValueOrNull<bool>(xml, 'ExpiredObjectDeleteMarker');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('LifecycleExpiration', nest: () {
-      builder.element('Date', nest: date!.toIso8601String());
+      builder.element('Date', nest: date?.toIso8601String());
       builder.element('Days', nest: days.toString());
       builder.element('ExpiredObjectDeleteMarker',
-          nest: expiredObjectDeleteMarker! ? 'TRUE' : 'FALSE');
+          nest: expiredObjectDeleteMarker == true ? 'TRUE' : 'FALSE');
     });
     return builder.buildDocument();
   }
 
-  /// Indicates at what date the object is to be moved or deleted. Should be in GMT ISO 8601 Format.
+  /// Indicates at what date the object is to be moved or deleted. The date value must conform to the ISO 8601 format. The time is always midnight UTC.
   DateTime? date;
 
   /// Indicates the lifetime, in days, of the objects that are subject to the rule. The value must be a non-zero positive integer.
@@ -1710,6 +2079,7 @@ class LifecycleExpiration {
 /// A lifecycle rule for individual objects in an Amazon S3 bucket.
 class LifecycleRule {
   LifecycleRule(
+    this.status,
     this.abortIncompleteMultipartUpload,
     this.expiration,
     this.filter,
@@ -1717,51 +2087,58 @@ class LifecycleRule {
     this.noncurrentVersionExpiration,
     this.noncurrentVersionTransitions,
     this.prefix,
-    this.status,
     this.transitions,
   );
 
   LifecycleRule.fromXml(XmlElement? xml) {
+    status = getPropValue<String>(xml, 'Status');
     abortIncompleteMultipartUpload = AbortIncompleteMultipartUpload.fromXml(
         getProp(xml, 'AbortIncompleteMultipartUpload'));
     expiration = LifecycleExpiration.fromXml(getProp(xml, 'Expiration'));
     filter = LifecycleRuleFilter.fromXml(getProp(xml, 'Filter'));
-    iD = getProp(xml, 'ID')?.text;
+    iD = getPropValueOrNull<String>(xml, 'ID');
     noncurrentVersionExpiration = NoncurrentVersionExpiration.fromXml(
         getProp(xml, 'NoncurrentVersionExpiration'));
-    noncurrentVersionTransitions = NoncurrentVersionTransition.fromXml(
-        getProp(xml, 'NoncurrentVersionTransitions'));
-    prefix = getProp(xml, 'Prefix')?.text;
-    status = getProp(xml, 'Status')?.text;
-    transitions = Transition.fromXml(getProp(xml, 'Transitions'));
+    noncurrentVersionTransitions = getProp(xml, 'NoncurrentVersionTransitions')
+        ?.children
+        .map((c) => NoncurrentVersionTransition.fromXml(c as XmlElement))
+        .toList();
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    transitions = getProp(xml, 'Transitions')
+        ?.children
+        .map((c) => Transition.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('LifecycleRule', nest: () {
+      builder.element('Status', nest: status);
       builder.element('AbortIncompleteMultipartUpload',
-          nest: abortIncompleteMultipartUpload!.toXml());
-      builder.element('Expiration', nest: expiration!.toXml());
-      builder.element('Filter', nest: filter!.toXml());
+          nest: abortIncompleteMultipartUpload?.toXml());
+      builder.element('Expiration', nest: expiration?.toXml());
+      builder.element('Filter', nest: filter?.toXml());
       builder.element('ID', nest: iD);
       builder.element('NoncurrentVersionExpiration',
-          nest: noncurrentVersionExpiration!.toXml());
+          nest: noncurrentVersionExpiration?.toXml());
       builder.element('NoncurrentVersionTransitions',
-          nest: noncurrentVersionTransitions!.toXml());
+          nest: noncurrentVersionTransitions?.map((e) => e.toXml()));
       builder.element('Prefix', nest: prefix);
-      builder.element('Status', nest: status);
-      builder.element('Transitions', nest: transitions!.toXml());
+      builder.element('Transitions', nest: transitions?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
-  /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
+  /// If 'Enabled', the rule is currently being applied. If 'Disabled', the rule is not currently being applied.
+  late String status;
+
+  /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Configuration in the Amazon S3 User Guide.
   AbortIncompleteMultipartUpload? abortIncompleteMultipartUpload;
 
   /// Specifies the expiration for the lifecycle of the object in the form of date, days and, whether the object has a delete marker.
   LifecycleExpiration? expiration;
 
-  /// The Filter is used to identify objects that a Lifecycle Rule applies to. A Filter must have exactly one of Prefix, Tag, or And specified.
+  /// The Filter is used to identify objects that a Lifecycle Rule applies to. A Filter must have exactly one of Prefix, Tag, or And specified. Filter is required if the LifecycleRule does not contain a Prefix element.
   LifecycleRuleFilter? filter;
 
   /// Unique identifier for the rule. The value cannot be longer than 255 characters.
@@ -1771,72 +2148,102 @@ class LifecycleRule {
   NoncurrentVersionExpiration? noncurrentVersionExpiration;
 
   ///  Specifies the transition rule for the lifecycle rule that describes when noncurrent objects transition to a specific storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to a specific storage class at a set period in the object's lifetime.
-  NoncurrentVersionTransition? noncurrentVersionTransitions;
+  List<NoncurrentVersionTransition>? noncurrentVersionTransitions;
 
   ///  This member has been deprecated.
   String? prefix;
 
-  /// If 'Enabled', the rule is currently being applied. If 'Disabled', the rule is not currently being applied.
-  String? status;
-
   /// Specifies when an Amazon S3 object transitions to a specified storage class.
-  Transition? transitions;
+  List<Transition>? transitions;
 }
 
 /// This is used in a Lifecycle Rule Filter to apply a logical AND to two or more predicates. The Lifecycle Rule will apply to any object matching all of the predicates configured inside the And operator.
 class LifecycleRuleAndOperator {
   LifecycleRuleAndOperator(
+    this.objectSizeGreaterThan,
+    this.objectSizeLessThan,
     this.prefix,
     this.tags,
   );
 
   LifecycleRuleAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
-    tags = Tag.fromXml(getProp(xml, 'Tags'));
+    objectSizeGreaterThan =
+        getPropValueOrNull<int>(xml, 'ObjectSizeGreaterThan');
+    objectSizeLessThan = getPropValueOrNull<int>(xml, 'ObjectSizeLessThan');
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    tags = getProp(xml, 'Tags')
+        ?.children
+        .map((c) => Tag.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('LifecycleRuleAndOperator', nest: () {
+      builder.element('ObjectSizeGreaterThan',
+          nest: objectSizeGreaterThan.toString());
+      builder.element('ObjectSizeLessThan',
+          nest: objectSizeLessThan.toString());
       builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
+      builder.element('Tags', nest: tags?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
+
+  /// Minimum object size to which the rule applies.
+  int? objectSizeGreaterThan;
+
+  /// Maximum object size to which the rule applies.
+  int? objectSizeLessThan;
 
   /// Prefix identifying one or more objects to which the rule applies.
   String? prefix;
 
   /// All of these tags must exist in the object's tag set in order for the rule to apply.
-  Tag? tags;
+  List<Tag>? tags;
 }
 
-/// The Filter is used to identify objects that a Lifecycle Rule applies to. A Filter must have exactly one of Prefix, Tag, or And specified.
+/// The Filter is used to identify objects that a Lifecycle Rule applies to. A Filter can have exactly one of Prefix, Tag, ObjectSizeGreaterThan, ObjectSizeLessThan, or And specified. If the Filter element is left empty, the Lifecycle Rule applies to all objects in the bucket.
 class LifecycleRuleFilter {
   LifecycleRuleFilter(
     this.and,
+    this.objectSizeGreaterThan,
+    this.objectSizeLessThan,
     this.prefix,
     this.tag,
   );
 
   LifecycleRuleFilter.fromXml(XmlElement? xml) {
     and = LifecycleRuleAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    objectSizeGreaterThan =
+        getPropValueOrNull<int>(xml, 'ObjectSizeGreaterThan');
+    objectSizeLessThan = getPropValueOrNull<int>(xml, 'ObjectSizeLessThan');
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('LifecycleRuleFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
+      builder.element('And', nest: and?.toXml());
+      builder.element('ObjectSizeGreaterThan',
+          nest: objectSizeGreaterThan.toString());
+      builder.element('ObjectSizeLessThan',
+          nest: objectSizeLessThan.toString());
       builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
+      builder.element('Tag', nest: tag?.toXml());
     });
     return builder.buildDocument();
   }
 
   /// This is used in a Lifecycle Rule Filter to apply a logical AND to two or more predicates. The Lifecycle Rule will apply to any object matching all of the predicates configured inside the And operator.
   LifecycleRuleAndOperator? and;
+
+  /// Minimum object size to which the rule applies.
+  int? objectSizeGreaterThan;
+
+  /// Maximum object size to which the rule applies.
+  int? objectSizeLessThan;
 
   /// Prefix identifying one or more objects to which the rule applies.
   String? prefix;
@@ -1845,38 +2252,78 @@ class LifecycleRuleFilter {
   Tag? tag;
 }
 
-/// Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket. For more information, see PUT Bucket logging in the Amazon Simple Storage Service API Reference.
+/// Specifies the location where the bucket will be created.
+class LocationInfo {
+  LocationInfo(
+    this.name,
+    this.type,
+  );
+
+  LocationInfo.fromXml(XmlElement? xml) {
+    name = getPropValueOrNull<String>(xml, 'Name');
+    type = getPropValueOrNull<String>(xml, 'Type');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('LocationInfo', nest: () {
+      builder.element('Name', nest: name);
+      builder.element('Type', nest: type);
+    });
+    return builder.buildDocument();
+  }
+
+  /// The name of the location where the bucket will be created.
+  String? name;
+
+  /// The type of location where the bucket will be created.
+  String? type;
+}
+
+/// Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket. For more information, see PUT Bucket logging in the Amazon S3 API Reference.
 class LoggingEnabled {
   LoggingEnabled(
     this.targetBucket,
-    this.targetGrants,
     this.targetPrefix,
+    this.targetGrants,
+    this.targetObjectKeyFormat,
   );
 
   LoggingEnabled.fromXml(XmlElement? xml) {
-    targetBucket = getProp(xml, 'TargetBucket')?.text;
-    targetGrants = TargetGrant.fromXml(getProp(xml, 'TargetGrants'));
-    targetPrefix = getProp(xml, 'TargetPrefix')?.text;
+    targetBucket = getPropValue<String>(xml, 'TargetBucket');
+    targetPrefix = getPropValue<String>(xml, 'TargetPrefix');
+    targetGrants = getProp(xml, 'TargetGrants')
+        ?.children
+        .map((c) => TargetGrant.fromXml(c as XmlElement))
+        .toList();
+    targetObjectKeyFormat =
+        TargetObjectKeyFormat.fromXml(getProp(xml, 'TargetObjectKeyFormat'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('LoggingEnabled', nest: () {
       builder.element('TargetBucket', nest: targetBucket);
-      builder.element('TargetGrants', nest: targetGrants!.toXml());
       builder.element('TargetPrefix', nest: targetPrefix);
+      builder.element('TargetGrants',
+          nest: targetGrants?.map((e) => e.toXml()));
+      builder.element('TargetObjectKeyFormat',
+          nest: targetObjectKeyFormat?.toXml());
     });
     return builder.buildDocument();
   }
 
   /// Specifies the bucket where you want Amazon S3 to store server access logs. You can have your logs delivered to any bucket that you own, including the same bucket that is being logged. You can also configure multiple buckets to deliver their logs to the same target bucket. In this case, you should choose a different TargetPrefix for each source bucket so that the delivered log files can be distinguished by key.
-  String? targetBucket;
-
-  /// Container for granting information.
-  TargetGrant? targetGrants;
+  late String targetBucket;
 
   /// A prefix for all log object keys. If you store log files from multiple Amazon S3 buckets in a single bucket, you can use a prefix to distinguish which log files came from which bucket.
-  String? targetPrefix;
+  late String targetPrefix;
+
+  /// Container for granting information.
+  List<TargetGrant>? targetGrants;
+
+  /// Amazon S3 key format for log objects.
+  TargetObjectKeyFormat? targetObjectKeyFormat;
 }
 
 /// A metadata key-value pair to store with an object.
@@ -1887,8 +2334,8 @@ class MetadataEntry {
   );
 
   MetadataEntry.fromXml(XmlElement? xml) {
-    name = getProp(xml, 'Name')?.text;
-    value = getProp(xml, 'Value')?.text;
+    name = getPropValueOrNull<String>(xml, 'Name');
+    value = getPropValueOrNull<String>(xml, 'Value');
   }
 
   XmlNode toXml() {
@@ -1900,121 +2347,136 @@ class MetadataEntry {
     return builder.buildDocument();
   }
 
-  /// Name of the Object.
+  /// Name of the object.
   String? name;
 
-  /// Value of the Object.
+  /// Value of the object.
   String? value;
 }
 
-///  A container specifying replication metrics-related settings enabling metrics and Amazon S3 events for S3 Replication Time Control (S3 RTC). Must be specified together with a ReplicationTime block.
+///  A container specifying replication metrics-related settings enabling replication metrics and events.
 class Metrics {
   Metrics(
-    this.eventThreshold,
     this.status,
+    this.eventThreshold,
   );
 
   Metrics.fromXml(XmlElement? xml) {
+    status = getPropValue<String>(xml, 'Status');
     eventThreshold =
         ReplicationTimeValue.fromXml(getProp(xml, 'EventThreshold'));
-    status = getProp(xml, 'Status')?.text;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Metrics', nest: () {
-      builder.element('EventThreshold', nest: eventThreshold!.toXml());
       builder.element('Status', nest: status);
+      builder.element('EventThreshold', nest: eventThreshold?.toXml());
     });
     return builder.buildDocument();
   }
 
+  ///  Specifies whether the replication metrics are enabled.
+  late String status;
+
   ///  A container specifying the time threshold for emitting the s3:Replication:OperationMissedThreshold event.
   ReplicationTimeValue? eventThreshold;
-
-  ///  Specifies whether the replication metrics are enabled.
-  String? status;
 }
 
 /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.
 class MetricsAndOperator {
   MetricsAndOperator(
+    this.accessPointArn,
     this.prefix,
     this.tags,
   );
 
   MetricsAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
-    tags = Tag.fromXml(getProp(xml, 'Tags'));
+    accessPointArn = getPropValueOrNull<String>(xml, 'AccessPointArn');
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    tags = getProp(xml, 'Tags')
+        ?.children
+        .map((c) => Tag.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('MetricsAndOperator', nest: () {
+      builder.element('AccessPointArn', nest: accessPointArn);
       builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
+      builder.element('Tags', nest: tags?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
+
+  /// The access point ARN used when evaluating an AND predicate.
+  String? accessPointArn;
 
   /// The prefix used when evaluating an AND predicate.
   String? prefix;
 
   /// The list of tags used when evaluating an AND predicate.
-  Tag? tags;
+  List<Tag>? tags;
 }
 
-/// Specifies a metrics configuration for the CloudWatch request metrics (specified by the metrics configuration ID) from an Amazon S3 bucket. If you're updating an existing metrics configuration, note that this is a full replacement of the existing metrics configuration. If you don't include the elements you want to keep, they are erased. For more information, see PUT Bucket metrics in the Amazon Simple Storage Service API Reference.
+/// Specifies a metrics configuration for the CloudWatch request metrics (specified by the metrics configuration ID) from an Amazon S3 bucket. If you're updating an existing metrics configuration, note that this is a full replacement of the existing metrics configuration. If you don't include the elements you want to keep, they are erased. For more information, see PutBucketMetricsConfiguration.
 class MetricsConfiguration {
   MetricsConfiguration(
-    this.filter,
     this.id,
+    this.filter,
   );
 
-  MetricsConfiguration.fromXml(XmlElement xml) {
+  MetricsConfiguration.fromXml(XmlElement? xml) {
+    id = getPropValue<String>(xml, 'Id');
     filter = MetricsFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('MetricsConfiguration', nest: () {
-      builder.element('Filter', nest: filter!.toXml());
       builder.element('Id', nest: id);
+      builder.element('Filter', nest: filter?.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// Specifies a metrics configuration filter. The metrics configuration will only include objects that meet the filter's criteria. A filter must be a prefix, a tag, or a conjunction (MetricsAndOperator).
-  MetricsFilter? filter;
+  /// The ID used to identify the metrics configuration. The ID has a 64 character limit and can only contain letters, numbers, periods, dashes, and underscores.
+  late String id;
 
-  /// The ID used to identify the metrics configuration.
-  String? id;
+  /// Specifies a metrics configuration filter. The metrics configuration will only include objects that meet the filter's criteria. A filter must be a prefix, an object tag, an access point ARN, or a conjunction (MetricsAndOperator).
+  MetricsFilter? filter;
 }
 
-/// Specifies a metrics configuration filter. The metrics configuration only includes objects that meet the filter's criteria. A filter must be a prefix, a tag, or a conjunction (MetricsAndOperator).
+/// Specifies a metrics configuration filter. The metrics configuration only includes objects that meet the filter's criteria. A filter must be a prefix, an object tag, an access point ARN, or a conjunction (MetricsAndOperator). For more information, see PutBucketMetricsConfiguration.
 class MetricsFilter {
   MetricsFilter(
+    this.accessPointArn,
     this.and,
     this.prefix,
     this.tag,
   );
 
   MetricsFilter.fromXml(XmlElement? xml) {
+    accessPointArn = getPropValueOrNull<String>(xml, 'AccessPointArn');
     and = MetricsAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('MetricsFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
+      builder.element('AccessPointArn', nest: accessPointArn);
+      builder.element('And', nest: and?.toXml());
       builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
+      builder.element('Tag', nest: tag?.toXml());
     });
     return builder.buildDocument();
   }
+
+  /// The access point ARN used when evaluating a metrics filter.
+  String? accessPointArn;
 
   /// A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.
   MetricsAndOperator? and;
@@ -2029,6 +2491,7 @@ class MetricsFilter {
 /// Container for the MultipartUpload for the Amazon S3 object.
 class MultipartUpload {
   MultipartUpload(
+    this.checksumAlgorithm,
     this.initiated,
     this.initiator,
     this.key,
@@ -2037,27 +2500,32 @@ class MultipartUpload {
     this.uploadId,
   );
 
-  MultipartUpload.fromXml(XmlElement xml) {
-    initiated = DateTime.parse(getProp(xml, 'Initiated')!.text);
+  MultipartUpload.fromXml(XmlElement? xml) {
+    checksumAlgorithm = getPropValueOrNull<String>(xml, 'ChecksumAlgorithm');
+    initiated = getPropValueOrNull<DateTime>(xml, 'Initiated');
     initiator = Initiator.fromXml(getProp(xml, 'Initiator'));
-    key = getProp(xml, 'Key')?.text;
+    key = getPropValueOrNull<String>(xml, 'Key');
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    storageClass = getProp(xml, 'StorageClass')?.text;
-    uploadId = getProp(xml, 'UploadId')?.text;
+    storageClass = getPropValueOrNull<String>(xml, 'StorageClass');
+    uploadId = getPropValueOrNull<String>(xml, 'UploadId');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('MultipartUpload', nest: () {
-      builder.element('Initiated', nest: initiated!.toIso8601String());
-      builder.element('Initiator', nest: initiator!.toXml());
+      builder.element('ChecksumAlgorithm', nest: checksumAlgorithm);
+      builder.element('Initiated', nest: initiated?.toIso8601String());
+      builder.element('Initiator', nest: initiator?.toXml());
       builder.element('Key', nest: key);
-      builder.element('Owner', nest: owner!.toXml());
+      builder.element('Owner', nest: owner?.toXml());
       builder.element('StorageClass', nest: storageClass);
       builder.element('UploadId', nest: uploadId);
     });
     return builder.buildDocument();
   }
+
+  /// The algorithm that was used to create a checksum of the object.
+  String? checksumAlgorithm;
 
   /// Date and time at which the multipart upload was initiated.
   DateTime? initiated;
@@ -2081,47 +2549,63 @@ class MultipartUpload {
 /// Specifies when noncurrent object versions expire. Upon expiration, Amazon S3 permanently deletes the noncurrent object versions. You set this lifecycle configuration action on a bucket that has versioning enabled (or suspended) to request that Amazon S3 delete noncurrent object versions at a specific period in the object's lifetime.
 class NoncurrentVersionExpiration {
   NoncurrentVersionExpiration(
+    this.newerNoncurrentVersions,
     this.noncurrentDays,
   );
 
   NoncurrentVersionExpiration.fromXml(XmlElement? xml) {
-    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')!.text);
+    newerNoncurrentVersions =
+        getPropValueOrNull<int>(xml, 'NewerNoncurrentVersions');
+    noncurrentDays = getPropValueOrNull<int>(xml, 'NoncurrentDays');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('NoncurrentVersionExpiration', nest: () {
+      builder.element('NewerNoncurrentVersions',
+          nest: newerNoncurrentVersions.toString());
       builder.element('NoncurrentDays', nest: noncurrentDays.toString());
     });
     return builder.buildDocument();
   }
 
-  /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates When an Object Became Noncurrent in the Amazon Simple Storage Service Developer Guide.
+  /// Specifies how many noncurrent versions Amazon S3 will retain. You can specify up to 100 noncurrent versions to retain. Amazon S3 will permanently delete any additional noncurrent versions beyond the specified number to retain. For more information about noncurrent versions, see Lifecycle configuration elements in the Amazon S3 User Guide.
+  int? newerNoncurrentVersions;
+
+  /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. The value must be a non-zero positive integer. For information about the noncurrent days calculations, see How Amazon S3 Calculates When an Object Became Noncurrent in the Amazon S3 User Guide.
   int? noncurrentDays;
 }
 
-/// Container for the transition rule that describes when noncurrent objects transition to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE storage class at a specific period in the object's lifetime.
+/// Container for the transition rule that describes when noncurrent objects transition to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER_IR, GLACIER, or DEEP_ARCHIVE storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER_IR, GLACIER, or DEEP_ARCHIVE storage class at a specific period in the object's lifetime.
 class NoncurrentVersionTransition {
   NoncurrentVersionTransition(
+    this.newerNoncurrentVersions,
     this.noncurrentDays,
     this.storageClass,
   );
 
   NoncurrentVersionTransition.fromXml(XmlElement? xml) {
-    noncurrentDays = int.tryParse(getProp(xml, 'NoncurrentDays')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    newerNoncurrentVersions =
+        getPropValueOrNull<int>(xml, 'NewerNoncurrentVersions');
+    noncurrentDays = getPropValueOrNull<int>(xml, 'NoncurrentDays');
+    storageClass = getPropValueOrNull<String>(xml, 'StorageClass');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('NoncurrentVersionTransition', nest: () {
+      builder.element('NewerNoncurrentVersions',
+          nest: newerNoncurrentVersions.toString());
       builder.element('NoncurrentDays', nest: noncurrentDays.toString());
       builder.element('StorageClass', nest: storageClass);
     });
     return builder.buildDocument();
   }
 
-  /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates How Long an Object Has Been Noncurrent in the Amazon Simple Storage Service Developer Guide.
+  /// Specifies how many noncurrent versions Amazon S3 will retain in the same storage class before transitioning objects. You can specify up to 100 noncurrent versions to retain. Amazon S3 will transition any additional noncurrent versions beyond the specified number to retain. For more information about noncurrent versions, see Lifecycle configuration elements in the Amazon S3 User Guide.
+  int? newerNoncurrentVersions;
+
+  /// Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates How Long an Object Has Been Noncurrent in the Amazon S3 User Guide.
   int? noncurrentDays;
 
   /// The class of storage used to store the object.
@@ -2131,47 +2615,55 @@ class NoncurrentVersionTransition {
 /// A container for specifying the notification configuration of the bucket. If this element is empty, notifications are turned off for the bucket.
 class NotificationConfiguration {
   NotificationConfiguration(
+    this.eventBridgeConfiguration,
     this.lambdaFunctionConfigurations,
     this.queueConfigurations,
     this.topicConfigurations,
   );
 
-  NotificationConfiguration.fromXml(XmlElement xml) {
-    lambdaFunctionConfigurations = LambdaFunctionConfiguration.fromXml(
-        getProp(xml, 'LambdaFunctionConfigurations'));
-    queueConfigurations =
-        QueueConfiguration.fromXml(getProp(xml, 'QueueConfigurations'));
-    topicConfigurations =
-        TopicConfiguration.fromXml(getProp(xml, 'TopicConfigurations'));
+  NotificationConfiguration.fromXml(XmlElement? xml) {
+    eventBridgeConfiguration = EventBridgeConfiguration.fromXml(
+        getProp(xml, 'EventBridgeConfiguration'));
+    lambdaFunctionConfigurations = getProp(xml, 'LambdaFunctionConfigurations')
+        ?.children
+        .map((c) => LambdaFunctionConfiguration.fromXml(c as XmlElement))
+        .toList();
+    queueConfigurations = getProp(xml, 'QueueConfigurations')
+        ?.children
+        .map((c) => QueueConfiguration.fromXml(c as XmlElement))
+        .toList();
+    topicConfigurations = getProp(xml, 'TopicConfigurations')
+        ?.children
+        .map((c) => TopicConfiguration.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('NotificationConfiguration', nest: () {
-      if (lambdaFunctionConfigurations != null) {
-        builder.element('LambdaFunctionConfigurations',
-            nest: lambdaFunctionConfigurations!.toXml());
-      }
-      if (queueConfigurations != null) {
-        builder.element('QueueConfigurations',
-            nest: queueConfigurations!.toXml());
-      }
-      if (topicConfigurations != null) {
-        builder.element('TopicConfigurations',
-            nest: topicConfigurations!.toXml());
-      }
+      builder.element('EventBridgeConfiguration',
+          nest: eventBridgeConfiguration?.toXml());
+      builder.element('LambdaFunctionConfigurations',
+          nest: lambdaFunctionConfigurations?.map((e) => e.toXml()));
+      builder.element('QueueConfigurations',
+          nest: queueConfigurations?.map((e) => e.toXml()));
+      builder.element('TopicConfigurations',
+          nest: topicConfigurations?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
+  /// Enables delivery of events to Amazon EventBridge.
+  EventBridgeConfiguration? eventBridgeConfiguration;
+
   /// Describes the AWS Lambda functions to invoke and the events for which to invoke them.
-  LambdaFunctionConfiguration? lambdaFunctionConfigurations;
+  List<LambdaFunctionConfiguration>? lambdaFunctionConfigurations;
 
   /// The Amazon Simple Queue Service queues to publish messages to and the events for which to publish messages.
-  QueueConfiguration? queueConfigurations;
+  List<QueueConfiguration>? queueConfigurations;
 
   /// The topic to which notifications are sent and the events for which notifications are generated.
-  TopicConfiguration? topicConfigurations;
+  List<TopicConfiguration>? topicConfigurations;
 }
 
 /// Container for specifying the AWS Lambda notification configuration.
@@ -2182,7 +2674,7 @@ class NotificationConfigurationDeprecated {
     this.topicConfiguration,
   );
 
-  NotificationConfigurationDeprecated.fromXml(XmlElement xml) {
+  NotificationConfigurationDeprecated.fromXml(XmlElement? xml) {
     cloudFunctionConfiguration = CloudFunctionConfiguration.fromXml(
         getProp(xml, 'CloudFunctionConfiguration'));
     queueConfiguration = QueueConfigurationDeprecated.fromXml(
@@ -2195,9 +2687,9 @@ class NotificationConfigurationDeprecated {
     final builder = XmlBuilder();
     builder.element('NotificationConfigurationDeprecated', nest: () {
       builder.element('CloudFunctionConfiguration',
-          nest: cloudFunctionConfiguration!.toXml());
-      builder.element('QueueConfiguration', nest: queueConfiguration!.toXml());
-      builder.element('TopicConfiguration', nest: topicConfiguration!.toXml());
+          nest: cloudFunctionConfiguration?.toXml());
+      builder.element('QueueConfiguration', nest: queueConfiguration?.toXml());
+      builder.element('TopicConfiguration', nest: topicConfiguration?.toXml());
     });
     return builder.buildDocument();
   }
@@ -2212,7 +2704,7 @@ class NotificationConfigurationDeprecated {
   TopicConfigurationDeprecated? topicConfiguration;
 }
 
-/// Specifies object key name filtering rules. For information about key name filtering, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
+/// Specifies object key name filtering rules. For information about key name filtering, see Configuring event notifications using object key name filtering in the Amazon S3 User Guide.
 class NotificationConfigurationFilter {
   NotificationConfigurationFilter(
     this.key,
@@ -2225,7 +2717,7 @@ class NotificationConfigurationFilter {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('NotificationConfigurationFilter', nest: () {
-      builder.element('Key', nest: key!.toXml());
+      builder.element('Key', nest: key?.toXml());
     });
     return builder.buildDocument();
   }
@@ -2237,58 +2729,66 @@ class NotificationConfigurationFilter {
 /// An object consists of data and its descriptive metadata.
 class Object {
   Object(
+    this.checksumAlgorithm,
     this.eTag,
     this.key,
     this.lastModified,
     this.owner,
+    this.restoreStatus,
     this.size,
     this.storageClass,
   );
 
-  Object.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    key = getProp(xml, 'Key')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+  Object.fromXml(XmlElement? xml) {
+    checksumAlgorithm =
+        getPropValueOrNull<List<String>>(xml, 'ChecksumAlgorithm');
+    eTag = getPropValueOrNull<String>(xml, 'ETag');
+    key = getPropValueOrNull<String>(xml, 'Key');
+    lastModified = getPropValueOrNull<DateTime>(xml, 'LastModified');
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    size = int.tryParse(getProp(xml, 'Size')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    restoreStatus = RestoreStatus.fromXml(getProp(xml, 'RestoreStatus'));
+    size = getPropValueOrNull<int>(xml, 'Size');
+    storageClass = getPropValueOrNull<String>(xml, 'StorageClass');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Object', nest: () {
+      builder.element('ChecksumAlgorithm', nest: checksumAlgorithm);
       builder.element('ETag', nest: eTag);
       builder.element('Key', nest: key);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-      builder.element('Owner', nest: owner!.toXml());
+      builder.element('LastModified', nest: lastModified?.toIso8601String());
+      builder.element('Owner', nest: owner?.toXml());
+      builder.element('RestoreStatus', nest: restoreStatus?.toXml());
       builder.element('Size', nest: size.toString());
       builder.element('StorageClass', nest: storageClass);
     });
     return builder.buildDocument();
   }
 
-  /// The entity tag is an MD5 hash of the object. ETag reflects only changes to the contents of an object, not its metadata.
+  /// The algorithm that was used to create a checksum of the object.
+  List<String>? checksumAlgorithm;
+
+  /// The entity tag is a hash of the object. The ETag reflects changes only to the contents of an object, not its metadata. The ETag may or may not be an MD5 digest of the object data. Whether or not it is depends on how the object was created and how it is encrypted as described below:
   String? eTag;
 
   /// The name that you assign to an object. You use the object key to retrieve the object.
   String? key;
 
-  /// The date the Object was Last Modified
+  /// Creation date of the object.
   DateTime? lastModified;
 
   /// The owner of the object
   Owner? owner;
+
+  /// Specifies the restoration status of an object. Objects in certain storage classes must be restored before they can be retrieved. For more information about these storage classes and how to work with archived objects, see Working with archived objects in the Amazon S3 User Guide.
+  RestoreStatus? restoreStatus;
 
   /// Size in bytes of the object
   int? size;
 
   /// The class of storage used to store the object.
   String? storageClass;
-
-  @override
-  String toString() {
-    return 'Object{eTag: $eTag, key: $key, lastModified: $lastModified, owner: $owner, size: $size, storageClass: $storageClass}';
-  }
 }
 
 /// Object Identifier is unique value to identify objects.
@@ -2298,26 +2798,24 @@ class ObjectIdentifier {
     this.versionId,
   );
 
-  ObjectIdentifier.fromXml(XmlElement xml) {
-    key = getProp(xml, 'Key')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+  ObjectIdentifier.fromXml(XmlElement? xml) {
+    key = getPropValue<String>(xml, 'Key');
+    versionId = getPropValueOrNull<String>(xml, 'VersionId');
   }
 
-  XmlElement toXml() {
+  XmlNode toXml() {
     final builder = XmlBuilder();
-    builder.element('Object', nest: () {
+    builder.element('ObjectIdentifier', nest: () {
       builder.element('Key', nest: key);
-      if (versionId != null) {
-        builder.element('VersionId', nest: versionId);
-      }
+      builder.element('VersionId', nest: versionId);
     });
-    return (builder.buildDocument()).rootElement;
+    return builder.buildDocument();
   }
 
-  /// Key name of the object to delete.
-  String? key;
+  /// Key name of the object.
+  late String key;
 
-  /// VersionId for the specific version of the object to delete.
+  /// Version ID for the specific version of the object to delete.
   String? versionId;
 }
 
@@ -2328,8 +2826,8 @@ class ObjectLockConfiguration {
     this.rule,
   );
 
-  ObjectLockConfiguration.fromXml(XmlElement xml) {
-    objectLockEnabled = getProp(xml, 'ObjectLockEnabled')?.text;
+  ObjectLockConfiguration.fromXml(XmlElement? xml) {
+    objectLockEnabled = getPropValueOrNull<String>(xml, 'ObjectLockEnabled');
     rule = ObjectLockRule.fromXml(getProp(xml, 'Rule'));
   }
 
@@ -2337,26 +2835,26 @@ class ObjectLockConfiguration {
     final builder = XmlBuilder();
     builder.element('ObjectLockConfiguration', nest: () {
       builder.element('ObjectLockEnabled', nest: objectLockEnabled);
-      builder.element('Rule', nest: rule!.toXml());
+      builder.element('Rule', nest: rule?.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// Indicates whether this bucket has an Object Lock configuration enabled.
+  /// Indicates whether this bucket has an Object Lock configuration enabled. Enable ObjectLockEnabled when you apply ObjectLockConfiguration to a bucket.
   String? objectLockEnabled;
 
-  /// The Object Lock rule in place for the specified object.
+  /// Specifies the Object Lock rule for the specified object. Enable the this rule when you apply ObjectLockConfiguration to a bucket. Bucket settings require both a mode and a period. The period can be either Days or Years but you must select one. You cannot specify Days and Years at the same time.
   ObjectLockRule? rule;
 }
 
-/// A Legal Hold configuration for an object.
+/// A legal hold configuration for an object.
 class ObjectLockLegalHold {
   ObjectLockLegalHold(
     this.status,
   );
 
-  ObjectLockLegalHold.fromXml(XmlElement xml) {
-    status = getProp(xml, 'Status')?.text;
+  ObjectLockLegalHold.fromXml(XmlElement? xml) {
+    status = getPropValueOrNull<String>(xml, 'Status');
   }
 
   XmlNode toXml() {
@@ -2367,7 +2865,7 @@ class ObjectLockLegalHold {
     return builder.buildDocument();
   }
 
-  /// Indicates whether the specified object has a Legal Hold in place.
+  /// Indicates whether the specified object has a legal hold in place.
   String? status;
 }
 
@@ -2378,9 +2876,9 @@ class ObjectLockRetention {
     this.retainUntilDate,
   );
 
-  ObjectLockRetention.fromXml(XmlElement xml) {
-    mode = getProp(xml, 'Mode')?.text;
-    retainUntilDate = DateTime.parse(getProp(xml, 'RetainUntilDate')!.text);
+  ObjectLockRetention.fromXml(XmlElement? xml) {
+    mode = getPropValueOrNull<String>(xml, 'Mode');
+    retainUntilDate = getPropValueOrNull<DateTime>(xml, 'RetainUntilDate');
   }
 
   XmlNode toXml() {
@@ -2388,7 +2886,7 @@ class ObjectLockRetention {
     builder.element('ObjectLockRetention', nest: () {
       builder.element('Mode', nest: mode);
       builder.element('RetainUntilDate',
-          nest: retainUntilDate!.toIso8601String());
+          nest: retainUntilDate?.toIso8601String());
     });
     return builder.buildDocument();
   }
@@ -2414,53 +2912,115 @@ class ObjectLockRule {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ObjectLockRule', nest: () {
-      builder.element('DefaultRetention', nest: defaultRetention!.toXml());
+      builder.element('DefaultRetention', nest: defaultRetention?.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// The default retention period that you want to apply to new objects placed in the specified bucket.
+  /// The default Object Lock retention mode and period that you want to apply to new objects placed in the specified bucket. Bucket settings require both a mode and a period. The period can be either Days or Years but you must select one. You cannot specify Days and Years at the same time.
   DefaultRetention? defaultRetention;
+}
+
+/// A container for elements related to an individual part.
+class ObjectPart {
+  ObjectPart(
+    this.checksumCRC32,
+    this.checksumCRC32C,
+    this.checksumSHA1,
+    this.checksumSHA256,
+    this.partNumber,
+    this.size,
+  );
+
+  ObjectPart.fromXml(XmlElement? xml) {
+    checksumCRC32 = getPropValueOrNull<String>(xml, 'ChecksumCRC32');
+    checksumCRC32C = getPropValueOrNull<String>(xml, 'ChecksumCRC32C');
+    checksumSHA1 = getPropValueOrNull<String>(xml, 'ChecksumSHA1');
+    checksumSHA256 = getPropValueOrNull<String>(xml, 'ChecksumSHA256');
+    partNumber = getPropValueOrNull<int>(xml, 'PartNumber');
+    size = getPropValueOrNull<int>(xml, 'Size');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('ObjectPart', nest: () {
+      builder.element('ChecksumCRC32', nest: checksumCRC32);
+      builder.element('ChecksumCRC32C', nest: checksumCRC32C);
+      builder.element('ChecksumSHA1', nest: checksumSHA1);
+      builder.element('ChecksumSHA256', nest: checksumSHA256);
+      builder.element('PartNumber', nest: partNumber.toString());
+      builder.element('Size', nest: size.toString());
+    });
+    return builder.buildDocument();
+  }
+
+  /// This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the base64-encoded, 32-bit CRC-32 checksum of the object. For more information, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32;
+
+  /// The base64-encoded, 32-bit CRC-32C checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32C;
+
+  /// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be present if it was uploaded with the object. When you use the API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA1;
+
+  /// The base64-encoded, 256-bit SHA-256 digest of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA256;
+
+  /// The part number identifying the part. This value is a positive integer between 1 and 10,000.
+  int? partNumber;
+
+  /// The size of the uploaded part in bytes.
+  int? size;
 }
 
 /// The version of an object.
 class ObjectVersion {
   ObjectVersion(
+    this.checksumAlgorithm,
     this.eTag,
     this.isLatest,
     this.key,
     this.lastModified,
     this.owner,
+    this.restoreStatus,
     this.size,
     this.storageClass,
     this.versionId,
   );
 
-  ObjectVersion.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    isLatest = getProp(xml, 'IsLatest')?.text.toUpperCase() == 'TRUE';
-    key = getProp(xml, 'Key')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
+  ObjectVersion.fromXml(XmlElement? xml) {
+    checksumAlgorithm =
+        getPropValueOrNull<List<String>>(xml, 'ChecksumAlgorithm');
+    eTag = getPropValueOrNull<String>(xml, 'ETag');
+    isLatest = getPropValueOrNull<bool>(xml, 'IsLatest');
+    key = getPropValueOrNull<String>(xml, 'Key');
+    lastModified = getPropValueOrNull<DateTime>(xml, 'LastModified');
     owner = Owner.fromXml(getProp(xml, 'Owner'));
-    size = int.tryParse(getProp(xml, 'Size')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
-    versionId = getProp(xml, 'VersionId')?.text;
+    restoreStatus = RestoreStatus.fromXml(getProp(xml, 'RestoreStatus'));
+    size = getPropValueOrNull<int>(xml, 'Size');
+    storageClass = getPropValueOrNull<String>(xml, 'StorageClass');
+    versionId = getPropValueOrNull<String>(xml, 'VersionId');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ObjectVersion', nest: () {
+      builder.element('ChecksumAlgorithm', nest: checksumAlgorithm);
       builder.element('ETag', nest: eTag);
-      builder.element('IsLatest', nest: isLatest! ? 'TRUE' : 'FALSE');
+      builder.element('IsLatest', nest: isLatest == true ? 'TRUE' : 'FALSE');
       builder.element('Key', nest: key);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
-      builder.element('Owner', nest: owner!.toXml());
+      builder.element('LastModified', nest: lastModified?.toIso8601String());
+      builder.element('Owner', nest: owner?.toXml());
+      builder.element('RestoreStatus', nest: restoreStatus?.toXml());
       builder.element('Size', nest: size.toString());
       builder.element('StorageClass', nest: storageClass);
       builder.element('VersionId', nest: versionId);
     });
     return builder.buildDocument();
   }
+
+  /// The algorithm that was used to create a checksum of the object.
+  List<String>? checksumAlgorithm;
 
   /// The entity tag is an MD5 hash of that version of the object.
   String? eTag;
@@ -2471,11 +3031,14 @@ class ObjectVersion {
   /// The object key.
   String? key;
 
-  /// Date and time the object was last modified.
+  /// Date and time when the object was last modified.
   DateTime? lastModified;
 
   /// Specifies the owner of the object.
   Owner? owner;
+
+  /// Specifies the restoration status of an object. Objects in certain storage classes must be restored before they can be retrieved. For more information about these storage classes and how to work with archived objects, see Working with archived objects in the Amazon S3 User Guide.
+  RestoreStatus? restoreStatus;
 
   /// Size in bytes of the object.
   int? size;
@@ -2500,7 +3063,7 @@ class OutputLocation {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('OutputLocation', nest: () {
-      builder.element('S3', nest: s3!.toXml());
+      builder.element('S3', nest: s3?.toXml());
     });
     return builder.buildDocument();
   }
@@ -2524,8 +3087,8 @@ class OutputSerialization {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('OutputSerialization', nest: () {
-      builder.element('CSV', nest: cSV!.toXml());
-      builder.element('JSON', nest: jSON!.toXml());
+      builder.element('CSV', nest: cSV?.toXml());
+      builder.element('JSON', nest: jSON?.toXml());
     });
     return builder.buildDocument();
   }
@@ -2545,8 +3108,8 @@ class Owner {
   );
 
   Owner.fromXml(XmlElement? xml) {
-    displayName = getProp(xml, 'DisplayName')?.text;
-    iD = getProp(xml, 'ID')?.text;
+    displayName = getPropValueOrNull<String>(xml, 'DisplayName');
+    iD = getPropValueOrNull<String>(xml, 'ID');
   }
 
   XmlNode toXml() {
@@ -2558,18 +3121,65 @@ class Owner {
     return builder.buildDocument();
   }
 
-  /// Container for the display name of the owner.
+  /// Container for the display name of the owner. This value is only supported in the following AWS Regions:
   String? displayName;
 
   /// Container for the ID of the owner.
   String? iD;
 }
 
+/// The container element for a bucket's ownership controls.
+class OwnershipControls {
+  OwnershipControls(
+    this.rules,
+  );
+
+  OwnershipControls.fromXml(XmlElement? xml) {
+    rules = getProp(xml, 'Rules')!
+        .children
+        .map((c) => OwnershipControlsRule.fromXml(c as XmlElement))
+        .toList();
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('OwnershipControls', nest: () {
+      builder.element('Rules', nest: rules.map((e) => e.toXml()));
+    });
+    return builder.buildDocument();
+  }
+
+  /// The container element for an ownership control rule.
+  late List<OwnershipControlsRule> rules;
+}
+
+/// The container element for an ownership control rule.
+class OwnershipControlsRule {
+  OwnershipControlsRule(
+    this.objectOwnership,
+  );
+
+  OwnershipControlsRule.fromXml(XmlElement? xml) {
+    objectOwnership = getPropValue<String>(xml, 'ObjectOwnership');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('OwnershipControlsRule', nest: () {
+      builder.element('ObjectOwnership', nest: objectOwnership);
+    });
+    return builder.buildDocument();
+  }
+
+  /// The container element for object ownership for a bucket's ownership controls.
+  late String objectOwnership;
+}
+
 /// Container for Parquet.
 class ParquetInput {
   ParquetInput();
 
-  ParquetInput.fromXml(XmlElement? xml);
+  ParquetInput.fromXml(XmlElement? xml) {}
 
   XmlNode toXml() {
     final builder = XmlBuilder();
@@ -2581,29 +3191,53 @@ class ParquetInput {
 /// Container for elements related to a part.
 class Part {
   Part(
+    this.checksumCRC32,
+    this.checksumCRC32C,
+    this.checksumSHA1,
+    this.checksumSHA256,
     this.eTag,
     this.lastModified,
     this.partNumber,
     this.size,
   );
 
-  Part.fromXml(XmlElement xml) {
-    eTag = getProp(xml, 'ETag')?.text;
-    lastModified = DateTime.parse(getProp(xml, 'LastModified')!.text);
-    partNumber = int.tryParse(getProp(xml, 'PartNumber')!.text);
-    size = int.tryParse(getProp(xml, 'Size')!.text);
+  Part.fromXml(XmlElement? xml) {
+    checksumCRC32 = getPropValueOrNull<String>(xml, 'ChecksumCRC32');
+    checksumCRC32C = getPropValueOrNull<String>(xml, 'ChecksumCRC32C');
+    checksumSHA1 = getPropValueOrNull<String>(xml, 'ChecksumSHA1');
+    checksumSHA256 = getPropValueOrNull<String>(xml, 'ChecksumSHA256');
+    eTag = getPropValueOrNull<String>(xml, 'ETag');
+    lastModified = getPropValueOrNull<DateTime>(xml, 'LastModified');
+    partNumber = getPropValueOrNull<int>(xml, 'PartNumber');
+    size = getPropValueOrNull<int>(xml, 'Size');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Part', nest: () {
+      builder.element('ChecksumCRC32', nest: checksumCRC32);
+      builder.element('ChecksumCRC32C', nest: checksumCRC32C);
+      builder.element('ChecksumSHA1', nest: checksumSHA1);
+      builder.element('ChecksumSHA256', nest: checksumSHA256);
       builder.element('ETag', nest: eTag);
-      builder.element('LastModified', nest: lastModified!.toIso8601String());
+      builder.element('LastModified', nest: lastModified?.toIso8601String());
       builder.element('PartNumber', nest: partNumber.toString());
       builder.element('Size', nest: size.toString());
     });
     return builder.buildDocument();
   }
+
+  /// This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the base64-encoded, 32-bit CRC-32 checksum of the object. For more information, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32;
+
+  /// The base64-encoded, 32-bit CRC-32C checksum of the object. This will only be present if it was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumCRC32C;
+
+  /// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be present if it was uploaded with the object. When you use the API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it's a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA1;
+
+  /// This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the base64-encoded, 256-bit SHA-256 digest of the object. For more information, see Checking object integrity in the Amazon S3 User Guide.
+  String? checksumSHA256;
 
   /// Entity tag returned when the part was uploaded.
   String? eTag;
@@ -2618,20 +3252,43 @@ class Part {
   int? size;
 }
 
+/// Amazon S3 keys for log objects are partitioned in the following format:
+class PartitionedPrefix {
+  PartitionedPrefix(
+    this.partitionDateSource,
+  );
+
+  PartitionedPrefix.fromXml(XmlElement? xml) {
+    partitionDateSource =
+        getPropValueOrNull<String>(xml, 'PartitionDateSource');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('PartitionedPrefix', nest: () {
+      builder.element('PartitionDateSource', nest: partitionDateSource);
+    });
+    return builder.buildDocument();
+  }
+
+  /// Specifies the partition date source for the partitioned prefix. PartitionDateSource can be EventTime or DeliveryTime.
+  String? partitionDateSource;
+}
+
 /// The container element for a bucket's policy status.
 class PolicyStatus {
   PolicyStatus(
     this.isPublic,
   );
 
-  PolicyStatus.fromXml(XmlElement xml) {
-    isPublic = getProp(xml, 'IsPublic')?.text.toUpperCase() == 'TRUE';
+  PolicyStatus.fromXml(XmlElement? xml) {
+    isPublic = getPropValueOrNull<bool>(xml, 'IsPublic');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('PolicyStatus', nest: () {
-      builder.element('IsPublic', nest: isPublic! ? 'TRUE' : 'FALSE');
+      builder.element('IsPublic', nest: isPublic == true ? 'TRUE' : 'FALSE');
     });
     return builder.buildDocument();
   }
@@ -2649,9 +3306,9 @@ class Progress {
   );
 
   Progress.fromXml(XmlElement? xml) {
-    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')!.text);
-    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')!.text);
-    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')!.text);
+    bytesProcessed = getPropValueOrNull<int>(xml, 'BytesProcessed');
+    bytesReturned = getPropValueOrNull<int>(xml, 'BytesReturned');
+    bytesScanned = getPropValueOrNull<int>(xml, 'BytesScanned');
   }
 
   XmlNode toXml() {
@@ -2687,7 +3344,7 @@ class ProgressEvent {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ProgressEvent', nest: () {
-      builder.element('Details', nest: details!.toXml());
+      builder.element('Details', nest: details?.toXml());
     });
     return builder.buildDocument();
   }
@@ -2696,7 +3353,7 @@ class ProgressEvent {
   Progress? details;
 }
 
-/// The PublicAccessBlock configuration that you want to apply to this Amazon S3 bucket. You can enable the configuration options in any combination. For more information about when Amazon S3 considers a bucket or object public, see The Meaning of "Public" in the Amazon Simple Storage Service Developer Guide.
+/// The PublicAccessBlock configuration that you want to apply to this Amazon S3 bucket. You can enable the configuration options in any combination. For more information about when Amazon S3 considers a bucket or object public, see The Meaning of "Public" in the Amazon S3 User Guide.
 class PublicAccessBlockConfiguration {
   PublicAccessBlockConfiguration(
     this.blockPublicAcls,
@@ -2705,28 +3362,25 @@ class PublicAccessBlockConfiguration {
     this.restrictPublicBuckets,
   );
 
-  PublicAccessBlockConfiguration.fromXml(XmlElement xml) {
-    blockPublicAcls =
-        getProp(xml, 'BlockPublicAcls')?.text.toUpperCase() == 'TRUE';
-    blockPublicPolicy =
-        getProp(xml, 'BlockPublicPolicy')?.text.toUpperCase() == 'TRUE';
-    ignorePublicAcls =
-        getProp(xml, 'IgnorePublicAcls')?.text.toUpperCase() == 'TRUE';
+  PublicAccessBlockConfiguration.fromXml(XmlElement? xml) {
+    blockPublicAcls = getPropValueOrNull<bool>(xml, 'BlockPublicAcls');
+    blockPublicPolicy = getPropValueOrNull<bool>(xml, 'BlockPublicPolicy');
+    ignorePublicAcls = getPropValueOrNull<bool>(xml, 'IgnorePublicAcls');
     restrictPublicBuckets =
-        getProp(xml, 'RestrictPublicBuckets')?.text.toUpperCase() == 'TRUE';
+        getPropValueOrNull<bool>(xml, 'RestrictPublicBuckets');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('PublicAccessBlockConfiguration', nest: () {
       builder.element('BlockPublicAcls',
-          nest: blockPublicAcls! ? 'TRUE' : 'FALSE');
+          nest: blockPublicAcls == true ? 'TRUE' : 'FALSE');
       builder.element('BlockPublicPolicy',
-          nest: blockPublicPolicy! ? 'TRUE' : 'FALSE');
+          nest: blockPublicPolicy == true ? 'TRUE' : 'FALSE');
       builder.element('IgnorePublicAcls',
-          nest: ignorePublicAcls! ? 'TRUE' : 'FALSE');
+          nest: ignorePublicAcls == true ? 'TRUE' : 'FALSE');
       builder.element('RestrictPublicBuckets',
-          nest: restrictPublicBuckets! ? 'TRUE' : 'FALSE');
+          nest: restrictPublicBuckets == true ? 'TRUE' : 'FALSE');
     });
     return builder.buildDocument();
   }
@@ -2740,7 +3394,7 @@ class PublicAccessBlockConfiguration {
   /// Specifies whether Amazon S3 should ignore public ACLs for this bucket and objects in this bucket. Setting this element to TRUE causes Amazon S3 to ignore all public ACLs on this bucket and objects in this bucket.
   bool? ignorePublicAcls;
 
-  /// Specifies whether Amazon S3 should restrict public bucket policies for this bucket. Setting this element to TRUE restricts access to this bucket to only AWS services and authorized users within this account if the bucket has a public policy.
+  /// Specifies whether Amazon S3 should restrict public bucket policies for this bucket. Setting this element to TRUE restricts access to this bucket to only AWS service principals and authorized users within this account if the bucket has a public policy.
   bool? restrictPublicBuckets;
 }
 
@@ -2748,40 +3402,40 @@ class PublicAccessBlockConfiguration {
 class QueueConfiguration {
   QueueConfiguration(
     this.events,
+    this.queueArn,
     this.filter,
     this.id,
-    this.queueArn,
   );
 
   QueueConfiguration.fromXml(XmlElement? xml) {
-    events = getProp(xml, 'Events')?.text;
+    events = getPropValue<List<String>>(xml, 'Events');
+    queueArn = getPropValue<String>(xml, 'QueueArn');
     filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    queueArn = getProp(xml, 'QueueArn')?.text;
+    id = getPropValueOrNull<String>(xml, 'Id');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('QueueConfiguration', nest: () {
       builder.element('Events', nest: events);
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
       builder.element('QueueArn', nest: queueArn);
+      builder.element('Filter', nest: filter?.toXml());
+      builder.element('Id', nest: id);
     });
     return builder.buildDocument();
   }
 
   /// A collection of bucket events for which to send notifications
-  String? events;
+  late List<String> events;
 
-  /// Specifies object key name filtering rules. For information about key name filtering, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
+  /// The Amazon Resource Name (ARN) of the Amazon SQS queue to which Amazon S3 publishes a message when it detects events of the specified type.
+  late String queueArn;
+
+  /// Specifies object key name filtering rules. For information about key name filtering, see Configuring event notifications using object key name filtering in the Amazon S3 User Guide.
   NotificationConfigurationFilter? filter;
 
   /// An optional unique identifier for configurations in a notification configuration. If you don't provide one, Amazon S3 will assign an ID.
   String? id;
-
-  /// The Amazon Resource Name (ARN) of the Amazon SQS queue to which Amazon S3 publishes a message when it detects events of the specified type.
-  String? queueArn;
 }
 
 /// This data type is deprecated. Use QueueConfiguration for the same purposes. This data type specifies the configuration for publishing messages to an Amazon Simple Queue Service (Amazon SQS) queue when Amazon S3 detects specified events.
@@ -2794,10 +3448,10 @@ class QueueConfigurationDeprecated {
   );
 
   QueueConfigurationDeprecated.fromXml(XmlElement? xml) {
-    event = getProp(xml, 'Event')?.text;
-    events = getProp(xml, 'Events')?.text;
-    id = getProp(xml, 'Id')?.text;
-    queue = getProp(xml, 'Queue')?.text;
+    event = getPropValueOrNull<String>(xml, 'Event');
+    events = getPropValueOrNull<List<String>>(xml, 'Events');
+    id = getPropValueOrNull<String>(xml, 'Id');
+    queue = getPropValueOrNull<String>(xml, 'Queue');
   }
 
   XmlNode toXml() {
@@ -2814,8 +3468,8 @@ class QueueConfigurationDeprecated {
   ///  This member has been deprecated.
   String? event;
 
-  /// A collection of bucket events for which to send notifications
-  String? events;
+  /// A collection of bucket events for which to send notifications.
+  List<String>? events;
 
   /// An optional unique identifier for configurations in a notification configuration. If you don't provide one, Amazon S3 will assign an ID.
   String? id;
@@ -2831,7 +3485,7 @@ class RecordsEvent {
   );
 
   RecordsEvent.fromXml(XmlElement? xml) {
-    payload = getProp(xml, 'Payload')?.text;
+    payload = getPropValueOrNull<String>(xml, 'Payload');
   }
 
   XmlNode toXml() {
@@ -2842,7 +3496,7 @@ class RecordsEvent {
     return builder.buildDocument();
   }
 
-  /// The byte array of partial, one or more result records.
+  /// The byte array of partial, one or more result records. S3 Select doesn't guarantee that a record will be self-contained in one record frame. To ensure continuous streaming of data, S3 Select might split the same record across multiple record frames instead of aggregating the results in memory. Some S3 clients (for example, the AWS SDK for Java) handle this behavior by creating a ByteStream out of the response by default. Other clients might not handle this behavior by default. In those cases, you must aggregate the results on the client side and parse the response.
   String? payload;
 }
 
@@ -2857,11 +3511,12 @@ class Redirect {
   );
 
   Redirect.fromXml(XmlElement? xml) {
-    hostName = getProp(xml, 'HostName')?.text;
-    httpRedirectCode = getProp(xml, 'HttpRedirectCode')?.text;
-    protocol = getProp(xml, 'Protocol')?.text;
-    replaceKeyPrefixWith = getProp(xml, 'ReplaceKeyPrefixWith')?.text;
-    replaceKeyWith = getProp(xml, 'ReplaceKeyWith')?.text;
+    hostName = getPropValueOrNull<String>(xml, 'HostName');
+    httpRedirectCode = getPropValueOrNull<String>(xml, 'HttpRedirectCode');
+    protocol = getPropValueOrNull<String>(xml, 'Protocol');
+    replaceKeyPrefixWith =
+        getPropValueOrNull<String>(xml, 'ReplaceKeyPrefixWith');
+    replaceKeyWith = getPropValueOrNull<String>(xml, 'ReplaceKeyWith');
   }
 
   XmlNode toXml() {
@@ -2900,8 +3555,8 @@ class RedirectAllRequestsTo {
   );
 
   RedirectAllRequestsTo.fromXml(XmlElement? xml) {
-    hostName = getProp(xml, 'HostName')?.text;
-    protocol = getProp(xml, 'Protocol')?.text;
+    hostName = getPropValue<String>(xml, 'HostName');
+    protocol = getPropValueOrNull<String>(xml, 'Protocol');
   }
 
   XmlNode toXml() {
@@ -2914,10 +3569,32 @@ class RedirectAllRequestsTo {
   }
 
   /// Name of the host where requests are redirected.
-  String? hostName;
+  late String hostName;
 
   /// Protocol to use when redirecting requests. The default is the protocol that is used in the original request.
   String? protocol;
+}
+
+/// A filter that you can specify for selection for modifications on replicas. Amazon S3 doesn't replicate replica modifications by default. In the latest version of replication configuration (when Filter is specified), you can specify this element and set the status to Enabled to replicate modifications on replicas.
+class ReplicaModifications {
+  ReplicaModifications(
+    this.status,
+  );
+
+  ReplicaModifications.fromXml(XmlElement? xml) {
+    status = getPropValue<String>(xml, 'Status');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('ReplicaModifications', nest: () {
+      builder.element('Status', nest: status);
+    });
+    return builder.buildDocument();
+  }
+
+  /// Specifies whether Amazon S3 replicates modifications on replicas.
+  late String status;
 }
 
 /// A container for replication rules. You can add up to 1,000 rules. The maximum size of a replication configuration is 2 MB.
@@ -2927,82 +3604,88 @@ class ReplicationConfiguration {
     this.rules,
   );
 
-  ReplicationConfiguration.fromXml(XmlElement xml) {
-    role = getProp(xml, 'Role')?.text;
-    rules = ReplicationRule.fromXml(getProp(xml, 'Rules'));
+  ReplicationConfiguration.fromXml(XmlElement? xml) {
+    role = getPropValue<String>(xml, 'Role');
+    rules = getProp(xml, 'Rules')!
+        .children
+        .map((c) => ReplicationRule.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ReplicationConfiguration', nest: () {
       builder.element('Role', nest: role);
-      builder.element('Rules', nest: rules!.toXml());
+      builder.element('Rules', nest: rules.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
-  /// The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM) role that Amazon S3 assumes when replicating objects. For more information, see How to Set Up Replication in the Amazon Simple Storage Service Developer Guide.
-  String? role;
+  /// The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM) role that Amazon S3 assumes when replicating objects. For more information, see How to Set Up Replication in the Amazon S3 User Guide.
+  late String role;
 
   /// A container for one or more replication rules. A replication configuration must have at least one rule and can contain a maximum of 1,000 rules.
-  ReplicationRule? rules;
+  late List<ReplicationRule> rules;
 }
 
 /// Specifies which Amazon S3 objects to replicate and where to store the replicas.
 class ReplicationRule {
   ReplicationRule(
-    this.deleteMarkerReplication,
     this.destination,
+    this.status,
+    this.deleteMarkerReplication,
     this.existingObjectReplication,
     this.filter,
     this.iD,
     this.prefix,
     this.priority,
     this.sourceSelectionCriteria,
-    this.status,
   );
 
   ReplicationRule.fromXml(XmlElement? xml) {
+    destination = Destination.fromXml(getProp(xml, 'Destination'));
+    status = getPropValue<String>(xml, 'Status');
     deleteMarkerReplication = DeleteMarkerReplication.fromXml(
         getProp(xml, 'DeleteMarkerReplication'));
-    destination = Destination.fromXml(getProp(xml, 'Destination'));
     existingObjectReplication = ExistingObjectReplication.fromXml(
         getProp(xml, 'ExistingObjectReplication'));
     filter = ReplicationRuleFilter.fromXml(getProp(xml, 'Filter'));
-    iD = getProp(xml, 'ID')?.text;
-    prefix = getProp(xml, 'Prefix')?.text;
-    priority = int.tryParse(getProp(xml, 'Priority')!.text);
+    iD = getPropValueOrNull<String>(xml, 'ID');
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    priority = getPropValueOrNull<int>(xml, 'Priority');
     sourceSelectionCriteria = SourceSelectionCriteria.fromXml(
         getProp(xml, 'SourceSelectionCriteria'));
-    status = getProp(xml, 'Status')?.text;
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ReplicationRule', nest: () {
+      builder.element('Destination', nest: destination.toXml());
+      builder.element('Status', nest: status);
       builder.element('DeleteMarkerReplication',
-          nest: deleteMarkerReplication!.toXml());
-      builder.element('Destination', nest: destination!.toXml());
+          nest: deleteMarkerReplication?.toXml());
       builder.element('ExistingObjectReplication',
-          nest: existingObjectReplication!.toXml());
-      builder.element('Filter', nest: filter!.toXml());
+          nest: existingObjectReplication?.toXml());
+      builder.element('Filter', nest: filter?.toXml());
       builder.element('ID', nest: iD);
       builder.element('Prefix', nest: prefix);
       builder.element('Priority', nest: priority.toString());
       builder.element('SourceSelectionCriteria',
-          nest: sourceSelectionCriteria!.toXml());
-      builder.element('Status', nest: status);
+          nest: sourceSelectionCriteria?.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// Specifies whether Amazon S3 replicates the delete markers. If you specify a Filter, you must specify this element. However, in the latest version of replication configuration (when Filter is specified), Amazon S3 doesn't replicate delete markers. Therefore, the DeleteMarkerReplication element can contain only <Status>Disabled</Status>. For an example configuration, see Basic Rule Configuration.
+  /// A container for information about the replication destination and its configurations including enabling the S3 Replication Time Control (S3 RTC).
+  late Destination destination;
+
+  /// Specifies whether the rule is enabled.
+  late String status;
+
+  /// Specifies whether Amazon S3 replicates delete markers. If you specify a Filter in your replication configuration, you must also include a DeleteMarkerReplication element. If your Filter includes a Tag element, the DeleteMarkerReplication Status must be set to Disabled, because Amazon S3 does not support replicating delete markers for tag-based rules. For an example configuration, see Basic Rule Configuration.
   DeleteMarkerReplication? deleteMarkerReplication;
 
-  /// A container for information about the replication destination and its configurations including enabling the S3 Replication Time Control (S3 RTC).
-  Destination? destination;
-
-  /// Type: ExistingObjectReplication data type
+  /// Optional configuration to replicate existing source bucket objects.
   ExistingObjectReplication? existingObjectReplication;
 
   /// A filter that identifies the subset of objects to which the replication rule applies. A Filter must specify exactly one Prefix, Tag, or an And child element.
@@ -3014,14 +3697,11 @@ class ReplicationRule {
   ///  This member has been deprecated.
   String? prefix;
 
-  /// The priority associated with the rule. If you specify multiple rules in a replication configuration, Amazon S3 prioritizes the rules to prevent conflicts when filtering. If two or more rules identify the same object based on a specified filter, the rule with higher priority takes precedence. For example:
+  /// The priority indicates which rule has precedence whenever two or more replication rules conflict. Amazon S3 will attempt to replicate objects according to all replication rules. However, if there are two or more rules with the same destination bucket, then objects will be replicated according to the rule with the highest priority. The higher the number, the higher the priority.
   int? priority;
 
-  /// A container that describes additional filters for identifying the source objects that you want to replicate. You can choose to enable or disable the replication of these objects. Currently, Amazon S3 supports only the filter that you can specify for objects created with server-side encryption using a customer master key (CMK) stored in AWS Key Management Service (SSE-KMS).
+  /// A container that describes additional filters for identifying the source objects that you want to replicate. You can choose to enable or disable the replication of these objects. Currently, Amazon S3 supports only the filter that you can specify for objects created with server-side encryption using a customer managed key stored in AWS Key Management Service (SSE-KMS).
   SourceSelectionCriteria? sourceSelectionCriteria;
-
-  /// Specifies whether the rule is enabled.
-  String? status;
 }
 
 /// A container for specifying rule filters. The filters determine the subset of objects to which the rule applies. This element is required only if you specify more than one filter.
@@ -3032,15 +3712,18 @@ class ReplicationRuleAndOperator {
   );
 
   ReplicationRuleAndOperator.fromXml(XmlElement? xml) {
-    prefix = getProp(xml, 'Prefix')?.text;
-    tags = Tag.fromXml(getProp(xml, 'Tags'));
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
+    tags = getProp(xml, 'Tags')
+        ?.children
+        .map((c) => Tag.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ReplicationRuleAndOperator', nest: () {
       builder.element('Prefix', nest: prefix);
-      builder.element('Tags', nest: tags!.toXml());
+      builder.element('Tags', nest: tags?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
@@ -3049,7 +3732,7 @@ class ReplicationRuleAndOperator {
   String? prefix;
 
   /// An array of tags containing key and value pairs.
-  Tag? tags;
+  List<Tag>? tags;
 }
 
 /// A filter that identifies the subset of objects to which the replication rule applies. A Filter must specify exactly one Prefix, Tag, or an And child element.
@@ -3062,16 +3745,16 @@ class ReplicationRuleFilter {
 
   ReplicationRuleFilter.fromXml(XmlElement? xml) {
     and = ReplicationRuleAndOperator.fromXml(getProp(xml, 'And'));
-    prefix = getProp(xml, 'Prefix')?.text;
+    prefix = getPropValueOrNull<String>(xml, 'Prefix');
     tag = Tag.fromXml(getProp(xml, 'Tag'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ReplicationRuleFilter', nest: () {
-      builder.element('And', nest: and!.toXml());
+      builder.element('And', nest: and?.toXml());
       builder.element('Prefix', nest: prefix);
-      builder.element('Tag', nest: tag!.toXml());
+      builder.element('Tag', nest: tag?.toXml());
     });
     return builder.buildDocument();
   }
@@ -3094,7 +3777,7 @@ class ReplicationTime {
   );
 
   ReplicationTime.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getPropValue<String>(xml, 'Status');
     time = ReplicationTimeValue.fromXml(getProp(xml, 'Time'));
   }
 
@@ -3102,16 +3785,16 @@ class ReplicationTime {
     final builder = XmlBuilder();
     builder.element('ReplicationTime', nest: () {
       builder.element('Status', nest: status);
-      builder.element('Time', nest: time!.toXml());
+      builder.element('Time', nest: time.toXml());
     });
     return builder.buildDocument();
   }
 
   ///  Specifies whether the replication time is enabled.
-  String? status;
+  late String status;
 
   ///  A container specifying the time by which replication should be complete for all objects and operations on objects.
-  ReplicationTimeValue? time;
+  late ReplicationTimeValue time;
 }
 
 ///  A container specifying the time value for S3 Replication Time Control (S3 RTC) and replication metrics EventThreshold.
@@ -3121,7 +3804,7 @@ class ReplicationTimeValue {
   );
 
   ReplicationTimeValue.fromXml(XmlElement? xml) {
-    minutes = int.tryParse(getProp(xml, 'Minutes')!.text);
+    minutes = getPropValueOrNull<int>(xml, 'Minutes');
   }
 
   XmlNode toXml() {
@@ -3142,8 +3825,8 @@ class RequestPaymentConfiguration {
     this.payer,
   );
 
-  RequestPaymentConfiguration.fromXml(XmlElement xml) {
-    payer = getProp(xml, 'Payer')?.text;
+  RequestPaymentConfiguration.fromXml(XmlElement? xml) {
+    payer = getPropValue<String>(xml, 'Payer');
   }
 
   XmlNode toXml() {
@@ -3155,7 +3838,7 @@ class RequestPaymentConfiguration {
   }
 
   /// Specifies who pays for the download and request fees.
-  String? payer;
+  late String payer;
 }
 
 /// Container for specifying if periodic QueryProgress messages should be sent.
@@ -3164,14 +3847,14 @@ class RequestProgress {
     this.enabled,
   );
 
-  RequestProgress.fromXml(XmlElement xml) {
-    enabled = getProp(xml, 'Enabled')?.text.toUpperCase() == 'TRUE';
+  RequestProgress.fromXml(XmlElement? xml) {
+    enabled = getPropValueOrNull<bool>(xml, 'Enabled');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('RequestProgress', nest: () {
-      builder.element('Enabled', nest: enabled! ? 'TRUE' : 'FALSE');
+      builder.element('Enabled', nest: enabled == true ? 'TRUE' : 'FALSE');
     });
     return builder.buildDocument();
   }
@@ -3192,16 +3875,16 @@ class RestoreRequest {
     this.type,
   );
 
-  RestoreRequest.fromXml(XmlElement xml) {
-    days = int.tryParse(getProp(xml, 'Days')!.text);
-    description = getProp(xml, 'Description')?.text;
+  RestoreRequest.fromXml(XmlElement? xml) {
+    days = getPropValueOrNull<int>(xml, 'Days');
+    description = getPropValueOrNull<String>(xml, 'Description');
     glacierJobParameters =
         GlacierJobParameters.fromXml(getProp(xml, 'GlacierJobParameters'));
     outputLocation = OutputLocation.fromXml(getProp(xml, 'OutputLocation'));
     selectParameters =
         SelectParameters.fromXml(getProp(xml, 'SelectParameters'));
-    tier = getProp(xml, 'Tier')?.text;
-    type = getProp(xml, 'Type')?.text;
+    tier = getPropValueOrNull<String>(xml, 'Tier');
+    type = getPropValueOrNull<String>(xml, 'Type');
   }
 
   XmlNode toXml() {
@@ -3210,9 +3893,9 @@ class RestoreRequest {
       builder.element('Days', nest: days.toString());
       builder.element('Description', nest: description);
       builder.element('GlacierJobParameters',
-          nest: glacierJobParameters!.toXml());
-      builder.element('OutputLocation', nest: outputLocation!.toXml());
-      builder.element('SelectParameters', nest: selectParameters!.toXml());
+          nest: glacierJobParameters?.toXml());
+      builder.element('OutputLocation', nest: outputLocation?.toXml());
+      builder.element('SelectParameters', nest: selectParameters?.toXml());
       builder.element('Tier', nest: tier);
       builder.element('Type', nest: type);
     });
@@ -3231,90 +3914,126 @@ class RestoreRequest {
   /// Describes the location where the restore job's output is stored.
   OutputLocation? outputLocation;
 
-  /// Describes the parameters for Select job types.
+  /// Amazon S3 Select is no longer available to new customers. Existing customers of Amazon S3 Select can continue to use the feature as usual. Learn more
   SelectParameters? selectParameters;
 
-  /// S3 Glacier retrieval tier at which the restore will be processed.
+  /// Retrieval tier at which the restore will be processed.
   String? tier;
 
-  /// Type of restore request.
+  /// Amazon S3 Select is no longer available to new customers. Existing customers of Amazon S3 Select can continue to use the feature as usual. Learn more
   String? type;
 }
 
-/// Specifies the redirect behavior and when a redirect is applied.
+/// Specifies the restoration status of an object. Objects in certain storage classes must be restored before they can be retrieved. For more information about these storage classes and how to work with archived objects, see Working with archived objects in the Amazon S3 User Guide.
+class RestoreStatus {
+  RestoreStatus(
+    this.isRestoreInProgress,
+    this.restoreExpiryDate,
+  );
+
+  RestoreStatus.fromXml(XmlElement? xml) {
+    isRestoreInProgress = getPropValueOrNull<bool>(xml, 'IsRestoreInProgress');
+    restoreExpiryDate = getPropValueOrNull<DateTime>(xml, 'RestoreExpiryDate');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('RestoreStatus', nest: () {
+      builder.element('IsRestoreInProgress',
+          nest: isRestoreInProgress == true ? 'TRUE' : 'FALSE');
+      builder.element('RestoreExpiryDate',
+          nest: restoreExpiryDate?.toIso8601String());
+    });
+    return builder.buildDocument();
+  }
+
+  /// Specifies whether the object is currently being restored. If the object restoration is in progress, the header returns the value TRUE. For example:
+  bool? isRestoreInProgress;
+
+  /// Indicates when the restored copy will expire. This value is populated only if the object has already been restored. For example:
+  DateTime? restoreExpiryDate;
+}
+
+/// Specifies the redirect behavior and when a redirect is applied. For more information about routing rules, see Configuring advanced conditional redirects in the Amazon S3 User Guide.
 class RoutingRule {
   RoutingRule(
-    this.condition,
     this.redirect,
+    this.condition,
   );
 
   RoutingRule.fromXml(XmlElement? xml) {
-    condition = Condition.fromXml(getProp(xml, 'Condition'));
     redirect = Redirect.fromXml(getProp(xml, 'Redirect'));
+    condition = Condition.fromXml(getProp(xml, 'Condition'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('RoutingRule', nest: () {
-      builder.element('Condition', nest: condition!.toXml());
-      builder.element('Redirect', nest: redirect!.toXml());
+      builder.element('Redirect', nest: redirect.toXml());
+      builder.element('Condition', nest: condition?.toXml());
     });
     return builder.buildDocument();
   }
 
+  /// Container for redirect information. You can redirect requests to another host, to another page, or with another protocol. In the event of an error, you can specify a different error code to return.
+  late Redirect redirect;
+
   /// A container for describing a condition that must be met for the specified redirect to apply. For example, 1. If request is for pages in the /docs folder, redirect to the /documents folder. 2. If request results in HTTP error 4xx, redirect request to another host where you might process the error.
   Condition? condition;
-
-  /// Container for redirect information. You can redirect requests to another host, to another page, or with another protocol. In the event of an error, you can specify a different error code to return.
-  Redirect? redirect;
 }
 
-/// Specifies lifecycle rules for an Amazon S3 bucket. For more information, see Put Bucket Lifecycle Configuration in the Amazon Simple Storage Service API Reference. For examples, see Put Bucket Lifecycle Configuration Examples
+/// Specifies lifecycle rules for an Amazon S3 bucket. For more information, see Put Bucket Lifecycle Configuration in the Amazon S3 API Reference. For examples, see Put Bucket Lifecycle Configuration Examples.
 class Rule {
   Rule(
+    this.prefix,
+    this.status,
     this.abortIncompleteMultipartUpload,
     this.expiration,
     this.iD,
     this.noncurrentVersionExpiration,
     this.noncurrentVersionTransition,
-    this.prefix,
-    this.status,
     this.transition,
   );
 
   Rule.fromXml(XmlElement? xml) {
+    prefix = getPropValue<String>(xml, 'Prefix');
+    status = getPropValue<String>(xml, 'Status');
     abortIncompleteMultipartUpload = AbortIncompleteMultipartUpload.fromXml(
         getProp(xml, 'AbortIncompleteMultipartUpload'));
     expiration = LifecycleExpiration.fromXml(getProp(xml, 'Expiration'));
-    iD = getProp(xml, 'ID')?.text;
+    iD = getPropValueOrNull<String>(xml, 'ID');
     noncurrentVersionExpiration = NoncurrentVersionExpiration.fromXml(
         getProp(xml, 'NoncurrentVersionExpiration'));
     noncurrentVersionTransition = NoncurrentVersionTransition.fromXml(
         getProp(xml, 'NoncurrentVersionTransition'));
-    prefix = getProp(xml, 'Prefix')?.text;
-    status = getProp(xml, 'Status')?.text;
     transition = Transition.fromXml(getProp(xml, 'Transition'));
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Rule', nest: () {
-      builder.element('AbortIncompleteMultipartUpload',
-          nest: abortIncompleteMultipartUpload!.toXml());
-      builder.element('Expiration', nest: expiration!.toXml());
-      builder.element('ID', nest: iD);
-      builder.element('NoncurrentVersionExpiration',
-          nest: noncurrentVersionExpiration!.toXml());
-      builder.element('NoncurrentVersionTransition',
-          nest: noncurrentVersionTransition!.toXml());
       builder.element('Prefix', nest: prefix);
       builder.element('Status', nest: status);
-      builder.element('Transition', nest: transition!.toXml());
+      builder.element('AbortIncompleteMultipartUpload',
+          nest: abortIncompleteMultipartUpload?.toXml());
+      builder.element('Expiration', nest: expiration?.toXml());
+      builder.element('ID', nest: iD);
+      builder.element('NoncurrentVersionExpiration',
+          nest: noncurrentVersionExpiration?.toXml());
+      builder.element('NoncurrentVersionTransition',
+          nest: noncurrentVersionTransition?.toXml());
+      builder.element('Transition', nest: transition?.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Policy in the Amazon Simple Storage Service Developer Guide.
+  /// Object key prefix that identifies one or more objects to which this rule applies.
+  late String prefix;
+
+  /// If Enabled, the rule is currently being applied. If Disabled, the rule is not currently being applied.
+  late String status;
+
+  /// Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Configuration in the Amazon S3 User Guide.
   AbortIncompleteMultipartUpload? abortIncompleteMultipartUpload;
 
   /// Specifies the expiration for the lifecycle of the object.
@@ -3326,16 +4045,10 @@ class Rule {
   /// Specifies when noncurrent object versions expire. Upon expiration, Amazon S3 permanently deletes the noncurrent object versions. You set this lifecycle configuration action on a bucket that has versioning enabled (or suspended) to request that Amazon S3 delete noncurrent object versions at a specific period in the object's lifetime.
   NoncurrentVersionExpiration? noncurrentVersionExpiration;
 
-  /// Container for the transition rule that describes when noncurrent objects transition to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE storage class at a specific period in the object's lifetime.
+  /// Container for the transition rule that describes when noncurrent objects transition to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER_IR, GLACIER, or DEEP_ARCHIVE storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER_IR, GLACIER, or DEEP_ARCHIVE storage class at a specific period in the object's lifetime.
   NoncurrentVersionTransition? noncurrentVersionTransition;
 
-  /// Object key prefix that identifies one or more objects to which this rule applies.
-  String? prefix;
-
-  /// If Enabled, the rule is currently being applied. If Disabled, the rule is not currently being applied.
-  String? status;
-
-  /// Specifies when an object transitions to a specified storage class. For more information about Amazon S3 lifecycle configuration rules, see Transitioning Objects Using Amazon S3 Lifecycle in the Amazon Simple Storage Service Developer Guide.
+  /// Specifies when an object transitions to a specified storage class. For more information about Amazon S3 lifecycle configuration rules, see Transitioning Objects Using Amazon S3 Lifecycle in the Amazon S3 User Guide.
   Transition? transition;
 }
 
@@ -3346,74 +4059,85 @@ class S3KeyFilter {
   );
 
   S3KeyFilter.fromXml(XmlElement? xml) {
-    filterRules = FilterRule.fromXml(getProp(xml, 'FilterRules'));
+    filterRules = getProp(xml, 'FilterRules')
+        ?.children
+        .map((c) => FilterRule.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('S3KeyFilter', nest: () {
-      builder.element('FilterRules', nest: filterRules!.toXml());
+      builder.element('FilterRules', nest: filterRules?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
   /// A list of containers for the key-value pair that defines the criteria for the filter rule.
-  FilterRule? filterRules;
+  List<FilterRule>? filterRules;
 }
 
 /// Describes an Amazon S3 location that will receive the results of the restore request.
 class S3Location {
   S3Location(
-    this.accessControlList,
     this.bucketName,
+    this.prefix,
+    this.accessControlList,
     this.cannedACL,
     this.encryption,
-    this.prefix,
     this.storageClass,
     this.tagging,
     this.userMetadata,
   );
 
   S3Location.fromXml(XmlElement? xml) {
-    accessControlList = Grant.fromXml(getProp(xml, 'AccessControlList'));
-    bucketName = getProp(xml, 'BucketName')?.text;
-    cannedACL = getProp(xml, 'CannedACL')?.text;
+    bucketName = getPropValue<String>(xml, 'BucketName');
+    prefix = getPropValue<String>(xml, 'Prefix');
+    accessControlList = getProp(xml, 'AccessControlList')
+        ?.children
+        .map((c) => Grant.fromXml(c as XmlElement))
+        .toList();
+    cannedACL = getPropValueOrNull<String>(xml, 'CannedACL');
     encryption = Encryption.fromXml(getProp(xml, 'Encryption'));
-    prefix = getProp(xml, 'Prefix')?.text;
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    storageClass = getPropValueOrNull<String>(xml, 'StorageClass');
     tagging = Tagging.fromXml(getProp(xml, 'Tagging'));
-    userMetadata = MetadataEntry.fromXml(getProp(xml, 'UserMetadata'));
+    userMetadata = getProp(xml, 'UserMetadata')
+        ?.children
+        .map((c) => MetadataEntry.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('S3Location', nest: () {
-      builder.element('AccessControlList', nest: accessControlList!.toXml());
       builder.element('BucketName', nest: bucketName);
-      builder.element('CannedACL', nest: cannedACL);
-      builder.element('Encryption', nest: encryption!.toXml());
       builder.element('Prefix', nest: prefix);
+      builder.element('AccessControlList',
+          nest: accessControlList?.map((e) => e.toXml()));
+      builder.element('CannedACL', nest: cannedACL);
+      builder.element('Encryption', nest: encryption?.toXml());
       builder.element('StorageClass', nest: storageClass);
-      builder.element('Tagging', nest: tagging!.toXml());
-      builder.element('UserMetadata', nest: userMetadata!.toXml());
+      builder.element('Tagging', nest: tagging?.toXml());
+      builder.element('UserMetadata',
+          nest: userMetadata?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
-  /// A list of grants that control access to the staged results.
-  Grant? accessControlList;
-
   /// The name of the bucket where the restore results will be placed.
-  String? bucketName;
+  late String bucketName;
+
+  /// The prefix that is prepended to the restore results for this request.
+  late String prefix;
+
+  /// A list of grants that control access to the staged results.
+  List<Grant>? accessControlList;
 
   /// The canned ACL to apply to the restore results.
   String? cannedACL;
 
   /// Contains the type of server-side encryption used.
   Encryption? encryption;
-
-  /// The prefix that is prepended to the restore results for this request.
-  String? prefix;
 
   /// The class of storage used to store the restore results.
   String? storageClass;
@@ -3422,7 +4146,7 @@ class S3Location {
   Tagging? tagging;
 
   /// A list of metadata to store with the restore results in S3.
-  MetadataEntry? userMetadata;
+  List<MetadataEntry>? userMetadata;
 }
 
 /// Specifies the byte range of the object to get the records from. A record is processed when its first byte is contained by the range. This parameter is optional, but when specified, it must not be empty. See RFC 2616, Section 14.35.1 about how to specify the start and end of the range.
@@ -3432,9 +4156,9 @@ class ScanRange {
     this.start,
   );
 
-  ScanRange.fromXml(XmlElement xml) {
-    end = int.tryParse(getProp(xml, 'End')!.text);
-    start = int.tryParse(getProp(xml, 'Start')!.text);
+  ScanRange.fromXml(XmlElement? xml) {
+    end = getPropValueOrNull<int>(xml, 'End');
+    start = getPropValueOrNull<int>(xml, 'Start');
   }
 
   XmlNode toXml() {
@@ -3449,7 +4173,7 @@ class ScanRange {
   /// Specifies the end of the byte range. This parameter is optional. Valid values: non-negative integers. The default value is one less than the size of the object being queried. If only the End parameter is supplied, it is interpreted to mean scan the last N bytes of the file. For example, <scanrange><end>50</end></scanrange> means scan the last 50 bytes.
   int? end;
 
-  /// Specifies the start of the byte range. This parameter is optional. Valid values: non-negative integers. The default value is 0. If only start is supplied, it means scan from that point to the end of the file.For example; <scanrange><start>50</start></scanrange> means scan from byte 50 until the end of the file.
+  /// Specifies the start of the byte range. This parameter is optional. Valid values: non-negative integers. The default value is 0. If only start is supplied, it means scan from that point to the end of the file. For example, <scanrange><start>50</start></scanrange> means scan from byte 50 until the end of the file.
   int? start;
 }
 
@@ -3463,7 +4187,7 @@ class SelectObjectContentEventStream {
     this.stats,
   );
 
-  SelectObjectContentEventStream.fromXml(XmlElement xml) {
+  SelectObjectContentEventStream.fromXml(XmlElement? xml) {
     cont = ContinuationEvent.fromXml(getProp(xml, 'Cont'));
     end = EndEvent.fromXml(getProp(xml, 'End'));
     progress = ProgressEvent.fromXml(getProp(xml, 'Progress'));
@@ -3474,11 +4198,11 @@ class SelectObjectContentEventStream {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('SelectObjectContentEventStream', nest: () {
-      builder.element('Cont', nest: cont!.toXml());
-      builder.element('End', nest: end!.toXml());
-      builder.element('Progress', nest: progress!.toXml());
-      builder.element('Records', nest: records!.toXml());
-      builder.element('Stats', nest: stats!.toXml());
+      builder.element('Cont', nest: cont?.toXml());
+      builder.element('End', nest: end?.toXml());
+      builder.element('Progress', nest: progress?.toXml());
+      builder.element('Records', nest: records?.toXml());
+      builder.element('Stats', nest: stats?.toXml());
     });
     return builder.buildDocument();
   }
@@ -3499,7 +4223,7 @@ class SelectObjectContentEventStream {
   StatsEvent? stats;
 }
 
-/// Describes the parameters for Select job types.
+/// Amazon S3 Select is no longer available to new customers. Existing customers of Amazon S3 Select can continue to use the feature as usual. Learn more
 class SelectParameters {
   SelectParameters(
     this.expression,
@@ -3509,8 +4233,8 @@ class SelectParameters {
   );
 
   SelectParameters.fromXml(XmlElement? xml) {
-    expression = getProp(xml, 'Expression')?.text;
-    expressionType = getProp(xml, 'ExpressionType')?.text;
+    expression = getPropValue<String>(xml, 'Expression');
+    expressionType = getPropValue<String>(xml, 'ExpressionType');
     inputSerialization =
         InputSerialization.fromXml(getProp(xml, 'InputSerialization'));
     outputSerialization =
@@ -3522,52 +4246,51 @@ class SelectParameters {
     builder.element('SelectParameters', nest: () {
       builder.element('Expression', nest: expression);
       builder.element('ExpressionType', nest: expressionType);
-      builder.element('InputSerialization', nest: inputSerialization!.toXml());
-      builder.element('OutputSerialization',
-          nest: outputSerialization!.toXml());
+      builder.element('InputSerialization', nest: inputSerialization.toXml());
+      builder.element('OutputSerialization', nest: outputSerialization.toXml());
     });
     return builder.buildDocument();
   }
 
-  /// The expression that is used to query the object.
-  String? expression;
+  /// Amazon S3 Select is no longer available to new customers. Existing customers of Amazon S3 Select can continue to use the feature as usual. Learn more
+  late String expression;
 
   /// The type of the provided expression (for example, SQL).
-  String? expressionType;
+  late String expressionType;
 
   /// Describes the serialization format of the object.
-  InputSerialization? inputSerialization;
+  late InputSerialization inputSerialization;
 
   /// Describes how the results of the Select job are serialized.
-  OutputSerialization? outputSerialization;
+  late OutputSerialization outputSerialization;
 }
 
-/// Describes the default server-side encryption to apply to new objects in the bucket. If a PUT Object request doesn't specify any server-side encryption, this default encryption will be applied. For more information, see PUT Bucket encryption in the Amazon Simple Storage Service API Reference.
+/// Describes the default server-side encryption to apply to new objects in the bucket. If a PUT Object request doesn't specify any server-side encryption, this default encryption will be applied. If you don't specify a customer managed key at configuration, Amazon S3 automatically creates an AWS KMS key in your AWS account the first time that you add an object encrypted with SSE-KMS to a bucket. By default, Amazon S3 uses this KMS key for SSE-KMS. For more information, see PUT Bucket encryption in the Amazon S3 API Reference.
 class ServerSideEncryptionByDefault {
   ServerSideEncryptionByDefault(
-    this.kMSMasterKeyID,
     this.sSEAlgorithm,
+    this.kMSMasterKeyID,
   );
 
   ServerSideEncryptionByDefault.fromXml(XmlElement? xml) {
-    kMSMasterKeyID = getProp(xml, 'KMSMasterKeyID')?.text;
-    sSEAlgorithm = getProp(xml, 'SSEAlgorithm')?.text;
+    sSEAlgorithm = getPropValue<String>(xml, 'SSEAlgorithm');
+    kMSMasterKeyID = getPropValueOrNull<String>(xml, 'KMSMasterKeyID');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ServerSideEncryptionByDefault', nest: () {
-      builder.element('KMSMasterKeyID', nest: kMSMasterKeyID);
       builder.element('SSEAlgorithm', nest: sSEAlgorithm);
+      builder.element('KMSMasterKeyID', nest: kMSMasterKeyID);
     });
     return builder.buildDocument();
   }
 
-  /// AWS Key Management Service (KMS) customer master key ID to use for the default encryption. This parameter is allowed if and only if SSEAlgorithm is set to aws:kms.
-  String? kMSMasterKeyID;
-
   /// Server-side encryption algorithm to use for the default encryption.
-  String? sSEAlgorithm;
+  late String sSEAlgorithm;
+
+  ///  AWS Key Management Service (KMS) customer AWS KMS key ID to use for the default encryption. This parameter is allowed if and only if SSEAlgorithm is set to aws:kms or aws:kms:dsse.
+  String? kMSMasterKeyID;
 }
 
 /// Specifies the default server-side-encryption configuration.
@@ -3576,53 +4299,119 @@ class ServerSideEncryptionConfiguration {
     this.rules,
   );
 
-  ServerSideEncryptionConfiguration.fromXml(XmlElement xml) {
-    rules = ServerSideEncryptionRule.fromXml(getProp(xml, 'Rules'));
+  ServerSideEncryptionConfiguration.fromXml(XmlElement? xml) {
+    rules = getProp(xml, 'Rules')!
+        .children
+        .map((c) => ServerSideEncryptionRule.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ServerSideEncryptionConfiguration', nest: () {
-      builder.element('Rules', nest: rules!.toXml());
+      builder.element('Rules', nest: rules.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
   /// Container for information about a particular server-side encryption configuration rule.
-  ServerSideEncryptionRule? rules;
+  late List<ServerSideEncryptionRule> rules;
 }
 
 /// Specifies the default server-side encryption configuration.
 class ServerSideEncryptionRule {
   ServerSideEncryptionRule(
     this.applyServerSideEncryptionByDefault,
+    this.bucketKeyEnabled,
   );
 
   ServerSideEncryptionRule.fromXml(XmlElement? xml) {
     applyServerSideEncryptionByDefault = ServerSideEncryptionByDefault.fromXml(
         getProp(xml, 'ApplyServerSideEncryptionByDefault'));
+    bucketKeyEnabled = getPropValueOrNull<bool>(xml, 'BucketKeyEnabled');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('ServerSideEncryptionRule', nest: () {
       builder.element('ApplyServerSideEncryptionByDefault',
-          nest: applyServerSideEncryptionByDefault!.toXml());
+          nest: applyServerSideEncryptionByDefault?.toXml());
+      builder.element('BucketKeyEnabled',
+          nest: bucketKeyEnabled == true ? 'TRUE' : 'FALSE');
     });
     return builder.buildDocument();
   }
 
   /// Specifies the default server-side encryption to apply to new objects in the bucket. If a PUT Object request doesn't specify any server-side encryption, this default encryption will be applied.
   ServerSideEncryptionByDefault? applyServerSideEncryptionByDefault;
+
+  /// Specifies whether Amazon S3 should use an S3 Bucket Key with server-side encryption using KMS (SSE-KMS) for new objects in the bucket. Existing objects are not affected. Setting the BucketKeyEnabled element to true causes Amazon S3 to use an S3 Bucket Key. By default, S3 Bucket Key is not enabled.
+  bool? bucketKeyEnabled;
 }
 
-/// A container that describes additional filters for identifying the source objects that you want to replicate. You can choose to enable or disable the replication of these objects. Currently, Amazon S3 supports only the filter that you can specify for objects created with server-side encryption using a customer master key (CMK) stored in AWS Key Management Service (SSE-KMS).
+/// The established temporary security credentials of the session.
+class SessionCredentials {
+  SessionCredentials(
+    this.accessKeyId,
+    this.expiration,
+    this.secretAccessKey,
+    this.sessionToken,
+  );
+
+  SessionCredentials.fromXml(XmlElement? xml) {
+    accessKeyId = getPropValue<String>(xml, 'AccessKeyId');
+    expiration = getPropValue<DateTime>(xml, 'Expiration');
+    secretAccessKey = getPropValue<String>(xml, 'SecretAccessKey');
+    sessionToken = getPropValue<String>(xml, 'SessionToken');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('SessionCredentials', nest: () {
+      builder.element('AccessKeyId', nest: accessKeyId);
+      builder.element('Expiration', nest: expiration.toIso8601String());
+      builder.element('SecretAccessKey', nest: secretAccessKey);
+      builder.element('SessionToken', nest: sessionToken);
+    });
+    return builder.buildDocument();
+  }
+
+  /// A unique identifier that's associated with a secret access key. The access key ID and the secret access key are used together to sign programmatic AWS requests cryptographically.
+  late String accessKeyId;
+
+  /// Temporary security credentials expire after a specified interval. After temporary credentials expire, any calls that you make with those credentials will fail. So you must generate a new set of temporary credentials. Temporary credentials cannot be extended or refreshed beyond the original specified interval.
+  late DateTime expiration;
+
+  /// A key that's used with the access key ID to cryptographically sign programmatic AWS requests. Signing a request identifies the sender and prevents the request from being altered.
+  late String secretAccessKey;
+
+  /// A part of the temporary security credentials. The session token is used to validate the temporary security credentials.
+  late String sessionToken;
+}
+
+/// To use simple format for S3 keys for log objects, set SimplePrefix to an empty object.
+class SimplePrefix {
+  SimplePrefix();
+
+  SimplePrefix.fromXml(XmlElement? xml) {}
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('SimplePrefix', nest: () {});
+    return builder.buildDocument();
+  }
+}
+
+/// A container that describes additional filters for identifying the source objects that you want to replicate. You can choose to enable or disable the replication of these objects. Currently, Amazon S3 supports only the filter that you can specify for objects created with server-side encryption using a customer managed key stored in AWS Key Management Service (SSE-KMS).
 class SourceSelectionCriteria {
   SourceSelectionCriteria(
+    this.replicaModifications,
     this.sseKmsEncryptedObjects,
   );
 
   SourceSelectionCriteria.fromXml(XmlElement? xml) {
+    replicaModifications =
+        ReplicaModifications.fromXml(getProp(xml, 'ReplicaModifications'));
     sseKmsEncryptedObjects =
         SseKmsEncryptedObjects.fromXml(getProp(xml, 'SseKmsEncryptedObjects'));
   }
@@ -3630,11 +4419,16 @@ class SourceSelectionCriteria {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('SourceSelectionCriteria', nest: () {
+      builder.element('ReplicaModifications',
+          nest: replicaModifications?.toXml());
       builder.element('SseKmsEncryptedObjects',
-          nest: sseKmsEncryptedObjects!.toXml());
+          nest: sseKmsEncryptedObjects?.toXml());
     });
     return builder.buildDocument();
   }
+
+  /// A filter that you can specify for selections for modifications on replicas. Amazon S3 doesn't replicate replica modifications by default. In the latest version of replication configuration (when Filter is specified), you can specify this element and set the status to Enabled to replicate modifications on replicas.
+  ReplicaModifications? replicaModifications;
 
   ///  A container for filter information for the selection of Amazon S3 objects encrypted with AWS KMS. If you include SourceSelectionCriteria in the replication configuration, this element is required.
   SseKmsEncryptedObjects? sseKmsEncryptedObjects;
@@ -3647,7 +4441,7 @@ class SSEKMS {
   );
 
   SSEKMS.fromXml(XmlElement? xml) {
-    keyId = getProp(xml, 'KeyId')?.text;
+    keyId = getPropValue<String>(xml, 'KeyId');
   }
 
   XmlNode toXml() {
@@ -3658,8 +4452,8 @@ class SSEKMS {
     return builder.buildDocument();
   }
 
-  /// Specifies the ID of the AWS Key Management Service (AWS KMS) symmetric customer managed customer master key (CMK) to use for encrypting inventory reports.
-  String? keyId;
+  /// Specifies the ID of the AWS Key Management Service (AWS KMS) symmetric encryption customer managed key to use for encrypting inventory reports.
+  late String keyId;
 }
 
 /// A container for filter information for the selection of S3 objects encrypted with AWS KMS.
@@ -3669,7 +4463,7 @@ class SseKmsEncryptedObjects {
   );
 
   SseKmsEncryptedObjects.fromXml(XmlElement? xml) {
-    status = getProp(xml, 'Status')?.text;
+    status = getPropValue<String>(xml, 'Status');
   }
 
   XmlNode toXml() {
@@ -3680,15 +4474,15 @@ class SseKmsEncryptedObjects {
     return builder.buildDocument();
   }
 
-  /// Specifies whether Amazon S3 replicates objects created with server-side encryption using a customer master key (CMK) stored in AWS Key Management Service.
-  String? status;
+  /// Specifies whether Amazon S3 replicates objects created with server-side encryption using an AWS KMS key stored in AWS Key Management Service.
+  late String status;
 }
 
 /// Specifies the use of SSE-S3 to encrypt delivered inventory reports.
 class SSES3 {
   SSES3();
 
-  SSES3.fromXml(XmlElement? xml);
+  SSES3.fromXml(XmlElement? xml) {}
 
   XmlNode toXml() {
     final builder = XmlBuilder();
@@ -3706,9 +4500,9 @@ class Stats {
   );
 
   Stats.fromXml(XmlElement? xml) {
-    bytesProcessed = int.tryParse(getProp(xml, 'BytesProcessed')!.text);
-    bytesReturned = int.tryParse(getProp(xml, 'BytesReturned')!.text);
-    bytesScanned = int.tryParse(getProp(xml, 'BytesScanned')!.text);
+    bytesProcessed = getPropValueOrNull<int>(xml, 'BytesProcessed');
+    bytesReturned = getPropValueOrNull<int>(xml, 'BytesReturned');
+    bytesScanned = getPropValueOrNull<int>(xml, 'BytesScanned');
   }
 
   XmlNode toXml() {
@@ -3744,7 +4538,7 @@ class StatsEvent {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('StatsEvent', nest: () {
-      builder.element('Details', nest: details!.toXml());
+      builder.element('Details', nest: details?.toXml());
     });
     return builder.buildDocument();
   }
@@ -3767,7 +4561,7 @@ class StorageClassAnalysis {
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('StorageClassAnalysis', nest: () {
-      builder.element('DataExport', nest: dataExport!.toXml());
+      builder.element('DataExport', nest: dataExport?.toXml());
     });
     return builder.buildDocument();
   }
@@ -3786,23 +4580,23 @@ class StorageClassAnalysisDataExport {
   StorageClassAnalysisDataExport.fromXml(XmlElement? xml) {
     destination =
         AnalyticsExportDestination.fromXml(getProp(xml, 'Destination'));
-    outputSchemaVersion = getProp(xml, 'OutputSchemaVersion')?.text;
+    outputSchemaVersion = getPropValue<String>(xml, 'OutputSchemaVersion');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('StorageClassAnalysisDataExport', nest: () {
-      builder.element('Destination', nest: destination!.toXml());
+      builder.element('Destination', nest: destination.toXml());
       builder.element('OutputSchemaVersion', nest: outputSchemaVersion);
     });
     return builder.buildDocument();
   }
 
   /// The place to store the data for an analysis.
-  AnalyticsExportDestination? destination;
+  late AnalyticsExportDestination destination;
 
   /// The version of the output schema to use when exporting data. Must be V_1.
-  String? outputSchemaVersion;
+  late String outputSchemaVersion;
 }
 
 /// A container of a key value name pair.
@@ -3813,8 +4607,8 @@ class Tag {
   );
 
   Tag.fromXml(XmlElement? xml) {
-    key = getProp(xml, 'Key')?.text;
-    value = getProp(xml, 'Value')?.text;
+    key = getPropValue<String>(xml, 'Key');
+    value = getPropValue<String>(xml, 'Value');
   }
 
   XmlNode toXml() {
@@ -3826,11 +4620,11 @@ class Tag {
     return builder.buildDocument();
   }
 
-  /// Name of the tag.
-  String? key;
+  /// Name of the object key.
+  late String key;
 
   /// Value of the tag.
-  String? value;
+  late String value;
 }
 
 /// Container for TagSet elements.
@@ -3840,19 +4634,22 @@ class Tagging {
   );
 
   Tagging.fromXml(XmlElement? xml) {
-    tagSet = Tag.fromXml(getProp(xml, 'TagSet'));
+    tagSet = getProp(xml, 'TagSet')!
+        .children
+        .map((c) => Tag.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Tagging', nest: () {
-      builder.element('TagSet', nest: tagSet!.toXml());
+      builder.element('TagSet', nest: tagSet.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
 
   /// A collection for a set of tags
-  Tag? tagSet;
+  late List<Tag> tagSet;
 }
 
 /// Container for granting information.
@@ -3864,13 +4661,13 @@ class TargetGrant {
 
   TargetGrant.fromXml(XmlElement? xml) {
     grantee = Grantee.fromXml(getProp(xml, 'Grantee'));
-    permission = getProp(xml, 'Permission')?.text;
+    permission = getPropValueOrNull<String>(xml, 'Permission');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('TargetGrant', nest: () {
-      builder.element('Grantee', nest: grantee!.toXml());
+      builder.element('Grantee', nest: grantee?.toXml());
       builder.element('Permission', nest: permission);
     });
     return builder.buildDocument();
@@ -3879,48 +4676,105 @@ class TargetGrant {
   /// Container for the person being granted permissions.
   Grantee? grantee;
 
-  /// Logging permissions assigned to the Grantee for the bucket.
+  /// Logging permissions assigned to the grantee for the bucket.
   String? permission;
+}
+
+/// Amazon S3 key format for log objects. Only one format, PartitionedPrefix or SimplePrefix, is allowed.
+class TargetObjectKeyFormat {
+  TargetObjectKeyFormat(
+    this.partitionedPrefix,
+    this.simplePrefix,
+  );
+
+  TargetObjectKeyFormat.fromXml(XmlElement? xml) {
+    partitionedPrefix =
+        PartitionedPrefix.fromXml(getProp(xml, 'PartitionedPrefix'));
+    simplePrefix = SimplePrefix.fromXml(getProp(xml, 'SimplePrefix'));
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('TargetObjectKeyFormat', nest: () {
+      builder.element('PartitionedPrefix', nest: partitionedPrefix?.toXml());
+      builder.element('SimplePrefix', nest: simplePrefix?.toXml());
+    });
+    return builder.buildDocument();
+  }
+
+  /// Partitioned S3 key for log objects.
+  PartitionedPrefix? partitionedPrefix;
+
+  /// To use the simple format for S3 keys for log objects. To specify SimplePrefix format, set SimplePrefix to {}.
+  SimplePrefix? simplePrefix;
+}
+
+/// The S3 Intelligent-Tiering storage class is designed to optimize storage costs by automatically moving data to the most cost-effective storage access tier, without additional operational overhead.
+class Tiering {
+  Tiering(
+    this.accessTier,
+    this.days,
+  );
+
+  Tiering.fromXml(XmlElement? xml) {
+    accessTier = getPropValue<String>(xml, 'AccessTier');
+    days = getPropValue<int>(xml, 'Days');
+  }
+
+  XmlNode toXml() {
+    final builder = XmlBuilder();
+    builder.element('Tiering', nest: () {
+      builder.element('AccessTier', nest: accessTier);
+      builder.element('Days', nest: days.toString());
+    });
+    return builder.buildDocument();
+  }
+
+  /// S3 Intelligent-Tiering access tier. See Storage class for automatically optimizing frequently and infrequently accessed objects for a list of access tiers in the S3 Intelligent-Tiering storage class.
+  late String accessTier;
+
+  /// The number of consecutive days of no access after which an object will be eligible to be transitioned to the corresponding tier. The minimum number of days specified for Archive Access tier must be at least 90 days and Deep Archive Access tier must be at least 180 days. The maximum can be up to 2 years (730 days).
+  late int days;
 }
 
 /// A container for specifying the configuration for publication of messages to an Amazon Simple Notification Service (Amazon SNS) topic when Amazon S3 detects specified events.
 class TopicConfiguration {
   TopicConfiguration(
     this.events,
+    this.topicArn,
     this.filter,
     this.id,
-    this.topicArn,
   );
 
   TopicConfiguration.fromXml(XmlElement? xml) {
-    events = getProp(xml, 'Events')?.text;
+    events = getPropValue<List<String>>(xml, 'Events');
+    topicArn = getPropValue<String>(xml, 'TopicArn');
     filter = NotificationConfigurationFilter.fromXml(getProp(xml, 'Filter'));
-    id = getProp(xml, 'Id')?.text;
-    topicArn = getProp(xml, 'TopicArn')?.text;
+    id = getPropValueOrNull<String>(xml, 'Id');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('TopicConfiguration', nest: () {
       builder.element('Events', nest: events);
-      builder.element('Filter', nest: filter!.toXml());
-      builder.element('Id', nest: id);
       builder.element('TopicArn', nest: topicArn);
+      builder.element('Filter', nest: filter?.toXml());
+      builder.element('Id', nest: id);
     });
     return builder.buildDocument();
   }
 
-  /// The Amazon S3 bucket event about which to send notifications. For more information, see Supported Event Types in the Amazon Simple Storage Service Developer Guide.
-  String? events;
+  /// The Amazon S3 bucket event about which to send notifications. For more information, see Supported Event Types in the Amazon S3 User Guide.
+  late List<String> events;
 
-  /// Specifies object key name filtering rules. For information about key name filtering, see Configuring Event Notifications in the Amazon Simple Storage Service Developer Guide.
+  /// The Amazon Resource Name (ARN) of the Amazon SNS topic to which Amazon S3 publishes a message when it detects events of the specified type.
+  late String topicArn;
+
+  /// Specifies object key name filtering rules. For information about key name filtering, see Configuring event notifications using object key name filtering in the Amazon S3 User Guide.
   NotificationConfigurationFilter? filter;
 
   /// An optional unique identifier for configurations in a notification configuration. If you don't provide one, Amazon S3 will assign an ID.
   String? id;
-
-  /// The Amazon Resource Name (ARN) of the Amazon SNS topic to which Amazon S3 publishes a message when it detects events of the specified type.
-  String? topicArn;
 }
 
 /// A container for specifying the configuration for publication of messages to an Amazon Simple Notification Service (Amazon SNS) topic when Amazon S3 detects specified events. This data type is deprecated. Use TopicConfiguration instead.
@@ -3933,10 +4787,10 @@ class TopicConfigurationDeprecated {
   );
 
   TopicConfigurationDeprecated.fromXml(XmlElement? xml) {
-    event = getProp(xml, 'Event')?.text;
-    events = getProp(xml, 'Events')?.text;
-    id = getProp(xml, 'Id')?.text;
-    topic = getProp(xml, 'Topic')?.text;
+    event = getPropValueOrNull<String>(xml, 'Event');
+    events = getPropValueOrNull<List<String>>(xml, 'Events');
+    id = getPropValueOrNull<String>(xml, 'Id');
+    topic = getPropValueOrNull<String>(xml, 'Topic');
   }
 
   XmlNode toXml() {
@@ -3954,7 +4808,7 @@ class TopicConfigurationDeprecated {
   String? event;
 
   /// A collection of events related to objects
-  String? events;
+  List<String>? events;
 
   /// An optional unique identifier for configurations in a notification configuration. If you don't provide one, Amazon S3 will assign an ID.
   String? id;
@@ -3963,7 +4817,7 @@ class TopicConfigurationDeprecated {
   String? topic;
 }
 
-/// Specifies when an object transitions to a specified storage class. For more information about Amazon S3 lifecycle configuration rules, see Transitioning Objects Using Amazon S3 Lifecycle in the Amazon Simple Storage Service Developer Guide.
+/// Specifies when an object transitions to a specified storage class. For more information about Amazon S3 lifecycle configuration rules, see Transitioning Objects Using Amazon S3 Lifecycle in the Amazon S3 User Guide.
 class Transition {
   Transition(
     this.date,
@@ -3972,15 +4826,15 @@ class Transition {
   );
 
   Transition.fromXml(XmlElement? xml) {
-    date = DateTime.parse(getProp(xml, 'Date')!.text);
-    days = int.tryParse(getProp(xml, 'Days')!.text);
-    storageClass = getProp(xml, 'StorageClass')?.text;
+    date = getPropValueOrNull<DateTime>(xml, 'Date');
+    days = getPropValueOrNull<int>(xml, 'Days');
+    storageClass = getPropValueOrNull<String>(xml, 'StorageClass');
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('Transition', nest: () {
-      builder.element('Date', nest: date!.toIso8601String());
+      builder.element('Date', nest: date?.toIso8601String());
       builder.element('Days', nest: days.toString());
       builder.element('StorageClass', nest: storageClass);
     });
@@ -3997,16 +4851,16 @@ class Transition {
   String? storageClass;
 }
 
-/// Describes the versioning state of an Amazon S3 bucket. For more information, see PUT Bucket versioning in the Amazon Simple Storage Service API Reference.
+/// Describes the versioning state of an Amazon S3 bucket. For more information, see PUT Bucket versioning in the Amazon S3 API Reference.
 class VersioningConfiguration {
   VersioningConfiguration(
     this.mFADelete,
     this.status,
   );
 
-  VersioningConfiguration.fromXml(XmlElement xml) {
-    mFADelete = getProp(xml, 'MFADelete')?.text;
-    status = getProp(xml, 'Status')?.text;
+  VersioningConfiguration.fromXml(XmlElement? xml) {
+    mFADelete = getPropValueOrNull<String>(xml, 'MFADelete');
+    status = getPropValueOrNull<String>(xml, 'Status');
   }
 
   XmlNode toXml() {
@@ -4034,22 +4888,26 @@ class WebsiteConfiguration {
     this.routingRules,
   );
 
-  WebsiteConfiguration.fromXml(XmlElement xml) {
+  WebsiteConfiguration.fromXml(XmlElement? xml) {
     errorDocument = ErrorDocument.fromXml(getProp(xml, 'ErrorDocument'));
     indexDocument = IndexDocument.fromXml(getProp(xml, 'IndexDocument'));
     redirectAllRequestsTo =
         RedirectAllRequestsTo.fromXml(getProp(xml, 'RedirectAllRequestsTo'));
-    routingRules = RoutingRule.fromXml(getProp(xml, 'RoutingRules'));
+    routingRules = getProp(xml, 'RoutingRules')
+        ?.children
+        .map((c) => RoutingRule.fromXml(c as XmlElement))
+        .toList();
   }
 
   XmlNode toXml() {
     final builder = XmlBuilder();
     builder.element('WebsiteConfiguration', nest: () {
-      builder.element('ErrorDocument', nest: errorDocument!.toXml());
-      builder.element('IndexDocument', nest: indexDocument!.toXml());
+      builder.element('ErrorDocument', nest: errorDocument?.toXml());
+      builder.element('IndexDocument', nest: indexDocument?.toXml());
       builder.element('RedirectAllRequestsTo',
-          nest: redirectAllRequestsTo!.toXml());
-      builder.element('RoutingRules', nest: routingRules!.toXml());
+          nest: redirectAllRequestsTo?.toXml());
+      builder.element('RoutingRules',
+          nest: routingRules?.map((e) => e.toXml()));
     });
     return builder.buildDocument();
   }
@@ -4064,5 +4922,5 @@ class WebsiteConfiguration {
   RedirectAllRequestsTo? redirectAllRequestsTo;
 
   /// Rules that define when a redirect is applied and the redirect behavior.
-  RoutingRule? routingRules;
+  List<RoutingRule>? routingRules;
 }

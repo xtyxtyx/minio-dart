@@ -73,7 +73,10 @@ class MinioUploader implements StreamConsumer<Uint8List> {
         if (oldPart != null) {
           md5digest ??= md5.convert(chunk).bytes;
           if (hex.encode(md5digest) == oldPart.eTag) {
-            final part = CompletedPart(oldPart.eTag, partNumber);
+            final part = CompletedPart(
+              eTag: oldPart.eTag,
+              partNumber: partNumber,
+            );
             _parts[part] = oldPart.size!;
             continue;
           }
@@ -86,7 +89,7 @@ class MinioUploader implements StreamConsumer<Uint8List> {
       };
 
       final etag = await _uploadChunk(chunk, headers, queries);
-      final part = CompletedPart(etag, partNumber);
+      final part = CompletedPart(eTag: etag, partNumber: partNumber);
       _parts[part] = chunk.length;
     }
   }

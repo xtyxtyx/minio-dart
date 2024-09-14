@@ -10,17 +10,47 @@ void main() async {
   final models = await Future.wait(urls.map(getModel));
 
   final result = '''
+// ignore_for_file: require_trailing_commas
+// ignore_for_file: deprecated_member_use
+// ignore_for_file: empty_constructor_bodies
+
 import 'package:xml/xml.dart';
 
-XmlElement getProp(XmlElement xml, String name) {
+XmlElement? getProp(XmlElement? xml, String name) {
+  if (xml == null) return null;
   final result = xml.findElements(name);
   return result.isNotEmpty ? result.first : null;
+}
+
+T? getPropValueOrNull<T>(XmlElement? xml, String name) {
+  final propValue = getProp(xml, name)?.value;
+  if (propValue == null) return null;
+
+  switch (T) {
+    case const (String):
+      return propValue as T?;
+    case const (int):
+      return int.tryParse(propValue) as T?;
+    case const (bool):
+      return (propValue.toUpperCase() == 'TRUE') as T?;
+    case const (DateTime):
+      return DateTime.parse(propValue) as T;
+    default:
+      return propValue as T;
+  }
+}
+
+T getPropValue<T>(XmlElement? xml, String name) {
+  final propValue = getPropValueOrNull<T>(xml, name);
+  return propValue as T;
 }
 
 ${models.join('\n')}
   ''';
 
-  await File('lib/src/minio_models_generated.dart').writeAsString(result);
+  final file = File('lib/src/minio_models_generated.dart');
+  await file.writeAsString(result);
+  Process.runSync('dart', ['format', file.path]);
 }
 
 const baseUrl = 'https://docs.aws.amazon.com/AmazonS3/latest/API';
@@ -61,38 +91,34 @@ Future<String> getModel(String url) async {
 
   buffer.writeln('  $name(');
   for (var field in fields) {
-    buffer.writeln('      this.${field.dartName},');
+    buffer.writeln('    this.${field.dartName},');
   }
   buffer.writeln('  );');
   buffer.writeln('');
 
-  buffer.writeln('  $name.fromXml(XmlElement xml) {');
+  buffer.writeln('  $name.fromXml(XmlElement? xml) {');
   for (var field in fields) {
     switch (field.type.name) {
       case 'String':
-        buffer.writeln(
-          "      ${field.dartName} = getProp(xml, '${field.name}')?.text;",
-        );
-        break;
       case 'int':
-        buffer.writeln(
-          "      ${field.dartName} = int.tryParse(getProp(xml, '${field.name}')?.text);",
-        );
-        break;
       case 'bool':
-        buffer.writeln(
-          "      ${field.dartName} = getProp(xml, '${field.name}')?.text?.toUpperCase() == 'TRUE';",
-        );
-        break;
       case 'DateTime':
+        String methodName =
+            field.isRequired ? 'getPropValue' : 'getPropValueOrNull';
         buffer.writeln(
-          "      ${field.dartName} = DateTime.parse(getProp(xml, '${field.name}')?.text);",
+          "    ${field.dartName} = $methodName<${field.type.dartName ?? field.type.name}>(xml, '${field.name}');",
         );
         break;
       default:
-        buffer.writeln(
-          "      ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));",
-        );
+        if (field.type.isArray) {
+          buffer.writeln(
+            "    ${field.dartName} = getProp(xml, '${field.name}')${field.isRequired ? '!' : '?'}.children.map((c) => ${field.type.name}.fromXml(c as XmlElement)).toList();",
+          );
+        } else {
+          buffer.writeln(
+            "    ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));",
+          );
+        }
     }
   }
   buffer.writeln('  }');
@@ -115,19 +141,25 @@ Future<String> getModel(String url) async {
         break;
       case 'bool':
         buffer.writeln(
-          "      builder.element('${field.name}', nest: ${field.dartName} ? 'TRUE' : 'FALSE');",
+          "      builder.element('${field.name}', nest: ${field.dartName} == true ? 'TRUE' : 'FALSE');",
         );
 
         break;
       case 'DateTime':
         buffer.writeln(
-          "      builder.element('${field.name}', nest: ${field.dartName}.toIso8601String());",
+          "      builder.element('${field.name}', nest: ${field.dartName}${field.nullable}.toIso8601String());",
         );
         break;
       default:
-        buffer.writeln(
-          "      builder.element('${field.name}', nest: ${field.dartName}.toXml());",
-        );
+        if (field.type.isArray) {
+          buffer.writeln(
+            "      builder.element('${field.name}', nest: ${field.dartName}${field.nullable}.map((e) => e.toXml()));",
+          );
+        } else {
+          buffer.writeln(
+            "      builder.element('${field.name}', nest: ${field.dartName}${field.nullable}.toXml());",
+          );
+        }
     }
   }
   buffer.writeln('    });');
@@ -137,7 +169,18 @@ Future<String> getModel(String url) async {
 
   for (var field in fields) {
     buffer.writeln('  /// ${field.description}');
-    buffer.writeln('  ${field.type.name} ${field.dartName};');
+    buffer.writeln(
+      '  ${field.isRequired ? 'late ' : ''}${field.type.dartName ?? field.type.name}${field.nullable} ${field.dartName};',
+    );
+    // buffer.writeln(
+    //   [
+    //     '  ',
+    //     if (field.isRequired) 'late ',
+    //     (field.type.name),
+    //     if (!field.isRequired) '?',
+    //     ' ${field.dartName};',
+    //   ].join(''),
+    // );
     buffer.writeln('');
   }
   buffer.writeln('}');
@@ -146,12 +189,23 @@ Future<String> getModel(String url) async {
 }
 
 class FieldSpec {
-  String? name;
-  String? dartName;
-  String? source;
-  String? description;
-  bool? isRequired;
-  late TypeSpec type;
+  FieldSpec({
+    required this.name,
+    required this.dartName,
+    this.source,
+    this.description,
+    this.isRequired = false,
+    required this.type,
+  });
+
+  final String name;
+  final String dartName;
+  final String? source;
+  final String? description;
+  final bool isRequired;
+  final TypeSpec type;
+
+  String get nullable => isRequired ? '' : '?';
 
   @override
   String toString() {
@@ -160,10 +214,17 @@ class FieldSpec {
 }
 
 class TypeSpec {
-  String? name;
-  String? dartName;
-  bool isObject = false;
-  bool isArray = false;
+  TypeSpec({
+    required this.name,
+    this.dartName,
+    this.isObject = false,
+    this.isArray = false,
+  });
+
+  final String name;
+  final String? dartName;
+  final bool isObject;
+  final bool isArray;
 
   @override
   String toString() {
@@ -182,18 +243,19 @@ FieldSpec parseField(String name, Element dd) {
   final isRequired = dd.text.contains('Required: Yes');
   final type = parseType(source);
 
-  return FieldSpec()
-    ..name = name
-    ..dartName = toCamelCase(name)
-    ..source = source
-    ..description = description
-    ..isRequired = isRequired
-    ..type = type;
+  return FieldSpec(
+    name: name,
+    dartName: toCamelCase(name),
+    source: source,
+    description: description,
+    isRequired: isRequired,
+    type: type,
+  );
 }
 
 TypeSpec parseType(String source) {
   if (source.contains('Type: Base64-encoded binary data object')) {
-    return TypeSpec()..name = 'String';
+    return TypeSpec(name: 'String');
   }
 
   const typeMap = {
@@ -214,9 +276,10 @@ TypeSpec parseType(String source) {
   final dartType = isObject ? type : typeMap[type!];
   final dartName = isArray ? 'List<$dartType>' : dartType;
 
-  return TypeSpec()
-    ..name = dartType
-    ..dartName = dartName
-    ..isObject = isObject
-    ..isArray = isArray;
+  return TypeSpec(
+    name: dartType!,
+    dartName: dartName,
+    isObject: isObject,
+    isArray: isArray,
+  );
 }

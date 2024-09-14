@@ -318,7 +318,7 @@ void testGetObjectACL() {
     test('getObjectACL() fetch objects acl', () async {
       final minio = getMinioClient();
       var acl = await minio.getObjectACL(bucketName, objectName);
-      expect(acl.grants!.permission, equals(null));
+      expect(acl.grants!.first.permission, equals(null));
     });
   });
 }
@@ -510,7 +510,7 @@ void testSetBucketNotification() {
     test('succeeds', () async {
       await minio.setBucketNotification(
         bucketName,
-        NotificationConfiguration(null, null, null),
+        NotificationConfiguration(null, null, null, null),
       );
     });
   });
