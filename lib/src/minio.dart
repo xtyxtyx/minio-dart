@@ -1096,6 +1096,8 @@ class Minio {
       queries: {'acl': ''},
     );
 
+    validate(resp, expect: 200);
+
     return AccessControlPolicy.fromXml(
       xml.XmlDocument.parse(resp.body)
           .findElements('AccessControlPolicy')
@@ -1104,7 +1106,8 @@ class Minio {
   }
 
   /// Stat information of the object.
-  Future<StatObjectResult> statObject(String bucket, String object) async {
+  Future<StatObjectResult> statObject(String bucket, String object,
+      {bool retrieveACLs = true}) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
@@ -1126,7 +1129,7 @@ class Minio {
       size: int.parse(resp.headers['content-length']!),
       metaData: extractMetadata(resp.headers),
       lastModified: parseRfc7231Time(resp.headers['last-modified']!),
-      acl: await getObjectACL(bucket, object),
+      acl: retrieveACLs ? await getObjectACL(bucket, object) : null,
     );
   }
 }
