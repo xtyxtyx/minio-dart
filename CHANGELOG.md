@@ -1,3 +1,7 @@
+# 3.5.4
+
+- Add validation for HTTP response for `getObjectACL` / Make retrieval of ACLs optional for `statObject` #48
+
 # 3.5.3
 
 - Add `pathStyle` parameter to `Minio` constructor to support custom endpoints.
