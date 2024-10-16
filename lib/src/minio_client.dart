@@ -259,11 +259,13 @@ class MinioClient {
     var host = minio.endPoint.toLowerCase();
     var path = '/';
 
+    bool pathStyle = minio.pathStyle ?? true;
     if (isAmazonEndpoint(host)) {
       host = getS3Endpoint(minio.region!);
+      pathStyle = !isVirtualHostStyle(host, minio.useSSL, bucket);
     }
 
-    if (isVirtualHostStyle(host, minio.useSSL, bucket)) {
+    if (!pathStyle) {
       if (bucket != null) host = '$bucket.$host';
       if (object != null) path = '/$object';
     } else {

@@ -1,3 +1,7 @@
+# 3.5.3
+
+- Add `pathStyle` parameter to `Minio` constructor to support custom endpoints.
+
 # 3.5.2
 
 - Downgrade `meta` package to `1.12.0` to fix compatibility issues with Flutter.

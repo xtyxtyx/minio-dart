@@ -27,6 +27,7 @@ class Minio {
     this.useSSL = true,
     this.sessionToken,
     this.region,
+    this.pathStyle,
     this.enableTrace = false,
   }) : port = port ?? implyPort(useSSL) {
     if (!isValidEndpoint(endPoint)) {
@@ -77,6 +78,9 @@ class Minio {
 
   /// Set this value to override region cache. (Optional)
   final String? region;
+
+  /// Set this value to override default access behavior (path) for non AWS endpoints. Default is true. (Optional)
+  final bool? pathStyle;
 
   /// Set this value to enable tracing. (Optional)
   final bool enableTrace;
