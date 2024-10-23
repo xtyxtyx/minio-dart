@@ -9,7 +9,7 @@ import 'package:minio/src/minio_s3.dart';
 import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/utils.dart';
 
-class MinioRequest extends BaseRequest {
+class MinioRequest extends StreamedRequest {
   MinioRequest(super.method, super.url, {this.onProgress});
 
   dynamic body;
@@ -165,11 +165,12 @@ class MinioClient {
       'x-amz-content-sha256': sha256sum,
     });
 
-    final authorization = signV4(minio, request, date, region);
-    request.headers['authorization'] = authorization;
     if (minio.sessionToken != null) {
       request.headers['x-amz-security-token'] = minio.sessionToken!;
     }
+
+    final authorization = signV4(minio, request, date, region);
+    request.headers['authorization'] = authorization;
     logRequest(request);
     final response = await request.send();
     return response;
