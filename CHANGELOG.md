@@ -1,3 +1,8 @@
+# 3.5.5
+
+- Move x-amz-security-token allocation before signV4 to correctly sign the request #92
+- Bump mime from 1.0.6 to 2.0.0 in the root-pub group #91
+
 # 3.5.4
 
 - Add validation for HTTP response for `getObjectACL` / Make retrieval of ACLs optional for `statObject` #48
