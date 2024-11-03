@@ -122,13 +122,13 @@ String trimDoubleQuote(String str) {
 }
 
 DateTime parseRfc7231Time(String time) {
-  final format = DateFormat('EEE, dd MMM yyyy HH:mm:ss');
+  final format = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en-US');
   final isUtc = time.endsWith('GMT');
   return format.parse(time, isUtc);
 }
 
 String toRfc7231Time(DateTime time) {
-  final format = DateFormat('EEE, dd MMM yyyy HH:mm:ss');
+  final format = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en-US');
   final result = format.format(time);
   return time.isUtc ? '$result GMT' : result;
 }
