@@ -28,19 +28,13 @@ void testRfc7231Time() {
       expect(parseRfc7231Time(timeStringUtc).isUtc, isTrue);
     });
 
-    test(
-      'works for non en-US locale', () async {
-        initializeDateFormatting('pt_BR');
-        Intl.withLocale(
-          'pt_BR',
-          ()
-          {
-            expect(parseRfc7231Time(timeStringUtc), equals(timeUtc));
-            expect(parseRfc7231Time(timeStringUtc).isUtc, isTrue);
-          }
-        );
-      }
-    );
+    test('works for non en-US locale', () async {
+      initializeDateFormatting('pt_BR');
+      Intl.withLocale('pt_BR', () {
+        expect(parseRfc7231Time(timeStringUtc), equals(timeUtc));
+        expect(parseRfc7231Time(timeStringUtc).isUtc, isTrue);
+      });
+    });
   });
 
   group('toRfc7231Time', () {
@@ -52,18 +46,12 @@ void testRfc7231Time() {
       expect(toRfc7231Time(timeUtc), equals(timeStringUtc));
     });
 
-    test(
-      'works for non en-US locale', () async {
-        initializeDateFormatting('pt_BR');
-        Intl.withLocale(
-          'pt_BR',
-          ()
-          {
-            expect(toRfc7231Time(timeUtc), equals(timeStringUtc));
-          }
-        );
-      }
-    );
+    test('works for non en-US locale', () async {
+      initializeDateFormatting('pt_BR');
+      Intl.withLocale('pt_BR', () {
+        expect(toRfc7231Time(timeUtc), equals(timeStringUtc));
+      });
+    });
   });
 }
 

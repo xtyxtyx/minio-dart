@@ -1,3 +1,7 @@
+# 3.5.6
+
+- Fix non en-US date time parse #95
+
 # 3.5.5
 
 - Move x-amz-security-token allocation before signV4 to correctly sign the request #92
