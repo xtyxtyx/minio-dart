@@ -1,3 +1,8 @@
+# 3.5.7
+
+- fix maxKeys error while using listObject query #97
+- Bump intl from 0.19.0 to 0.20.0 in the root-pub group #96
+
 # 3.5.6
 
 - Fix non en-US date time parse #95
