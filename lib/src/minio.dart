@@ -23,6 +23,7 @@ class Minio {
     required this.endPoint,
     required this.accessKey,
     required this.secretKey,
+    this.isAnonymous = false,
     int? port,
     this.useSSL = true,
     this.sessionToken,
@@ -75,6 +76,9 @@ class Minio {
 
   /// Set this value to provide x-amz-security-token (AWS S3 specific). (Optional)
   final String? sessionToken;
+
+  /// Connect without authentication
+  final bool isAnonymous;
 
   /// Set this value to override region cache. (Optional)
   final String? region;
