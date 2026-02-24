@@ -778,12 +778,18 @@ class Minio {
   /// - [expires]: expiry in seconds (optional, default 7 days)
   /// - [respHeaders]: response headers to override (optional)
   /// - [requestDate]: A date object, the url will be issued at (optional)
+  /// - [overrideHost]: override the host in the presigned URL (optional)
+  /// - [overridePort]: override the port in the presigned URL (optional)
+  /// - [overrideScheme]: override the scheme (http/https) in the presigned URL (optional)
   Future<String> presignedGetObject(
     String bucket,
     String object, {
     int? expires,
     Map<String, String>? respHeaders,
     DateTime? requestDate,
+    String? overrideHost,
+    int? overridePort,
+    String? overrideScheme,
   }) {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -795,6 +801,9 @@ class Minio {
       expires: expires,
       reqParams: respHeaders,
       requestDate: requestDate,
+      overrideHost: overrideHost,
+      overridePort: overridePort,
+      overrideScheme: overrideScheme,
     );
   }
 
@@ -869,14 +878,28 @@ class Minio {
   /// - [bucketName]: name of the bucket
   /// - [objectName]: name of the object
   /// - [expires]: expiry in seconds (optional, default 7 days)
+  /// - [overrideHost]: override the host in the presigned URL (optional)
+  /// - [overridePort]: override the port in the presigned URL (optional)
+  /// - [overrideScheme]: override the scheme (http/https) in the presigned URL (optional)
   Future<String> presignedPutObject(
     String bucket,
     String object, {
     int? expires,
+    String? overrideHost,
+    int? overridePort,
+    String? overrideScheme,
   }) {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
-    return presignedUrl('PUT', bucket, object, expires: expires);
+    return presignedUrl(
+      'PUT',
+      bucket,
+      object,
+      expires: expires,
+      overrideHost: overrideHost,
+      overridePort: overridePort,
+      overrideScheme: overrideScheme,
+    );
   }
 
   /// Generate a generic presigned URL which can be
@@ -888,6 +911,9 @@ class Minio {
   /// - [expires]: expiry in seconds (optional, default 7 days)
   /// - [reqParams]: request parameters (optional)
   /// - [requestDate]: A date object, the url will be issued at (optional)
+  /// - [overrideHost]: override the host in the presigned URL (optional)
+  /// - [overridePort]: override the port in the presigned URL (optional)
+  /// - [overrideScheme]: override the scheme (http/https) in the presigned URL (optional)
   Future<String> presignedUrl(
     String method,
     String bucket,
@@ -896,6 +922,9 @@ class Minio {
     String? resource,
     Map<String, String>? reqParams,
     DateTime? requestDate,
+    String? overrideHost,
+    int? overridePort,
+    String? overrideScheme,
   }) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -909,7 +938,7 @@ class Minio {
     requestDate ??= DateTime.now().toUtc();
 
     final region = await getBucketRegion(bucket);
-    final request = _client.getBaseRequest(
+    var request = _client.getBaseRequest(
       method,
       bucket,
       object,
@@ -919,6 +948,17 @@ class Minio {
       {},
       null,
     );
+
+    if (overrideHost != null || overridePort != null || overrideScheme != null) {
+      final newUrl = request.url.replace(
+        scheme: overrideScheme ?? request.url.scheme,
+        host: overrideHost ?? request.url.host,
+        port: overridePort ?? request.url.port,
+      );
+      request = request.replace(url: newUrl);
+      request.headers['host'] = newUrl.authority;
+    }
+
     return presignSignatureV4(this, request, region, requestDate, expires);
   }
 
@@ -1133,7 +1173,7 @@ class Minio {
 
     return StatObjectResult(
       etag: etag,
-      size: int.parse(resp.headers['content-length']!),
+      size: int.tryParse(resp.headers['content-length'] ?? ''),
       metaData: extractMetadata(resp.headers),
       lastModified: parseRfc7231Time(resp.headers['last-modified']!),
       acl: retrieveAcls ? await getObjectACL(bucket, object) : null,
