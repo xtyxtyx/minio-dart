@@ -30,4 +30,39 @@ void main() {
       expect(makeDateLong(date), '20170811T172634Z');
     });
   });
+
+  group('encodePath', () {
+    // The signed canonical URI must match what S3/MinIO compute from the wire
+    // URL: a space is %20, a literal '+' is %2B (not %20). The leading empty
+    // segment mirrors how MinioClient builds the path ("/bucket/obj".split('/')).
+    test('encodes a space as %20', () {
+      expect(encodePath(Uri(pathSegments: ['', 'b', 'a b.txt'])), '/b/a%20b.txt');
+    });
+    test('encodes a literal plus as %2B', () {
+      expect(encodePath(Uri(pathSegments: ['', 'b', 'a+b.txt'])), '/b/a%2Bb.txt');
+      expect(
+        encodePath(Uri(pathSegments: ['', 'b', 'C++ notes.txt'])),
+        '/b/C%2B%2B%20notes.txt',
+      );
+    });
+    test('keeps the slash separator between segments', () {
+      expect(
+        encodePath(Uri(pathSegments: ['', 'b', 'dir', 'sub', 'x.txt'])),
+        '/b/dir/sub/x.txt',
+      );
+    });
+  });
+
+  group('encodeCopySource', () {
+    test('keeps unreserved chars and the slash', () {
+      expect(encodeCopySource('bucket/a-_.~b.txt'), 'bucket/a-_.~b.txt');
+    });
+    test('percent-encodes space and plus', () {
+      expect(encodeCopySource('bucket/a b+c.txt'), 'bucket/a%20b%2Bc.txt');
+    });
+    test('double-encodes a literal percent so it survives the round trip', () {
+      // A key literally named "a%2Bb" must not be decoded back to "a+b".
+      expect(encodeCopySource('bucket/a%2Bb.txt'), 'bucket/a%252Bb.txt');
+    });
+  });
 }

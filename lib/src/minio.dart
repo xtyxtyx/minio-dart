@@ -181,7 +181,7 @@ class Minio {
     MinioInvalidObjectNameError.check(srcObject);
 
     final headers = <String, String>{};
-    headers['x-amz-copy-source'] = srcObject;
+    headers['x-amz-copy-source'] = encodeCopySource(srcObject);
 
     if (conditions != null) {
       if (conditions.modified != null) {

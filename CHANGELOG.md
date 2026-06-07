@@ -1,3 +1,8 @@
+# 3.5.9
+
+- Fix SigV4 signing for object keys containing a literal `+`: `encodePath` now encodes `+` as `%2B` (not `%20`), matching the wire URL and S3/MinIO server canonicalization. Previously every key with a `+` (e.g. `C++ notes.txt`) failed with `SignatureDoesNotMatch`.
+- URL-encode the `x-amz-copy-source` header in `copyObject`, so copying a key whose name contains a percent sequence (e.g. a literal `%2B`) resolves to the correct source instead of `The specified key does not exist.`
+
 # 3.5.8
 
 - Fix path encoding for space and plus characters in object names to prevent signature mismatch errors #7
