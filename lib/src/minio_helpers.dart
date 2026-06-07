@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:convert' show utf8;
+
 import 'package:convert/convert.dart';
 import 'package:http/http.dart';
 import 'package:mime/mime.dart' show lookupMimeType;
@@ -279,8 +281,12 @@ String encodePath(Uri uri) {
       continue;
     }
 
-    // Special handling for space and plus sign
-    if (char == ' '.codeUnitAt(0) || char == '+'.codeUnitAt(0)) {
+    // A space is percent-encoded as %20 (never +). A literal '+' must become
+    // %2B, NOT %20: the request URL sends '+' verbatim and S3/MinIO canonicalise
+    // it to %2B, so signing it as %20 produces SignatureDoesNotMatch for any key
+    // containing '+' (e.g. "C++ notes.txt"). Let '+' fall through to the generic
+    // byte encoder below, which yields %2B.
+    if (char == ' '.codeUnitAt(0)) {
       result.write('%20');
       continue;
     }
@@ -294,4 +300,32 @@ String encodePath(Uri uri) {
 /// encode [uri].path to HTML hex escape sequence
 String encodeCanonicalQuery(String query) {
   return Uri.encodeQueryComponent(query).replaceAll('+', '%20');
+}
+
+/// Percent-encodes an object key for the `x-amz-copy-source` header per
+/// RFC 3986: unreserved (A-Za-z0-9-_.~) and the '/' separator are kept, every
+/// other byte becomes %XX (UTF-8). S3/MinIO URL-decode this header to resolve
+/// the source key, so a raw value mis-resolves any key containing a percent
+/// sequence — e.g. a literal "%2B" is decoded back to "+", yielding
+/// "The specified key does not exist." on [Minio.copyObject].
+String encodeCopySource(String source) {
+  const upperhex = '0123456789ABCDEF';
+  final out = StringBuffer();
+  for (final c in utf8.encode(source)) {
+    if ((c >= 0x41 && c <= 0x5A) ||
+        (c >= 0x61 && c <= 0x7A) ||
+        (c >= 0x30 && c <= 0x39) ||
+        c == 0x2D ||
+        c == 0x5F ||
+        c == 0x2E ||
+        c == 0x7E ||
+        c == 0x2F) {
+      out.writeCharCode(c);
+    } else {
+      out.write('%');
+      out.write(upperhex[(c >> 4) & 0xF]);
+      out.write(upperhex[c & 0xF]);
+    }
+  }
+  return out.toString();
 }
