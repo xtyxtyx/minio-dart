@@ -120,9 +120,16 @@ class MinioClient {
     enableSHA256 = !anonymous && !minio.useSSL;
     port = minio.port;
   }
+  static const _defaultUserAgent = 'MinIO (Unknown; Unknown) minio-dart/2.0.0';
 
   final Minio minio;
-  final String userAgent = 'MinIO (Unknown; Unknown) minio-dart/2.0.0';
+  String get userAgent {
+    final value = minio.userAgent;
+    if (value == null || value.isEmpty) {
+      return _defaultUserAgent;
+    }
+    return value;
+  }
 
   late bool enableSHA256;
   late bool anonymous;

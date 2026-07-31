@@ -29,6 +29,7 @@ class Minio {
     this.region,
     this.pathStyle,
     this.enableTrace = false,
+    this.userAgent,
   }) : port = port ?? implyPort(useSSL) {
     if (!isValidEndpoint(endPoint)) {
       throw MinioInvalidEndpointError(
@@ -84,6 +85,9 @@ class Minio {
 
   /// Set this value to enable tracing. (Optional)
   final bool enableTrace;
+
+  /// Set this value to specify the User-Agent. (Optional)
+  final String? userAgent;
 
   late MinioClient _client;
   final _regionMap = <String?, String>{};
