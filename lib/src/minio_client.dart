@@ -9,12 +9,24 @@ import 'package:minio/src/minio_s3.dart';
 import 'package:minio/src/minio_sign.dart';
 import 'package:minio/src/utils.dart';
 
-class MinioRequest extends StreamedRequest {
-  MinioRequest(super.method, super.url, {this.onProgress});
+/// An HTTP request that can be aborted once [abortTrigger] completes.
+///
+/// Aborting fails the request, and for a response that is already streaming it
+/// injects a `RequestAbortedException` into the body stream.
+class MinioRequest extends StreamedRequest with Abortable {
+  MinioRequest(
+    super.method,
+    super.url, {
+    this.onProgress,
+    this.abortTrigger,
+  });
 
   dynamic body;
 
   final void Function(int)? onProgress;
+
+  @override
+  final Future<void>? abortTrigger;
 
   @override
   ByteStream finalize() {
@@ -66,7 +78,11 @@ class MinioRequest extends StreamedRequest {
     Map<String, String>? headers,
     body,
   }) {
-    final result = MinioRequest(method ?? this.method, url ?? this.url);
+    final result = MinioRequest(
+      method ?? this.method,
+      url ?? this.url,
+      abortTrigger: abortTrigger,
+    );
     result.body = body ?? this.body;
     result.headers.addAll(headers ?? this.headers);
     return result;
@@ -145,6 +161,7 @@ class MinioClient {
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
     void Function(int)? onProgress,
+    Future<void>? abortTrigger,
   }) async {
     if (bucket != null) {
       region ??= await minio.getBucketRegion(bucket);
@@ -161,6 +178,7 @@ class MinioClient {
       queries,
       headers,
       onProgress,
+      abortTrigger,
     );
     request.body = payload;
 
@@ -193,6 +211,7 @@ class MinioClient {
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
     void Function(int)? onProgress,
+    Future<void>? abortTrigger,
   }) async {
     final stream = await _request(
       method: method,
@@ -204,6 +223,7 @@ class MinioClient {
       queries: queries,
       headers: headers,
       onProgress: onProgress,
+      abortTrigger: abortTrigger,
     );
 
     final response = await MinioResponse.fromStream(stream);
@@ -221,6 +241,7 @@ class MinioClient {
     dynamic payload = '',
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
+    Future<void>? abortTrigger,
   }) async {
     final response = await _request(
       method: method,
@@ -231,6 +252,7 @@ class MinioClient {
       resource: resource,
       queries: queries,
       headers: headers,
+      abortTrigger: abortTrigger,
     );
 
     logResponse(response);
@@ -244,11 +266,17 @@ class MinioClient {
     String region,
     String? resource,
     Map<String, dynamic>? queries,
-    Map<String, String>? headers,
+    Map<String, String>? headers, [
     void Function(int)? onProgress,
-  ) {
+    Future<void>? abortTrigger,
+  ]) {
     final url = getRequestUrl(bucket, object, resource, queries);
-    final request = MinioRequest(method, url, onProgress: onProgress);
+    final request = MinioRequest(
+      method,
+      url,
+      onProgress: onProgress,
+      abortTrigger: abortTrigger,
+    );
     request.headers['host'] = url.authority;
 
     if (headers != null) {

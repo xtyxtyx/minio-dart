@@ -20,8 +20,9 @@ class MinioUploader implements StreamConsumer<Uint8List> {
     this.object,
     this.partSize,
     this.metadata,
-    this.onProgress,
-  );
+    this.onProgress, {
+    this.abortTrigger,
+  });
 
   final Minio minio;
   final MinioClient client;
@@ -30,6 +31,9 @@ class MinioUploader implements StreamConsumer<Uint8List> {
   final int partSize;
   final Map<String, String> metadata;
   final void Function(int)? onProgress;
+
+  /// Completing this future aborts the part upload in flight.
+  final Future<void>? abortTrigger;
 
   var _partNumber = 1;
 
@@ -126,6 +130,7 @@ class MinioUploader implements StreamConsumer<Uint8List> {
       object: object,
       payload: chunk,
       onProgress: _updateProgress,
+      abortTrigger: abortTrigger,
     );
 
     validate(resp);

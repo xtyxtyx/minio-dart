@@ -320,8 +320,15 @@ class Minio {
   }
 
   /// get a readable stream of the object content.
-  Future<MinioByteStream> getObject(String bucket, String object) {
-    return getPartialObject(bucket, object, null, null);
+  ///
+  /// Completing [abortTrigger] aborts the request. When the response is already
+  /// streaming, a `RequestAbortedException` is emitted on the returned stream.
+  Future<MinioByteStream> getObject(
+    String bucket,
+    String object, {
+    Future<void>? abortTrigger,
+  }) {
+    return _getPartialObject(bucket, object, null, null, abortTrigger);
   }
 
   /// get a readable stream of the partial object content.
@@ -330,7 +337,18 @@ class Minio {
     String object, [
     int? offset,
     int? length,
-  ]) async {
+  ]) {
+    return _getPartialObject(bucket, object, offset, length, null);
+  }
+
+  /// Fetches the object content, optionally abortable through [abortTrigger].
+  Future<MinioByteStream> _getPartialObject(
+    String bucket,
+    String object,
+    int? offset,
+    int? length,
+    Future<void>? abortTrigger,
+  ) async {
     assert(offset == null || offset >= 0);
     assert(length == null || length > 0);
 
@@ -358,6 +376,7 @@ class Minio {
       bucket: bucket,
       object: object,
       headers: headers,
+      abortTrigger: abortTrigger,
     );
 
     await validateStreamed(resp, expect: expectedStatus);
@@ -927,6 +946,9 @@ class Minio {
   }
 
   /// Uploads the object. Returns the ETag of the uploaded object.
+  ///
+  /// Completing [abortTrigger] aborts the part upload in flight, so a multipart
+  /// upload leaves uncommitted parts on the server.
   Future<String> putObject(
     String bucket,
     String object,
@@ -935,6 +957,7 @@ class Minio {
     int? chunkSize,
     Map<String, String>? metadata,
     void Function(int)? onProgress,
+    Future<void>? abortTrigger,
   }) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -959,6 +982,7 @@ class Minio {
       partSize,
       metadata,
       onProgress,
+      abortTrigger: abortTrigger,
     );
     final chunker = MinChunkSize(partSize);
     final etag = await data.transform(chunker).pipe(uploader);
